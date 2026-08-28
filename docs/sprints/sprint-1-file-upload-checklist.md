@@ -1,10 +1,10 @@
 # 스프린트 1 API별 FE/BE 구현 완료 체크리스트
 
-> 상태: 정책 REST API와 Axios GET 조회 화면 구현 완료, 정책 변경 화면·파일 저장 미완료
+> 상태: 정책 REST API와 Axios GET·고정 PATCH 화면 구현 완료, 커스텀 변경 화면·파일 저장 미완료
 >
 > 기준 문서: [스프린트 1 확장자 차단 정책](sprint-1-file-upload-extension-policy.md), [스프린트 1 API 계약](sprint-1-file-upload-api.md)
 
-현재 완료 범위는 `ExtensionPolicy` 단일 엔티티, fixed/custom 카탈로그 불변식, DB 제약, quota 기반 커스텀 최대 200개 등록, 고정 정책 초기화, 예제 기능 제거, 정책 REST API와 공통 오류 응답, Axios GET 기반 정책 조회 화면이다. PATCH·POST·DELETE 화면 조작, multipart 파일 저장과 업로드 통합·수동 검증은 아직 완료되지 않았다.
+현재 완료 범위는 `ExtensionPolicy` 단일 엔티티, fixed/custom 카탈로그 불변식, DB 제약, quota 기반 커스텀 최대 200개 등록, 고정 정책 초기화, 예제 기능 제거, 정책 REST API와 공통 오류 응답, Axios GET 기반 정책 조회 화면과 고정 정책 PATCH 화면이다. POST·DELETE 화면 조작, multipart 파일 저장과 업로드 통합·수동 검증은 아직 완료되지 않았다.
 
 ## 1. 완료 판정 원칙
 
@@ -80,17 +80,17 @@
 
 #### FE
 
-- [ ] 고정 확장자 체크·해제를 Axios `PATCH`로 저장한다.
-- [ ] Axios 요청 경로가 `/api/v1/extension-policies/fixed/{extension}`과 일치한다.
-- [ ] 응답의 `blocked` 상태를 화면에 반영한다.
-- [ ] `404`와 공통 오류 JSON의 `message`를 사용자 메시지로 표시한다.
+- [x] 고정 확장자 체크·해제를 Axios `PATCH`로 저장한다.
+- [x] Axios 요청 경로가 `/api/v1/extension-policies/fixed/{extension}`과 일치한다.
+- [x] 응답의 `blocked` 상태를 화면에 반영한다.
+- [x] `404`와 공통 오류 JSON의 `message`를 사용자 메시지로 표시한다.
 
 #### 통합·테스트·수동 확인
 
 - [ ] 고정 확장자를 차단으로 변경한 직후 해당 확장자 파일 업로드가 거부된다.
 - [ ] 고정 확장자를 차단 해제한 뒤 해당 확장자 파일 업로드가 허용된다.
 - [x] REST MockMvc 테스트로 요청 형식, 성공 상태 코드, 응답 JSON, `404` 오류 형식을 검증한다.
-- [ ] 체크·해제 후 브라우저를 새로고침해도 선택 상태가 유지된다.
+- [x] 체크·해제 후 브라우저를 새로고침해도 선택 상태가 유지된다.
 
 ## 4. `POST /api/v1/extension-policies/custom` — 커스텀 확장자 추가
 
