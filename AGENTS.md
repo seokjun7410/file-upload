@@ -56,6 +56,9 @@
 - 커밋 전 `git diff --cached --name-status`와 `git diff --cached --check`로 staged 경로와 공백 오류를 확인한다.
 - 코드 커밋은 관련 테스트와 `./gradlew test`가 통과한 뒤 생성한다. 각 refactor·feat 커밋은 가능하면 해당 커밋 단독으로 컴파일되고 테스트를 통과해야 한다.
 - 문서 파일을 기능 커밋이나 refactor 커밋에 섞지 않는다. 문서 변경은 아래 동기화 절차에 따라 `docs` 브랜치에서 먼저 커밋한다.
+- `docs` 브랜치의 직접 커밋은 `AGENTS.md`와 `docs/**`만 변경한다. `src/**`, 빌드 파일, 애플리케이션 리소스, 테스트 코드는 포함하지 않는다.
+- 기능 브랜치의 직접 커밋은 `AGENTS.md`와 `docs/**`를 변경하지 않는다. 확정된 문서는 `docs` 브랜치의 merge commit으로만 기능 브랜치에 반영한다.
+- 최종 보고 전 `git log --first-parent --no-merges --name-only main..<브랜치>`로 각 브랜치의 직접 커밋 경로를 감사한다. 기능 브랜치의 문서 직접 커밋이나 `docs` 브랜치의 코드 직접 커밋을 발견하면 완료로 보고하지 않는다.
 
 ### 문서 브랜치와 기능 브랜치 동기화 절차
 
