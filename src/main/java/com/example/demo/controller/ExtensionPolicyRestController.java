@@ -1,10 +1,10 @@
 package com.example.demo.controller;
 
-import com.example.demo.controller.dto.ChangeFixedExtensionPolicyRequest;
-import com.example.demo.controller.dto.CustomExtensionPolicyRequest;
-import com.example.demo.controller.dto.CustomExtensionPolicyResponse;
-import com.example.demo.controller.dto.ExtensionPolicyResponse;
-import com.example.demo.controller.dto.FixedExtensionPolicyResponse;
+import com.example.demo.controller.dto.req.ChangeFixedExtensionPolicyRequest;
+import com.example.demo.controller.dto.req.CustomExtensionPolicyRequest;
+import com.example.demo.controller.dto.res.CustomExtensionPolicyResponse;
+import com.example.demo.controller.dto.res.ExtensionPolicyResponse;
+import com.example.demo.controller.dto.res.FixedExtensionPolicyResponse;
 import com.example.demo.domain.ExtensionPolicy;
 import com.example.demo.service.ExtensionPolicyService;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package com.example.demo.controller.dto;
+package com.example.demo.controller.dto.req;
 
 import jakarta.validation.constraints.NotNull;
 

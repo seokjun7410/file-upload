@@ -1,6 +1,5 @@
-package com.example.demo.controller;
+package com.example.demo.common;
 
-import com.example.demo.controller.dto.ErrorResponse;
 import com.example.demo.exception.CustomExtensionLimitExceededException;
 import com.example.demo.exception.CustomExtensionPolicyNotFoundException;
 import com.example.demo.exception.DuplicateExtensionPolicyException;

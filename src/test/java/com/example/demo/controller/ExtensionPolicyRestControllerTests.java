@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.example.demo.common.ExtensionPolicyRestExceptionHandler;
 import com.example.demo.domain.ExtensionPolicy;
 import com.example.demo.exception.CustomExtensionLimitExceededException;
 import com.example.demo.exception.CustomExtensionPolicyNotFoundException;

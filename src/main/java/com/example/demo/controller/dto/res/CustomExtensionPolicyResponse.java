@@ -1,4 +1,4 @@
-package com.example.demo.controller.dto;
+package com.example.demo.controller.dto.res;
 
 import com.example.demo.domain.ExtensionPolicy;
 
