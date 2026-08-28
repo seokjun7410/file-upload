@@ -1,8 +1,8 @@
 # 스프린트 1 확장자 정책 모델링 선택지 검토 원문
 
-> 문서 상태: ADR 결정 전 검토 원문
+> 문서 상태: ADR 결정 배경 원문
 >
-> 결정 상태: 미결정
+> 결정 상태: [ADR 0001](../adr/0001-unify-extension-policies.md)로 결정 완료
 >
 > 관련 문서: [스프린트 1 API 계약](../sprints/sprint-1-file-upload-api.md), [스프린트 1 구현 완료 체크리스트](../sprints/sprint-1-file-upload-checklist.md), [스프린트 1 단일 커밋 작업 순서](../sprints/sprint-1-file-upload-single-commit-sequence.md)
 
@@ -268,11 +268,10 @@ com.example.demo.domain.ExtensionName
 - 운영 환경에서 정책 유형별 조회·변경·차단 지표를 분리해서 관찰해야 하는가?
 - 위 질문에 대한 답변을 ADR에 어떤 선택과 근거로 기록할 것인가?
 
-## 12. ADR 전환 조건
+## 12. ADR 전환 완료
 
-다음이 합의된 뒤에만 이 문서를 ADR로 전환한다.
+다음 항목은 [ADR 0001](../adr/0001-unify-extension-policies.md)에 결정으로 기록되었다.
 
 - 엔티티·테이블 모델 선택
 - fixed/custom 전역 중복을 보장하는 위치
 - 정책 서비스의 통합 책임 범위
-- 검증 책임 객체의 패키지와 클래스명 규칙
