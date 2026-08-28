@@ -49,7 +49,7 @@
 
 문서가 기능 작업의 기준이 되는 경우에는 다음 순서를 지킨다.
 
-1. `docs` 브랜치로 이동하고, 스프린트 문서·API 명세·`AGENTS.md`을 최신 내용으로 갱신한다.
+1. `docs` 브랜치로 이동하고, 스프린트 문서·API 명세·`AGENTS.md` 및 AI 활용 기록을 최신 내용으로 갱신한다.
 2. 문서 인덱스에 새 문서와 변경된 문서의 목적·상태가 반영되었는지 확인한다.
 3. `git status`로 문서 변경을 확인하고, 문서 파일만 Conventional Commit 형식으로 커밋한다. 예: `docs: update file upload sprint specification`
 4. 문서 브랜치의 커밋을 원격 `origin/docs`에 push한다. push가 실패하면 권한·인증 문제를 확인할 때까지 원격 반영 완료로 간주하지 않는다.
@@ -83,12 +83,17 @@
 | [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 1~3단계 완료·후속 작업 순서 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
+| [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
+| [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 
 ### 문서 갱신 규칙
 
 - 문서의 요구사항, API 계약, 실패 의미와 구현이 다르면 구현에 맞춰 문서를 함께 검토한다.
 - 확정되지 않은 선택은 코드에 숨기지 말고 질문 문서에 기록한다.
 - 합의가 끝난 선택은 의사결정 문서로 남긴다.
+- AI가 요구사항·예외·위험·대안·검증 결과·사용자 결정을 식별하면 [`PROMPT_LOG.md`](PROMPT_LOG.md)에 즉시 기록한다. 기록 형식과 누락 방지 규칙은 [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md)를 따른다.
+- `PROMPT_LOG.md`의 각 기록 제목은 사건 발생 시각을 `YYYY-MM-DDTHH:MM:SS+09:00` 형식으로 시작하고, 파일 전체는 사건 시각 오름차순을 유지한다. 뒤늦게 발견한 과거 기록은 해당 위치에 삽입하고 기록 근거를 밝힌다.
+- 커밋·브랜치 전환·최종 보고 전에는 이번 작업의 결정·실패·수정·검증 결과와 `PROMPT_LOG.md`를 대조한다. 로그를 추가하지 않으면 최종 보고에 기록 대상이 아니었던 이유를 명시한다.
 - API 동작을 바꾸면 해당 API 계약 문서를 먼저 또는 같은 변경으로 갱신한다. 현재 스프린트 1 API 문서는 `docs/sprints`에 둔다.
 - 스프린트 범위·완료 조건·제외 사항을 바꾸면 `docs/sprints` 문서를 갱신한다.
 - 새 문서를 추가하면 이 인덱스에 목적과 상태를 추가한다.
@@ -125,4 +130,5 @@
 - 관련 문서와 패키지 인덱스를 읽고 작업 범위를 확인한다.
 - `./gradlew test`로 전체 테스트를 실행한다.
 - 실패한 테스트가 있으면 원인을 확인한 뒤 수정하고 다시 실행한다.
+- 커밋 또는 최종 보고 전에 `PROMPT_LOG.md` 기록 대상을 확인하고, 필요한 기록은 `docs` 브랜치에서 먼저 반영한다.
 - 변경 파일, 테스트 결과, 문서 갱신 여부를 최종 보고에 포함한다.
