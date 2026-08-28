@@ -1,13 +1,13 @@
 package com.example.demo.domain;
 
 import com.example.demo.common.BaseEntity;
+import com.example.demo.domain.validator.ExtensionValidator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -45,7 +45,7 @@ public class ExtensionPolicy extends BaseEntity {
             PolicyType policyType,
             boolean blocked
     ) {
-        this.extension = normalize(extension);
+        this.extension = ExtensionValidator.normalize(extension);
         this.policyType = requirePolicyType(policyType);
         this.blocked = blocked;
         validateCatalog();
@@ -96,19 +96,4 @@ public class ExtensionPolicy extends BaseEntity {
         return policyType;
     }
 
-    /** 확장자를 정규화하고 정책 입력 규칙을 검증한다. */
-    private String normalize(String extension) {
-        if (extension == null || extension.isBlank()) {
-            throw new IllegalArgumentException("extension must not be blank");
-        }
-
-        String normalized = extension.trim().toLowerCase(Locale.ROOT);
-        if (normalized.length() > MAX_EXTENSION_LENGTH) {
-            throw new IllegalArgumentException("extension must be 20 characters or fewer");
-        }
-        if (normalized.contains(".")) {
-            throw new IllegalArgumentException("extension must not contain a dot");
-        }
-        return normalized;
-    }
 }

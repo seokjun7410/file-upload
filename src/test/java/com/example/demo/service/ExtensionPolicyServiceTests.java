@@ -3,10 +3,13 @@ package com.example.demo.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.example.demo.domain.ExtensionPolicy;
 import com.example.demo.domain.ExtensionPolicyRepository;
 import com.example.demo.domain.ExtensionPolicyQuota;
 import com.example.demo.domain.ExtensionPolicyQuotaRepository;
 import com.example.demo.domain.PolicyType;
+import com.example.demo.exception.CustomExtensionPolicyNotFoundException;
+import com.example.demo.exception.FixedExtensionPolicyNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -46,6 +49,73 @@ class ExtensionPolicyServiceTests {
         // then
         assertThat(policy.getExtension()).isEqualTo("sh");
         assertThat(repository.countByPolicyType(PolicyType.CUSTOM)).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("정책 조회는 고정 확장자를 목록 순서로 먼저 반환하고 커스텀 확장자를 뒤에 반환한다")
+    void findsPoliciesInCatalogOrderThenCustomOrder() {
+        // given
+        service.registerCustom(" PHP ");
+        service.registerCustom("sh");
+
+        // when
+        var policies = service.findAll();
+
+        // then
+        assertThat(policies)
+                .extracting(ExtensionPolicy::getExtension)
+                .containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js", "php", "sh");
+    }
+
+    @Test
+    @DisplayName("고정 확장자 차단 상태를 정규화된 확장자 기준으로 변경하고 저장한다")
+    void changesFixedPolicyBlockedState() {
+        // given
+
+        // when
+        var policy = service.changeFixedBlocked(" EXE ", true);
+
+        // then
+        assertThat(policy.isBlocked()).isTrue();
+        assertThat(repository.findByExtension("exe").orElseThrow().isBlocked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("커스텀 확장자를 물리적으로 삭제한다")
+    void deletesCustomPolicyPhysically() {
+        // given
+        service.registerCustom("sh");
+
+        // when
+        service.deleteCustom(" SH ");
+
+        // then
+        assertThat(repository.findByExtension("sh")).isEmpty();
+    }
+
+    @Test
+    @DisplayName("고정 확장자를 커스텀 정책처럼 삭제할 수 없다")
+    void rejectsDeletingFixedPolicyAsCustom() {
+        // given
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> service.deleteCustom("exe"))
+                .isInstanceOf(CustomExtensionPolicyNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("커스텀 확장자를 고정 정책처럼 변경할 수 없다")
+    void rejectsChangingCustomPolicyAsFixed() {
+        // given
+        service.registerCustom("sh");
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> service.changeFixedBlocked("sh", true))
+                .isInstanceOf(FixedExtensionPolicyNotFoundException.class);
     }
 
     @Test
