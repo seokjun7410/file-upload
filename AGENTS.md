@@ -49,7 +49,7 @@
 
 문서가 기능 작업의 기준이 되는 경우에는 다음 순서를 지킨다.
 
-1. `docs` 브랜치로 이동하고, 스프린트 문서·API 명세·`AGENTS.md`를 최신 내용으로 갱신한다.
+1. `docs` 브랜치로 이동하고, 스프린트 문서·API 명세·`AGENTS.md`을 최신 내용으로 갱신한다.
 2. 문서 인덱스에 새 문서와 변경된 문서의 목적·상태가 반영되었는지 확인한다.
 3. `git status`로 문서 변경을 확인하고, 문서 파일만 Conventional Commit 형식으로 커밋한다. 예: `docs: update file upload sprint specification`
 4. 문서 브랜치의 커밋을 원격 `origin/docs`에 push한다. push가 실패하면 권한·인증 문제를 확인할 때까지 원격 반영 완료로 간주하지 않는다.
