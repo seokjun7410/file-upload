@@ -4,7 +4,7 @@
 
 파일 업로드 시 확장자 기반 차단 정책을 관리하고, 실제 파일 업로드 요청에 동일한 정책을 강제하는 수직 슬라이스를 구현한다.
 
-현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용한다. 확장자 정책의 도메인·JPA·초기화·정책 REST API와 Axios GET 조회 화면은 구현되어 있으며 정책 변경 화면·파일 저장은 후속 단계다.
+현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용한다. 확장자 정책의 도메인·JPA·초기화·정책 REST API와 Axios GET 조회·고정 PATCH 화면은 구현되어 있으며 커스텀 정책 변경 화면·파일 저장은 후속 단계다.
 
 구현 시 준수할 API 계약은 [스프린트 1 API 문서](sprint-1-file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md)를 기준으로 한다.
 
