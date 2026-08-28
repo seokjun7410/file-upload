@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·고정 정책 초기화와 최소 Thymeleaf 페이지까지 구현되어 있으며, REST API·파일 저장·Axios 화면은 다음 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화와 최소 Thymeleaf 페이지까지 구현되어 있으며, REST API·파일 저장·Axios 화면은 다음 단계다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 가독성 우선
@@ -77,10 +77,10 @@
 
 | 문서 | 역할 | 현재 상태 |
 |---|---|---|
-| [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 설계·작업 기준 |
+| [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 1~3단계 구현 완료·후속 작업 기준 |
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
-| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 구현 전 완료 기준 |
-| [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 구현 전 작업 순서 |
+| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 1~3단계 완료·4단계 이후 미완료 |
+| [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 1~3단계 완료·후속 작업 순서 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 
@@ -100,13 +100,17 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정규화, 영속성 저장소, 초기화 | `FixedExtensionPolicy`, `CustomExtensionPolicy`, `FixedExtensionPolicyInitializer` |
-| `src/main/java/com/example/demo/web` | Thymeleaf 페이지 제공과 REST API 요청 처리 | `FileUploadPageController` |
+| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소, 초기화·quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyInitializer`, `ExtensionPolicyQuota`, `ExtensionPolicyQuotaRepository` |
+| `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
+| `src/main/java/com/example/demo/service` | 확장자 정책의 조회·변경·등록·삭제 규칙과 quota 잠금 조정 | `ExtensionPolicyService`, 정책 예외 타입 |
+| `src/main/java/com/example/demo/web` | Thymeleaf 페이지, 정책 REST API, 공통 REST 오류 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler` |
+| `src/main/java/com/example/demo/web/dto` | 정책 REST 요청·응답과 공통 오류 JSON 구조 | 정책 요청·응답 record |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
-| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·초기화 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests` |
-| `src/test/java/com/example/demo/web` | 파일 업로드 페이지 요청·응답 테스트 | `FileUploadPageControllerTests` |
+| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·초기화·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests`, `ExtensionPolicyInitializerTests` |
+| `src/test/java/com/example/demo/service` | 확장자 정책 등록·중복·최대 개수·동시성 테스트 | `ExtensionPolicyServiceTests` |
+| `src/test/java/com/example/demo/web` | 파일 업로드 페이지와 정책 REST 요청·응답 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests` |
 
 ### 패키지 설계 원칙
 
