@@ -80,6 +80,7 @@
 | [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 설계·작업 기준 |
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
 | [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 구현 전 완료 기준 |
+| [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 구현 전 작업 순서 |
 
 ### 문서 갱신 규칙
 
