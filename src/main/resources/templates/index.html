@@ -8,7 +8,19 @@
 <body>
 <main>
     <h1>파일 업로드 확장자 정책</h1>
-    <p>정책 관리 및 파일 업로드 화면을 준비 중입니다.</p>
+    <p id="policy-load-status" role="status">확장자 정책을 불러오는 중입니다.</p>
+
+    <section aria-labelledby="fixed-policy-heading">
+        <h2 id="fixed-policy-heading">고정 확장자</h2>
+        <ul id="fixed-policy-list"></ul>
+    </section>
+
+    <section aria-labelledby="custom-policy-heading">
+        <h2 id="custom-policy-heading">커스텀 확장자</h2>
+        <ul id="custom-policy-list"></ul>
+    </section>
 </main>
+<script defer src="/webjars/axios/1.8.4/dist/axios.min.js"></script>
+<script defer src="/js/extension-policy.js"></script>
 </body>
 </html>
