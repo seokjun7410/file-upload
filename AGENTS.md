@@ -81,6 +81,7 @@
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
 | [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 구현 전 완료 기준 |
 | [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 구현 전 작업 순서 |
+| [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 전 검토 원문 |
 
 ### 문서 갱신 규칙
 
