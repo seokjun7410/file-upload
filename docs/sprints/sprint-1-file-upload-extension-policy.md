@@ -4,7 +4,7 @@
 
 파일 업로드 시 확장자 기반 차단 정책을 관리하고, 실제 파일 업로드 요청에 동일한 정책을 강제하는 수직 슬라이스를 구현한다.
 
-현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용하는 예제 상태이며 파일 업로드 및 확장자 정책 기능은 아직 구현되어 있지 않다.
+현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용한다. 확장자 정책의 도메인·JPA·초기화·정책 REST API와 최소 Thymeleaf 페이지는 구현되어 있으며 파일 저장·Axios 화면은 후속 단계다.
 
 구현 시 준수할 API 계약은 [스프린트 1 API 문서](sprint-1-file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md), 단일 커밋 작업 순서는 [스프린트 1 단일 커밋 작업 순서](sprint-1-file-upload-single-commit-sequence.md)를 기준으로 한다.
 
@@ -58,9 +58,10 @@
 ## 권장 구현 순서
 
 1. **도메인 및 저장 모델**
-   - 고정 확장자별 체크 상태를 저장할 모델을 추가한다.
-   - 커스텀 확장자 모델을 추가한다.
-   - 고정 확장자와 커스텀 확장자가 서로의 목록에 중복되지 않도록 제약을 둔다.
+   - `ExtensionPolicy` 단일 엔티티에 `extension`, `policyType`, `blocked`를 저장한다.
+   - `policyType`으로 고정 정책과 커스텀 정책을 구분한다.
+   - 고정 카탈로그와 커스텀 정책이 서로의 유형으로 등록되지 않도록 도메인에서 검증한다.
+   - 확장자 유일성, 필수값, 정책 유형과 상태 조합은 DB 제약으로 보장한다.
    - 애플리케이션 최초 실행 시 고정 확장자 7개를 `unCheck`로 초기화한다.
 
 2. **정책 서비스**

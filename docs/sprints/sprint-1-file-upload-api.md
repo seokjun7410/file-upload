@@ -1,8 +1,8 @@
 # 스프린트 1 API 문서
 
-> 상태: 설계 문서
+> 상태: 정책 REST API 구현 완료, 파일 업로드 API 미구현
 >
-> 현재 프로젝트에는 아래 API가 아직 구현되어 있지 않다.
+> 정책 API의 구현은 `ExtensionPolicyRestController`와 `ExtensionPolicyService`를 기준으로 한다. 파일 업로드 API는 5단계에서 구현한다.
 
 ## 공통 사항
 
@@ -153,6 +153,17 @@
   "message": "사용자에게 표시할 오류 사유"
 }
 ```
+
+정책 API는 오류 상황에 따라 다음 `code`를 사용한다. 파일 업로드 오류 코드는 5단계에서 추가한다.
+
+| 상황 | 상태 | code |
+|---|---:|---|
+| 빈 값·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
+| JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
+| 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
+| 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
+| 고정 정책을 찾을 수 없음 | `404 Not Found` | `FIXED_EXTENSION_NOT_FOUND` |
+| 커스텀 정책을 찾을 수 없음 | `404 Not Found` | `CUSTOM_EXTENSION_NOT_FOUND` |
 
 ## 구현 시 확인할 최소 규칙
 
