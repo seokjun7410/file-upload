@@ -34,7 +34,13 @@
   - 선택지별 장점과 단점은 무엇인가
   - 각 선택이 코드와 사용자 경험에 미치는 영향은 무엇인가
   - 기대 결과를 이해할 수 있는 구체적인 예시는 무엇인가
-- 사용자의 답변을 문서로 확인한 뒤 합의된 내용을 의사결정 문서로 전환한다.
+- 사용자의 답변을 문서로 확인한 뒤 합의된 내용의 성격에 맞는 문서로 전환한다.
+
+### ADR 작성 정책
+
+- ADR에는 비즈니스 불변식, 장기간 유지할 정책, 데이터·모듈 경계, 상태 일관성과 실패 처리처럼 구현이 바뀌어도 유지해야 하는 아키텍처 결정을 기록한다.
+- 스프린트 구현 범위, 작업 순서와 완료 상태, 브랜치·커밋 절차, 테스트 도구와 검증 결과, 파일·메서드 수준 구현 방법은 ADR에 기록하지 않는다. 해당 내용은 질문 문서, 스프린트 문서, 체크리스트 또는 AI 활용 기록에 둔다.
+- 합의된 내용에 비즈니스·정책·아키텍처 결정이 없으면 ADR을 만들지 않는다. 기존 ADR에 성격이 다른 내용이 섞이면 적절한 문서로 이동하거나 제거한다.
 - 기능 작업은 `feat/<작업명>` 브랜치에서 진행한다.
 - 스프린트가 끝나고 테스트가 통과하면 `main`에 병합한다.
 - 문서 산출물은 코드와 별도 라이프사이클로 관리한다. 문서 변경은 `docs` 브랜치에서 진행하고 주기적으로 `main`과 병합한다.
@@ -103,9 +109,9 @@
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
 | [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 정책 GET·고정 PATCH Axios 화면 완료·후속 기능 미완료 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
-| [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | ADR 결정 배경 원문 |
+| [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
-| [`docs/adr/0002-resynchronize-fixed-policy-after-patch-failure.md`](docs/adr/0002-resynchronize-fixed-policy-after-patch-failure.md) | PATCH 실패 시 전체 정책을 재조회하고 재조회 실패 시 직전 상태를 복원하는 결정 | accepted |
+| [`docs/adr/0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md) | 고정 정책 변경 결과가 불확실할 때 서버 저장 상태를 기준으로 일관성을 복구하는 결정 | accepted |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 
