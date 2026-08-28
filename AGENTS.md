@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화와 최소 Thymeleaf 페이지까지 구현되어 있으며, REST API·파일 저장·Axios 화면은 다음 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API와 최소 Thymeleaf 페이지까지 구현되어 있으며, 파일 저장·Axios 화면은 다음 단계다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 가독성 우선
@@ -105,22 +105,26 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소, 초기화·quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyInitializer`, `ExtensionPolicyQuota`, `ExtensionPolicyQuotaRepository` |
+| `src/main/java/com/example/demo/common` | JPA 엔티티의 공통 식별자와 애플리케이션 시작 시 필요한 초기 데이터 구성 | `BaseEntity`, `ExtensionPolicyInitializer` |
+| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지, 정책 REST 요청, 공통 REST 오류 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler` |
+| `src/main/java/com/example/demo/controller/dto` | 정책 REST 요청·응답, 엔티티 변환과 공통 오류 JSON 구조 | 정책 요청·응답 record |
+| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소와 quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyQuota`, 정책 저장소 |
 | `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
-| `src/main/java/com/example/demo/service` | 확장자 정책의 조회·변경·등록·삭제 규칙과 quota 잠금 조정 | `ExtensionPolicyService`, 정책 예외 타입 |
-| `src/main/java/com/example/demo/web` | Thymeleaf 페이지, 정책 REST API, 공통 REST 오류 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler` |
-| `src/main/java/com/example/demo/web/dto` | 정책 REST 요청·응답과 공통 오류 JSON 구조 | 정책 요청·응답 record |
+| `src/main/java/com/example/demo/exception` | 확장자 정책 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책 중복·한도·미존재·형식 예외 |
+| `src/main/java/com/example/demo/service` | 컨트롤러가 사용하는 확장자 정책 기능의 인터페이스 | `ExtensionPolicyService` |
+| `src/main/java/com/example/demo/service/impl` | 저장소와 quota 잠금을 조정해 서비스 인터페이스를 구현 | `ExtensionPolicyServiceImpl` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
-| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·초기화·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests`, `ExtensionPolicyInitializerTests` |
+| `src/test/java/com/example/demo/common` | 초기 데이터 구성 테스트 | `ExtensionPolicyInitializerTests` |
+| `src/test/java/com/example/demo/controller` | 파일 업로드 페이지와 정책 REST 요청·응답 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests` |
+| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests` |
 | `src/test/java/com/example/demo/service` | 확장자 정책 등록·중복·최대 개수·동시성 테스트 | `ExtensionPolicyServiceTests` |
-| `src/test/java/com/example/demo/web` | 파일 업로드 페이지와 정책 REST 요청·응답 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests` |
 
 ### 패키지 설계 원칙
 
-- 도메인 규칙은 `domain`에 두고, 웹 계층이 규칙을 직접 재구현하지 않도록 한다.
-- 웹 계층은 요청을 해석하고 적절한 애플리케이션·도메인 동작을 호출하며, 화면 응답을 조립한다.
+- 도메인 규칙은 `domain`에 두고, 컨트롤러 계층이 규칙을 직접 재구현하지 않도록 한다.
+- 컨트롤러 계층은 요청을 해석하고 적절한 애플리케이션·도메인 동작을 호출하며, DTO의 변환 메서드로 화면 응답을 조립한다.
 - 저장소 구현 세부사항은 저장소 인터페이스 뒤에 감추고, 호출자가 저장 방식에 의존하지 않도록 한다.
 - 새 기능은 기존 패키지 책임을 먼저 확인한 뒤 가장 작은 책임 단위로 추가한다.
 - 패키지 간 의존 방향이 흐려지거나 새로운 계층이 필요하면 구현 전에 그 이유와 영향 범위를 문서로 기록한다.
