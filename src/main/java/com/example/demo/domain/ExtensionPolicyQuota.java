@@ -1,10 +1,8 @@
 package com.example.demo.domain;
 
+import com.example.demo.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -22,17 +20,13 @@ import lombok.NoArgsConstructor;
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExtensionPolicyQuota {
+public class ExtensionPolicyQuota extends BaseEntity {
 
     /** 커스텀 확장자 등록 한도를 식별하는 고정 키다. */
     public static final String CUSTOM_QUOTA_KEY = "CUSTOM_EXTENSION_POLICY";
 
     /** 새 환경에서 사용할 기본 커스텀 확장자 최대 개수다. */
     public static final int DEFAULT_CUSTOM_MAX_COUNT = 200;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = "quota_key", nullable = false, length = 40)
     private String quotaKey;

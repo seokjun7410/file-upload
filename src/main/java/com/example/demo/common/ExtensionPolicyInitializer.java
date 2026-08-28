@@ -1,5 +1,10 @@
-package com.example.demo.domain;
+package com.example.demo.common;
 
+import com.example.demo.domain.ExtensionPolicy;
+import com.example.demo.domain.ExtensionPolicyQuota;
+import com.example.demo.domain.ExtensionPolicyQuotaRepository;
+import com.example.demo.domain.ExtensionPolicyRepository;
+import com.example.demo.domain.FixedExtensionCatalog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

@@ -1,7 +1,12 @@
-package com.example.demo.domain;
+package com.example.demo.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.example.demo.domain.ExtensionPolicy;
+import com.example.demo.domain.ExtensionPolicyQuota;
+import com.example.demo.domain.ExtensionPolicyQuotaRepository;
+import com.example.demo.domain.ExtensionPolicyRepository;
+import com.example.demo.domain.PolicyType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

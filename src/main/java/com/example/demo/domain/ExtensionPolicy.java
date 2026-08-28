@@ -1,15 +1,13 @@
 package com.example.demo.domain;
 
-import java.util.Locale;
+import com.example.demo.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.util.Locale;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,13 +26,9 @@ import org.hibernate.annotations.Check;
 @Check(name = "ck_extension_policy_custom_blocked", constraints = "policy_type = 'FIXED' OR blocked = true")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ExtensionPolicy {
+public class ExtensionPolicy extends BaseEntity {
 
     private static final int MAX_EXTENSION_LENGTH = 20;
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(nullable = false, length = MAX_EXTENSION_LENGTH)
     private String extension;
