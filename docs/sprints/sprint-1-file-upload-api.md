@@ -143,7 +143,7 @@
 ### 오류
 
 - `400 Bad Request`: 파일이 없거나 업로드할 수 없는 요청
-- `422 Unprocessable Entity`: 차단된 확장자
+- `422 Unprocessable Entity`: 차단 확장자
 
 ## 공통 오류 형식
 
