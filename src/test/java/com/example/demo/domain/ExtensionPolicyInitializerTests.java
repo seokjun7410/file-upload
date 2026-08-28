@@ -1,0 +1,76 @@
+package com.example.demo.domain;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
+
+@SpringBootTest(properties = {
+        "spring.datasource.url=jdbc:h2:mem:extension-policy-initializer-test;DB_CLOSE_DELAY=-1",
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+class ExtensionPolicyInitializerTests {
+
+    @Autowired
+    private ExtensionPolicyRepository repository;
+
+    @Autowired
+    private ExtensionPolicyQuotaRepository quotaRepository;
+
+    @Autowired
+    private EntityManager entityManager;
+
+    @Autowired
+    private ExtensionPolicyInitializer initializer;
+
+    @Test
+    @DisplayName("애플리케이션 시작 시 고정 확장자 일곱 개가 하나의 정책 테이블에 준비된다")
+    void initializesDefaultFixedPolicies() {
+        // given
+
+        // when
+        var policies = repository.findAllByOrderByIdAsc();
+
+        // then
+        assertThat(policies)
+                .extracting(ExtensionPolicy::getExtension)
+                .containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js");
+        assertThat(policies).allMatch(policy -> policy.getPolicyType() == PolicyType.FIXED);
+        assertThat(policies).allMatch(policy -> !policy.isBlocked());
+    }
+
+    @Test
+    @DisplayName("애플리케이션 시작 시 커스텀 확장자 quota가 최대 200개로 준비된다")
+    void initializesCustomPolicyQuota() {
+        // given
+
+        // when
+        ExtensionPolicyQuota quota = quotaRepository
+                .findByQuotaKey(ExtensionPolicyQuota.CUSTOM_QUOTA_KEY)
+                .orElseThrow();
+
+        // then
+        assertThat(quota.getMaxCount()).isEqualTo(ExtensionPolicyQuota.DEFAULT_CUSTOM_MAX_COUNT);
+    }
+
+    @Test
+    @DisplayName("고정 확장자 초기화는 기존 차단 상태를 덮어쓰지 않는다")
+    void initializerPreservesExistingBlockedState() {
+        // given
+        ExtensionPolicy policy = repository.findByExtension("exe").orElseThrow();
+        policy.changeBlocked(true);
+        repository.saveAndFlush(policy);
+        entityManager.clear();
+
+        // when
+        initializer.run();
+
+        // then
+        assertThat(repository.findByExtension("exe").orElseThrow().isBlocked()).isTrue();
+    }
+}
