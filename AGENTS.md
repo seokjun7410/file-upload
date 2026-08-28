@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 예제 엔티티·화면만 구현되어 있으며, 파일 업로드 확장자 차단 기능은 설계 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·고정 정책 초기화와 최소 Thymeleaf 페이지까지 구현되어 있으며, REST API·파일 저장·Axios 화면은 다음 단계다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 가독성 우선
@@ -98,13 +98,13 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/domain` | 도메인 엔티티와 영속성 저장소 | `ExampleEntity`, `ExampleRepository` |
-| `src/main/java/com/example/demo/web` | Thymeleaf 페이지와 웹 요청 처리 | `ExamplePageController` |
+| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정규화, 영속성 저장소, 초기화 | `FixedExtensionPolicy`, `CustomExtensionPolicy`, `FixedExtensionPolicyInitializer` |
+| `src/main/java/com/example/demo/web` | Thymeleaf 페이지 제공과 REST API 요청 처리 | `FileUploadPageController` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
-| `src/test/java/com/example/demo/domain` | 도메인·JPA 저장소 테스트 | `ExampleRepositoryTests` |
-| `src/test/java/com/example/demo/web` | 웹 MVC 요청·응답 테스트 | `ExamplePageControllerTests` |
+| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·초기화 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests` |
+| `src/test/java/com/example/demo/web` | 파일 업로드 페이지 요청·응답 테스트 | `FileUploadPageControllerTests` |
 
 ### 패키지 설계 원칙
 
