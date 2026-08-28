@@ -14,7 +14,9 @@ fixed와 custom은 독립된 데이터 개념이 아니라 정규화된 확장�
 - 핵심 필드는 `extension`, `policy_type`, `blocked`다.
 - 하나의 정규화 확장자는 하나의 정책만 가질 수 있다.
 - `CUSTOM + blocked=false` 같은 유형별 불변식 위반은 도메인·애플리케이션 로직에서 차단한다.
+- `policy_type`은 `FIXED` 또는 `CUSTOM`만 허용하고, 커스텀 정책은 `blocked=true`여야 한다는 DB `CHECK` 제약을 둔다.
 - API는 `policy_type`을 기준으로 fixed 상태 배열과 custom 목록을 조립한다.
+- custom 삭제는 행을 물리적으로 삭제하며 `ExtensionPolicy`에 soft delete 상태를 두지 않는다.
 
 ## 결과와 주의점
 
