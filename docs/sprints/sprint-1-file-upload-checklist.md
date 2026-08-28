@@ -1,10 +1,10 @@
 # 스프린트 1 API별 FE/BE 구현 완료 체크리스트
 
-> 상태: 1~4단계 정책 REST API 구현 완료, 파일 저장·Axios 화면 미완료
+> 상태: 정책 REST API와 Axios GET 조회 화면 구현 완료, 정책 변경 화면·파일 저장 미완료
 >
 > 기준 문서: [스프린트 1 확장자 차단 정책](sprint-1-file-upload-extension-policy.md), [스프린트 1 API 계약](sprint-1-file-upload-api.md)
 
-현재 완료 범위는 `ExtensionPolicy` 단일 엔티티, fixed/custom 카탈로그 불변식, DB 제약, quota 기반 커스텀 최대 200개 등록, 고정 정책 초기화, 예제 기능 제거, 서버 `Model` 없는 최소 Thymeleaf 페이지, 정책 REST API와 공통 오류 응답이다. multipart 파일 저장·Axios 화면과 업로드 통합·수동 검증은 아직 완료되지 않았다.
+현재 완료 범위는 `ExtensionPolicy` 단일 엔티티, fixed/custom 카탈로그 불변식, DB 제약, quota 기반 커스텀 최대 200개 등록, 고정 정책 초기화, 예제 기능 제거, 정책 REST API와 공통 오류 응답, Axios GET 기반 정책 조회 화면이다. PATCH·POST·DELETE 화면 조작, multipart 파일 저장과 업로드 통합·수동 검증은 아직 완료되지 않았다.
 
 ## 1. 완료 판정 원칙
 
@@ -33,16 +33,16 @@
 
 #### FE
 
-- [ ] 페이지 렌더링 시 Axios `GET /api/v1/extension-policies` 결과로 정책 목록·체크 상태·커스텀 목록을 구성한다.
-- [ ] 정책 화면 새로고침 시 서버의 최신 DB 상태를 다시 조회한다.
-- [ ] 조회 성공 결과를 화면에 표시한다.
+- [x] 페이지 렌더링 시 Axios `GET /api/v1/extension-policies` 결과로 정책 목록·체크 상태·커스텀 목록을 구성한다.
+- [x] 정책 화면 새로고침 시 서버의 최신 DB 상태를 다시 조회한다.
+- [x] 조회 성공 결과를 화면에 표시한다.
 
 #### 통합·테스트·수동 확인
 
-- [ ] 고정 확장자 변경과 커스텀 등록·삭제 직후 조회 결과에 최신 상태가 반영된다.
+- [x] 고정 확장자 변경과 커스텀 등록·삭제 직후 조회 결과에 최신 상태가 반영된다.
 - [x] JPA 테스트로 정책 추가·조회와 초기화 후 상태 유지를 검증한다.
 - [x] REST MockMvc 테스트로 조회 요청 형식, 성공 상태 코드, 응답 JSON을 검증한다.
-- [ ] 브라우저에서 정책 조회 요청의 URL, 메서드, 응답 상태 코드가 계약과 일치한다.
+- [x] 브라우저에서 정책 조회 요청의 URL, 메서드, 응답 상태 코드가 계약과 일치한다.
 
 ## 3. `PATCH /api/v1/extension-policies/fixed/{extension}` — 고정 확장자 차단 상태 변경
 

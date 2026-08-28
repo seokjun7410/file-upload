@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API와 최소 Thymeleaf 페이지까지 구현되어 있으며, 파일 저장·Axios 화면은 다음 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API와 Axios 정책 조회 화면까지 구현되어 있으며, 정책 변경 화면·파일 저장은 다음 단계다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 가독성 우선
@@ -94,7 +94,7 @@
 |---|---|---|
 | [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 1~3단계 구현 완료·후속 작업 기준 |
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
-| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 1~3단계 완료·4단계 이후 미완료 |
+| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 정책 GET API·Axios 조회 화면 완료·후속 기능 미완료 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
@@ -129,10 +129,11 @@
 | `src/main/java/com/example/demo/service` | 컨트롤러가 사용하는 확장자 정책 기능의 인터페이스 | `ExtensionPolicyService` |
 | `src/main/java/com/example/demo/service/impl` | 저장소와 quota 잠금을 조정해 서비스 인터페이스를 구현 | `ExtensionPolicyServiceImpl` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
+| `src/main/resources/static/js` | Axios로 정책 API를 조회하고 서버 상태를 화면에 반영 | `extension-policy.js` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
 | `src/test/java/com/example/demo/common` | 초기 데이터 구성 테스트 | `ExtensionPolicyInitializerTests` |
-| `src/test/java/com/example/demo/controller` | 파일 업로드 페이지와 정책 REST 요청·응답 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests` |
+| `src/test/java/com/example/demo/controller` | 파일 업로드 페이지와 정책 REST 요청·응답·DB 통합 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests`, `ExtensionPolicyApiIntegrationTests` |
 | `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests` |
 | `src/test/java/com/example/demo/service` | 확장자 정책 등록·중복·최대 개수·동시성 테스트 | `ExtensionPolicyServiceTests` |
 
