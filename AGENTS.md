@@ -105,9 +105,10 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/common` | JPA 엔티티의 공통 식별자와 애플리케이션 시작 시 필요한 초기 데이터 구성 | `BaseEntity`, `ExtensionPolicyInitializer` |
-| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지, 정책 REST 요청, 공통 REST 오류 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler` |
-| `src/main/java/com/example/demo/controller/dto` | 정책 REST 요청·응답, 엔티티 변환과 공통 오류 JSON 구조 | 정책 요청·응답 record |
+| `src/main/java/com/example/demo/common` | JPA 공통 식별자, 초기 데이터 구성, REST 예외와 공통 오류 응답 변환 | `BaseEntity`, `ExtensionPolicyInitializer`, `ExtensionPolicyRestExceptionHandler`, `ErrorResponse` |
+| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지와 정책 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController` |
+| `src/main/java/com/example/demo/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
+| `src/main/java/com/example/demo/controller/dto/res` | 엔티티를 정책 REST 응답으로 변환 | 정책 응답 record |
 | `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소와 quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyQuota`, 정책 저장소 |
 | `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
 | `src/main/java/com/example/demo/exception` | 확장자 정책 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책 중복·한도·미존재·형식 예외 |
