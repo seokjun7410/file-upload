@@ -45,6 +45,21 @@
 - 병합 후 기준 브랜치에서 테스트를 다시 실행한다.
 - 브랜치는 사용자가 요청하거나 명시적으로 동의한 경우에만 삭제한다.
 
+### 커밋 규칙
+
+- 커밋·브랜치·병합·push 절차의 단일 기준은 이 `AGENTS.md`다. 다른 문서에는 커밋 실행 규칙을 중복해서 작성하지 않는다.
+- 하나의 커밋에는 하나의 목적만 담고 Conventional Commit 형식을 사용한다.
+  - 새로운 사용자 기능과 아직 커밋되지 않은 신규 기능 코드는 `feat: <작업 요약>`으로 커밋한다.
+  - 이미 커밋된 기능의 동작을 유지하면서 패키지·구조·가독성만 바꾸는 변경은 `refactor: <작업 요약>`으로 분리한다.
+  - 요구사항·API 계약·패키지 인덱스·AI 활용 기록 같은 문서 변경은 `docs: <작업 요약>`으로 분리한다.
+- 신규 기능과 기존 코드 리팩터링이 같은 파일에 섞이면 기존 동작만 보존하는 refactor 중간 상태를 먼저 만들고 테스트한 뒤, 신규 기능을 feat 변경으로 적용한다.
+- 커밋 전 `git diff --cached --name-status`와 `git diff --cached --check`로 staged 경로와 공백 오류를 확인한다.
+- 코드 커밋은 관련 테스트와 `./gradlew test`가 통과한 뒤 생성한다. 각 refactor·feat 커밋은 가능하면 해당 커밋 단독으로 컴파일되고 테스트를 통과해야 한다.
+- 문서 파일을 기능 커밋이나 refactor 커밋에 섞지 않는다. 문서 변경은 아래 동기화 절차에 따라 `docs` 브랜치에서 먼저 커밋한다.
+- `docs` 브랜치의 직접 커밋은 `AGENTS.md`와 `docs/**`만 변경한다. `src/**`, 빌드 파일, 애플리케이션 리소스, 테스트 코드는 포함하지 않는다.
+- 기능 브랜치의 직접 커밋은 `AGENTS.md`와 `docs/**`를 변경하지 않는다. 확정된 문서는 `docs` 브랜치의 merge commit으로만 기능 브랜치에 반영한다.
+- 최종 보고 전 `git log --first-parent --no-merges --name-only main..<브랜치>`로 각 브랜치의 직접 커밋 경로를 감사한다. 기능 브랜치의 문서 직접 커밋이나 `docs` 브랜치의 코드 직접 커밋을 발견하면 완료로 보고하지 않는다.
+
 ### 문서 브랜치와 기능 브랜치 동기화 절차
 
 문서가 기능 작업의 기준이 되는 경우에는 다음 순서를 지킨다.
@@ -80,7 +95,6 @@
 | [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 1~3단계 구현 완료·후속 작업 기준 |
 | [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
 | [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 1~3단계 완료·4단계 이후 미완료 |
-| [`docs/sprints/sprint-1-file-upload-single-commit-sequence.md`](docs/sprints/sprint-1-file-upload-single-commit-sequence.md) | 단일 기능 커밋에 포함할 범위, 구현 순서, 검증·커밋 기준 | 1~3단계 완료·후속 작업 순서 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
@@ -105,9 +119,10 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/common` | JPA 엔티티의 공통 식별자와 애플리케이션 시작 시 필요한 초기 데이터 구성 | `BaseEntity`, `ExtensionPolicyInitializer` |
-| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지, 정책 REST 요청, 공통 REST 오류 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler` |
-| `src/main/java/com/example/demo/controller/dto` | 정책 REST 요청·응답, 엔티티 변환과 공통 오류 JSON 구조 | 정책 요청·응답 record |
+| `src/main/java/com/example/demo/common` | JPA 공통 식별자, 초기 데이터 구성, REST 예외와 공통 오류 응답 변환 | `BaseEntity`, `ExtensionPolicyInitializer`, `ExtensionPolicyRestExceptionHandler`, `ErrorResponse` |
+| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지와 정책 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController` |
+| `src/main/java/com/example/demo/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
+| `src/main/java/com/example/demo/controller/dto/res` | 엔티티를 정책 REST 응답으로 변환 | 정책 응답 record |
 | `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소와 quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyQuota`, 정책 저장소 |
 | `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
 | `src/main/java/com/example/demo/exception` | 확장자 정책 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책 중복·한도·미존재·형식 예외 |
