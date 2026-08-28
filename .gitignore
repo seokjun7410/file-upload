@@ -9,3 +9,7 @@ data/
 .DS_Store
 
 *.log
+
+# Local AI usage records
+PROMPT_LOG.md
+docs/ai-usage-guidelines.md
