@@ -31,6 +31,9 @@ class FileUploadPageControllerTests {
         result.andExpect(status().isOk())
                 .andExpect(view().name("index"))
                 .andExpect(content().string(containsString("id=\"fixed-policy-list\"")))
+                .andExpect(content().string(containsString("id=\"custom-policy-form\"")))
+                .andExpect(content().string(containsString("id=\"custom-extension-input\"")))
+                .andExpect(content().string(containsString("id=\"custom-extension-add-button\"")))
                 .andExpect(content().string(containsString("id=\"custom-policy-list\"")))
                 .andExpect(model().size(0));
     }

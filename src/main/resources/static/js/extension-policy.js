@@ -3,10 +3,30 @@
 const POLICY_API_URL = "/api/v1/extension-policies";
 const DEFAULT_LOAD_ERROR_MESSAGE = "확장자 정책을 불러오지 못했습니다.";
 const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 못했습니다.";
+const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
 const RESYNCHRONIZE_ERROR_MESSAGE =
     "최신 정책 상태도 확인하지 못했습니다. 페이지를 새로고침해 주세요.";
 
-document.addEventListener("DOMContentLoaded", loadExtensionPolicies);
+document.addEventListener("DOMContentLoaded", initializeExtensionPolicyPage);
+
+/**
+ * 정책 조회와 커스텀 확장자 추가 화면의 이벤트를 초기화한다.
+ */
+function initializeExtensionPolicyPage() {
+    bindCustomPolicyForm();
+    loadExtensionPolicies();
+}
+
+/**
+ * 커스텀 확장자 폼 제출을 서버 등록 동작에 연결한다.
+ */
+function bindCustomPolicyForm() {
+    const form = document.getElementById("custom-policy-form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        registerCustomPolicy();
+    });
+}
 
 /**
  * 서버의 최신 확장자 정책을 조회해 화면에 표시한다.
@@ -130,6 +150,70 @@ async function resynchronizeAfterChangeFailure(
         setFixedPolicyControlsDisabled(false);
         showPolicyStatus(`${changeErrorMessage} ${RESYNCHRONIZE_ERROR_MESSAGE}`);
     }
+}
+
+/**
+ * 커스텀 확장자 추가가 실패하거나 응답이 불확실할 때 정책 목록을 서버 상태로 맞춘다.
+ * 재조회도 실패하면 현재 목록을 유지하고 사용자가 새로고침하도록 안내한다.
+ *
+ * @param {string} changeErrorMessage 커스텀 확장자 추가에서 확인한 사용자 오류 메시지
+ */
+async function resynchronizeAfterCustomPolicyFailure(changeErrorMessage) {
+    showPolicyStatus(`${changeErrorMessage} 최신 정책 상태를 다시 확인하는 중입니다.`);
+
+    try {
+        const policies = await fetchExtensionPolicies();
+        renderExtensionPolicies(policies);
+        showPolicyStatus(changeErrorMessage);
+    } catch (error) {
+        showPolicyStatus(`${changeErrorMessage} ${RESYNCHRONIZE_ERROR_MESSAGE}`);
+    }
+}
+
+/**
+ * 커스텀 확장자를 등록하고 성공한 경우 서버의 최신 정책 목록을 다시 표시한다.
+ *
+ * @returns {Promise<void>} 등록 요청과 최신 목록 반영이 끝난 뒤 완료된다.
+ */
+async function registerCustomPolicy() {
+    const input = document.getElementById("custom-extension-input");
+    setCustomPolicyControlsDisabled(true);
+    showPolicyStatus("커스텀 확장자를 추가하는 중입니다.");
+
+    try {
+        const response = await axios.post(`${POLICY_API_URL}/custom`, {
+            extension: input.value
+        });
+
+        input.value = "";
+        try {
+            const policies = await fetchExtensionPolicies();
+            renderExtensionPolicies(policies);
+            showPolicyStatus(`${response.data.extension} 확장자를 추가했습니다.`);
+        } catch (error) {
+            showPolicyStatus(
+                `${response.data.extension} 확장자 추가는 완료되었지만 ${RESYNCHRONIZE_ERROR_MESSAGE}`
+            );
+        }
+    } catch (error) {
+        const changeErrorMessage = resolvePolicyErrorMessage(
+            error,
+            DEFAULT_CUSTOM_ADD_ERROR_MESSAGE
+        );
+        await resynchronizeAfterCustomPolicyFailure(changeErrorMessage);
+    } finally {
+        setCustomPolicyControlsDisabled(false);
+    }
+}
+
+/**
+ * 커스텀 확장자 등록 중 입력창과 추가 버튼의 입력 가능 여부를 함께 변경한다.
+ *
+ * @param {boolean} disabled 입력 요소를 비활성화할지 여부
+ */
+function setCustomPolicyControlsDisabled(disabled) {
+    document.getElementById("custom-extension-input").disabled = disabled;
+    document.getElementById("custom-extension-add-button").disabled = disabled;
 }
 
 /**
