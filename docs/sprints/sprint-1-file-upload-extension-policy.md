@@ -6,7 +6,7 @@
 
 현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용하는 예제 상태이며 파일 업로드 및 확장자 정책 기능은 아직 구현되어 있지 않다.
 
-구현 시 준수할 API 계약은 [스프린트 1 API 문서](sprint-1-file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md)를 기준으로 한다.
+구현 시 준수할 API 계약은 [스프린트 1 API 문서](sprint-1-file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md), 단일 커밋 작업 순서는 [스프린트 1 단일 커밋 작업 순서](sprint-1-file-upload-single-commit-sequence.md)를 기준으로 한다.
 
 ## 왜 하는가
 
