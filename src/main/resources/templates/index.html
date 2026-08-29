@@ -1,45 +1,41 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ExampleEntity 테스트</title>
-    <style>
-        body { max-width: 720px; margin: 40px auto; padding: 0 20px; font-family: sans-serif; }
-        form { display: flex; gap: 8px; margin: 20px 0; }
-        input { flex: 1; padding: 8px; }
-        button { padding: 8px 16px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-        .error { color: #c00; }
-    </style>
+    <title>파일 업로드 확장자 정책</title>
 </head>
 <body>
-<h1>ExampleEntity 테스트</h1>
-<p>H2 파일 DB에 저장된 데이터를 조회합니다.</p>
+<main>
+    <h1>파일 업로드 확장자 정책</h1>
+    <p id="policy-load-status" role="status">확장자 정책을 불러오는 중입니다.</p>
 
-<form th:action="@{/examples}" method="post">
-    <input type="text" name="name" placeholder="이름 입력" required>
-    <button type="submit">저장</button>
-</form>
-<p class="error" th:if="${error}" th:text="${error}"></p>
+    <section aria-labelledby="fixed-policy-heading">
+        <h2 id="fixed-policy-heading">고정 확장자</h2>
+        <ul id="fixed-policy-list"></ul>
+    </section>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>이름</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="example : ${examples}">
-        <td th:text="${example.id}"></td>
-        <td th:text="${example.name}"></td>
-    </tr>
-    <tr th:if="${#lists.isEmpty(examples)}">
-        <td colspan="2">저장된 데이터가 없습니다.</td>
-    </tr>
-    </tbody>
-</table>
+    <section aria-labelledby="custom-policy-heading">
+        <h2 id="custom-policy-heading">커스텀 확장자</h2>
+        <form id="custom-policy-form">
+            <label for="custom-extension-input">확장자</label>
+            <input id="custom-extension-input" name="extension" type="text">
+            <button id="custom-extension-add-button" type="submit">추가</button>
+        </form>
+        <ul id="custom-policy-list"></ul>
+    </section>
+
+    <section aria-labelledby="file-upload-heading">
+        <h2 id="file-upload-heading">파일 업로드</h2>
+        <form id="file-upload-form" enctype="multipart/form-data">
+            <label for="file-input">파일</label>
+            <input id="file-input" name="file" type="file">
+            <button id="file-upload-button" type="submit">업로드</button>
+        </form>
+        <p id="file-upload-status" role="status">업로드할 파일을 선택해 주세요.</p>
+    </section>
+</main>
+<script defer src="/webjars/axios/1.8.4/dist/axios.min.js"></script>
+<script defer src="/js/extension-policy.js"></script>
 </body>
 </html>
