@@ -105,13 +105,15 @@
 
 | 문서 | 역할 | 현재 상태 |
 |---|---|---|
-| [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 1~3단계 구현 완료·후속 작업 기준 |
-| [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 설계 API 계약 |
-| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 정책 GET·고정 PATCH Axios 화면 완료·후속 기능 미완료 |
+| [`docs/sprints/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 정책 관리·파일 업로드 구현 완료 기준 |
+| [`docs/sprints/sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 정책·파일 업로드 API 계약 |
+| [`docs/sprints/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 스프린트 1 정책 관리·파일 업로드 구현 및 검증 완료 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
+| [`docs/questions/sprint-1-file-upload-storage-and-error-options.md`](docs/questions/sprint-1-file-upload-storage-and-error-options.md) | 파일 저장 위치·서버 생성 파일명·업로드 오류 코드 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 | [`docs/adr/0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md) | 고정 정책 변경 결과가 불확실할 때 서버 저장 상태를 기준으로 일관성을 복구하는 결정 | accepted |
+| [`docs/adr/0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md) | 서버 생성 파일명·로컬 저장 위치·업로드 오류 상태와 코드의 장기 정책 | accepted |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 
@@ -135,16 +137,16 @@
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
 | `src/main/java/com/example/demo/common` | JPA 공통 식별자, 초기 데이터 구성, REST 예외와 공통 오류 응답 변환 | `BaseEntity`, `ExtensionPolicyInitializer`, `ExtensionPolicyRestExceptionHandler`, `ErrorResponse` |
-| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지와 정책 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController` |
+| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지와 정책·파일 업로드 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `FileUploadRestController` |
 | `src/main/java/com/example/demo/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
-| `src/main/java/com/example/demo/controller/dto/res` | 엔티티를 정책 REST 응답으로 변환 | 정책 응답 record |
+| `src/main/java/com/example/demo/controller/dto/res` | 엔티티·업로드 결과를 REST 응답으로 변환 | 정책·파일 업로드 응답 record |
 | `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소와 quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyQuota`, 정책 저장소 |
 | `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
-| `src/main/java/com/example/demo/exception` | 확장자 정책 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책 중복·한도·미존재·형식 예외 |
-| `src/main/java/com/example/demo/service` | 컨트롤러가 사용하는 확장자 정책 기능의 인터페이스 | `ExtensionPolicyService` |
-| `src/main/java/com/example/demo/service/impl` | 저장소와 quota 잠금을 조정해 서비스 인터페이스를 구현 | `ExtensionPolicyServiceImpl` |
+| `src/main/java/com/example/demo/exception` | 확장자 정책·파일 업로드 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책·파일 입력·차단·저장 실패 예외 |
+| `src/main/java/com/example/demo/service` | 컨트롤러가 사용하는 정책·파일 업로드 기능의 인터페이스 | `ExtensionPolicyService`, `FileUploadService`, `FileStorage` |
+| `src/main/java/com/example/demo/service/impl` | 정책 저장소·quota·로컬 파일 저장을 조정해 서비스 인터페이스를 구현 | `ExtensionPolicyServiceImpl`, `FileUploadServiceImpl`, `LocalFileStorage` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
-| `src/main/resources/static/js` | Axios로 정책을 조회하고 고정 정책 변경·실패 복구 결과를 화면에 반영 | `extension-policy.js` |
+| `src/main/resources/static/js` | Axios로 정책을 조회·변경하고 파일 업로드 결과를 화면에 반영 | `extension-policy.js` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
 | `src/test/java/com/example/demo/common` | 초기 데이터 구성 테스트 | `ExtensionPolicyInitializerTests` |
