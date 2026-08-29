@@ -4,16 +4,19 @@ const POLICY_API_URL = "/api/v1/extension-policies";
 const DEFAULT_LOAD_ERROR_MESSAGE = "확장자 정책을 불러오지 못했습니다.";
 const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 못했습니다.";
 const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
+const DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE = "커스텀 확장자를 삭제하지 못했습니다.";
+const DEFAULT_FILE_UPLOAD_ERROR_MESSAGE = "파일을 업로드하지 못했습니다.";
 const RESYNCHRONIZE_ERROR_MESSAGE =
     "최신 정책 상태도 확인하지 못했습니다. 페이지를 새로고침해 주세요.";
 
 document.addEventListener("DOMContentLoaded", initializeExtensionPolicyPage);
 
 /**
- * 정책 조회와 커스텀 확장자 추가 화면의 이벤트를 초기화한다.
+ * 정책 조회와 커스텀 확장자 추가·삭제 화면의 이벤트를 초기화한다.
  */
 function initializeExtensionPolicyPage() {
     bindCustomPolicyForm();
+    bindFileUploadForm();
     loadExtensionPolicies();
 }
 
@@ -25,6 +28,17 @@ function bindCustomPolicyForm() {
     form.addEventListener("submit", (event) => {
         event.preventDefault();
         registerCustomPolicy();
+    });
+}
+
+/**
+ * 파일 업로드 폼 제출을 서버 업로드 동작에 연결한다.
+ */
+function bindFileUploadForm() {
+    const form = document.getElementById("file-upload-form");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        uploadFile();
     });
 }
 
@@ -153,20 +167,20 @@ async function resynchronizeAfterChangeFailure(
 }
 
 /**
- * 커스텀 확장자 추가가 실패하거나 응답이 불확실할 때 정책 목록을 서버 상태로 맞춘다.
+ * 커스텀 확장자 변경이 실패하거나 응답이 불확실할 때 정책 목록을 서버 상태로 맞춘다.
  * 재조회도 실패하면 현재 목록을 유지하고 사용자가 새로고침하도록 안내한다.
  *
- * @param {string} changeErrorMessage 커스텀 확장자 추가에서 확인한 사용자 오류 메시지
+ * @param {string} policyErrorMessage 커스텀 확장자 변경에서 확인한 사용자 오류 메시지
  */
-async function resynchronizeAfterCustomPolicyFailure(changeErrorMessage) {
-    showPolicyStatus(`${changeErrorMessage} 최신 정책 상태를 다시 확인하는 중입니다.`);
+async function resynchronizeAfterCustomPolicyFailure(policyErrorMessage) {
+    showPolicyStatus(`${policyErrorMessage} 최신 정책 상태를 다시 확인하는 중입니다.`);
 
     try {
         const policies = await fetchExtensionPolicies();
         renderExtensionPolicies(policies);
-        showPolicyStatus(changeErrorMessage);
+        showPolicyStatus(policyErrorMessage);
     } catch (error) {
-        showPolicyStatus(`${changeErrorMessage} ${RESYNCHRONIZE_ERROR_MESSAGE}`);
+        showPolicyStatus(`${policyErrorMessage} ${RESYNCHRONIZE_ERROR_MESSAGE}`);
     }
 }
 
@@ -207,13 +221,97 @@ async function registerCustomPolicy() {
 }
 
 /**
- * 커스텀 확장자 등록 중 입력창과 추가 버튼의 입력 가능 여부를 함께 변경한다.
+ * 커스텀 확장자를 삭제하고 서버의 최신 정책 목록을 다시 표시한다.
+ * 삭제 또는 후속 조회가 실패하면 공통 오류 메시지와 재동기화 결과를 표시한다.
+ *
+ * @param {string} extension 삭제할 커스텀 확장자
+ * @returns {Promise<void>} 삭제 요청과 최신 목록 반영이 끝난 뒤 완료된다.
+ */
+async function deleteCustomPolicy(extension) {
+    setCustomPolicyControlsDisabled(true);
+    showPolicyStatus(`${extension} 확장자를 삭제하는 중입니다.`);
+
+    try {
+        const encodedExtension = encodeURIComponent(extension);
+        await axios.delete(`${POLICY_API_URL}/custom/${encodedExtension}`);
+
+        try {
+            const policies = await fetchExtensionPolicies();
+            renderExtensionPolicies(policies);
+            showPolicyStatus(`${extension} 확장자를 삭제했습니다.`);
+        } catch (error) {
+            showPolicyStatus(
+                `${extension} 확장자 삭제는 완료되었지만 ${RESYNCHRONIZE_ERROR_MESSAGE}`
+            );
+        }
+    } catch (error) {
+        const policyErrorMessage = resolvePolicyErrorMessage(
+            error,
+            DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE
+        );
+        await resynchronizeAfterCustomPolicyFailure(policyErrorMessage);
+    } finally {
+        setCustomPolicyControlsDisabled(false);
+    }
+}
+
+/**
+ * 선택된 파일을 FormData로 서버에 업로드하고 서버가 생성한 파일명을 표시한다.
+ * 확장자 차단 여부는 화면에서 판단하지 않고 서버 응답을 최종 결과로 사용한다.
+ *
+ * @returns {Promise<void>} 업로드 요청과 화면 결과 표시가 끝난 뒤 완료된다.
+ */
+async function uploadFile() {
+    const input = document.getElementById("file-input");
+    const formData = new FormData();
+    const file = input.files[0];
+    if (file) {
+        formData.append("file", file);
+    }
+
+    setFileUploadControlsDisabled(true);
+    showFileUploadStatus("파일을 업로드하는 중입니다.");
+
+    try {
+        const response = await axios.post("/api/v1/files", formData);
+        input.value = "";
+        showFileUploadStatus(
+            `${response.data.message} 저장된 파일명: ${response.data.filename}`
+        );
+    } catch (error) {
+        showFileUploadStatus(
+            resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+        );
+    } finally {
+        setFileUploadControlsDisabled(false);
+    }
+}
+
+/**
+ * 커스텀 확장자 변경 중 입력창·추가 버튼·삭제 버튼의 입력 가능 여부를 함께 변경한다.
  *
  * @param {boolean} disabled 입력 요소를 비활성화할지 여부
  */
 function setCustomPolicyControlsDisabled(disabled) {
     document.getElementById("custom-extension-input").disabled = disabled;
     document.getElementById("custom-extension-add-button").disabled = disabled;
+
+    const deleteButtons = document.querySelectorAll(
+        "#custom-policy-list button[data-custom-policy-delete]"
+    );
+    for (const deleteButton of deleteButtons) {
+        deleteButton.disabled = disabled;
+    }
+}
+
+/**
+ * 파일 업로드 중 파일 선택과 업로드 버튼의 입력 가능 여부를 함께 변경한다.
+ *
+ * @param {boolean} disabled 업로드 요소를 비활성화할지 여부
+ */
+function setFileUploadControlsDisabled(disabled) {
+    document.getElementById("file-input").disabled = disabled;
+    document.getElementById("file-upload-button").disabled = disabled;
 }
 
 /**
@@ -245,7 +343,7 @@ function resolveChangeSuccessMessage(policy) {
 }
 
 /**
- * 커스텀 확장자를 목록으로 표시하고, 항목이 없으면 빈 상태를 안내한다.
+ * 커스텀 확장자를 삭제 버튼과 함께 목록으로 표시하고, 항목이 없으면 빈 상태를 안내한다.
  *
  * @param {string[]} extensions 커스텀 확장자 목록
  */
@@ -254,7 +352,7 @@ function renderCustomPolicies(extensions) {
     customPolicyList.replaceChildren();
 
     if (extensions.length === 0) {
-        appendCustomPolicyItem(customPolicyList, "등록된 커스텀 확장자가 없습니다.");
+        appendCustomPolicyEmptyItem(customPolicyList);
         return;
     }
 
@@ -264,14 +362,34 @@ function renderCustomPolicies(extensions) {
 }
 
 /**
- * 커스텀 목록에 문자열 항목을 안전하게 추가한다.
+ * 커스텀 목록이 비어 있을 때 빈 상태 안내를 추가한다.
+ *
+ * @param {HTMLElement} customPolicyList 커스텀 확장자 목록 요소
+ */
+function appendCustomPolicyEmptyItem(customPolicyList) {
+    const item = document.createElement("li");
+    item.textContent = "등록된 커스텀 확장자가 없습니다.";
+    customPolicyList.append(item);
+}
+
+/**
+ * 커스텀 목록에 확장자와 삭제 버튼을 안전하게 추가한다.
  *
  * @param {HTMLElement} customPolicyList 항목을 추가할 목록 요소
- * @param {string} text 화면에 표시할 확장자 또는 빈 상태 문구
+ * @param {string} extension 화면에 표시하고 삭제할 확장자
  */
-function appendCustomPolicyItem(customPolicyList, text) {
+function appendCustomPolicyItem(customPolicyList, extension) {
     const item = document.createElement("li");
-    item.textContent = text;
+    const extensionText = document.createElement("span");
+    extensionText.textContent = extension;
+    const deleteButton = document.createElement("button");
+    deleteButton.type = "button";
+    deleteButton.textContent = "삭제";
+    deleteButton.dataset.customPolicyDelete = "true";
+    deleteButton.setAttribute("aria-label", `${extension} 삭제`);
+    deleteButton.addEventListener("click", () => deleteCustomPolicy(extension));
+
+    item.append(extensionText, deleteButton);
     customPolicyList.append(item);
 }
 
@@ -282,6 +400,15 @@ function appendCustomPolicyItem(customPolicyList, text) {
  */
 function showPolicyStatus(message) {
     document.getElementById("policy-load-status").textContent = message;
+}
+
+/**
+ * 파일 업로드 진행·성공·실패 상태를 사용자에게 표시한다.
+ *
+ * @param {string} message 표시할 업로드 상태 메시지
+ */
+function showFileUploadStatus(message) {
+    document.getElementById("file-upload-status").textContent = message;
 }
 
 /**

@@ -35,6 +35,10 @@ class FileUploadPageControllerTests {
                 .andExpect(content().string(containsString("id=\"custom-extension-input\"")))
                 .andExpect(content().string(containsString("id=\"custom-extension-add-button\"")))
                 .andExpect(content().string(containsString("id=\"custom-policy-list\"")))
+                .andExpect(content().string(containsString("id=\"file-upload-form\"")))
+                .andExpect(content().string(containsString("id=\"file-input\"")))
+                .andExpect(content().string(containsString("id=\"file-upload-button\"")))
+                .andExpect(content().string(containsString("id=\"file-upload-status\"")))
                 .andExpect(model().size(0));
     }
 }

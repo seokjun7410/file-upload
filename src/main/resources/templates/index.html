@@ -24,6 +24,16 @@
         </form>
         <ul id="custom-policy-list"></ul>
     </section>
+
+    <section aria-labelledby="file-upload-heading">
+        <h2 id="file-upload-heading">파일 업로드</h2>
+        <form id="file-upload-form" enctype="multipart/form-data">
+            <label for="file-input">파일</label>
+            <input id="file-input" name="file" type="file">
+            <button id="file-upload-button" type="submit">업로드</button>
+        </form>
+        <p id="file-upload-status" role="status">업로드할 파일을 선택해 주세요.</p>
+    </section>
 </main>
 <script defer src="/webjars/axios/1.8.4/dist/axios.min.js"></script>
 <script defer src="/js/extension-policy.js"></script>

@@ -81,6 +81,24 @@ class ExtensionPolicyServiceTests {
     }
 
     @Test
+    @DisplayName("저장된 고정·커스텀 정책의 차단 상태를 판정한다")
+    void determinesBlockedPolicyState() {
+        // given
+        service.registerCustom("sh");
+        service.changeFixedBlocked("exe", true);
+
+        // when
+        boolean blockedFixed = service.isBlocked(" EXE ");
+        boolean blockedCustom = service.isBlocked(" SH ");
+        boolean allowedExtension = service.isBlocked("txt");
+
+        // then
+        assertThat(blockedFixed).isTrue();
+        assertThat(blockedCustom).isTrue();
+        assertThat(allowedExtension).isFalse();
+    }
+
+    @Test
     @DisplayName("커스텀 확장자를 물리적으로 삭제한다")
     void deletesCustomPolicyPhysically() {
         // given

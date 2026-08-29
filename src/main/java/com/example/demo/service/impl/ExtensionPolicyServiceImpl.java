@@ -100,6 +100,16 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
         repository.flush();
     }
 
+    /** 정규화된 확장자에 저장된 fixed·custom 차단 정책이 적용되는지 반환한다. */
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isBlocked(String extension) {
+        String normalizedExtension = normalizeForApi(extension);
+        return repository.findByExtension(normalizedExtension)
+                .map(policy -> policy.getPolicyType() == PolicyType.CUSTOM || policy.isBlocked())
+                .orElse(false);
+    }
+
     /** API 입력의 확장자를 공통 규칙으로 정규화하고 의미가 분명한 예외로 변환한다. */
     private String normalizeForApi(String extension) {
         try {

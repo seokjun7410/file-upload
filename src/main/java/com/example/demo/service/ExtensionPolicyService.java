@@ -3,7 +3,7 @@ package com.example.demo.service;
 import com.example.demo.domain.ExtensionPolicy;
 import java.util.List;
 
-/** 확장자 정책의 조회·변경·등록·삭제 기능을 호출자에게 제공하는 서비스 인터페이스다. */
+/** 확장자 정책의 조회·변경·등록·삭제·차단 판정 기능을 호출자에게 제공하는 서비스 인터페이스다. */
 public interface ExtensionPolicyService {
 
     /** 저장된 fixed·custom 정책을 고정 카탈로그와 확장자 순서로 반환한다. */
@@ -17,4 +17,7 @@ public interface ExtensionPolicyService {
 
     /** 커스텀 정책을 정규화된 확장자 기준으로 물리 삭제한다. */
     void deleteCustom(String extension);
+
+    /** 정규화된 확장자에 저장된 차단 정책이 적용되는지 반환한다. */
+    boolean isBlocked(String extension);
 }
