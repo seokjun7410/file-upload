@@ -125,11 +125,11 @@
 
 - [x] 감사 action은 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정한다.
 - [x] 인증이 없는 현재 단계에서는 actor를 `SYSTEM`으로 기록하고 변경 경로 필드는 두지 않는다.
-- [x] 정책 API에는 requestId 헤더를 추가하지 않으며 정책 감사 이력의 requestId는 nullable로 둔다.
+- [x] 정책 감사 이력에는 requestId를 두지 않는다. 정책 API에도 requestId 헤더를 추가하지 않는다.
 - [x] 감사 이력의 조회 API·관리자 화면은 이번 스프린트 범위에서 제외한다.
 - [x] 정책 ID와 확장자를 함께 저장하고, 동일 상태 PATCH에는 이력을 남기지 않는다.
 
-중단 규칙: 없음. action·actor·requestId·정책 식별자·동일 상태 PATCH 처리 의미가 확정되었고 구현도 완료되었다.
+중단 규칙: 없음. action·actor·정책 상태·정책 식별자·동일 상태 PATCH 처리 의미가 확정되었고 구현도 완료되었다.
 
 완료 기준: 정책의 현재 상태와 감사 이력이 원자적으로 남고, 물리 삭제된 커스텀 정책도 삭제 사실을 추적할 수 있다.
 

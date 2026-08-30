@@ -150,7 +150,7 @@
 | `src/main/java/com/example/demo/file/controller` | Thymeleaf 페이지와 정책·파일 업로드 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `FileUploadRestController` |
 | `src/main/java/com/example/demo/file/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
 | `src/main/java/com/example/demo/file/controller/dto/res` | 엔티티·업로드 결과를 REST 응답으로 변환 | 정책·파일 업로드 응답 record |
-| `src/main/java/com/example/demo/file/domain` | 확장자 정책 유형, 고정 카탈로그, 정규화·검증·실행 MIME 차단·감사 action 규칙 | `FixedExtensionCatalog`, `ExecutableMimeCatalog`, `PolicyType`, `ExtensionPolicyAuditAction`, `ExtensionNormalizer`, `ExtensionValidator` |
+| `src/main/java/com/example/demo/file/domain` | 확장자 정책 유형, 고정 카탈로그, 정규화·검증·실행 MIME 차단·감사 action/state 규칙 | `FixedExtensionCatalog`, `ExecutableMimeCatalog`, `PolicyType`, `ExtensionPolicyAuditAction`, `ExtensionPolicyAuditState`, `ExtensionNormalizer`, `ExtensionValidator` |
 | `src/main/java/com/example/demo/file/domain/entity` | 확장자 정책·등록 한도·정책 변경 감사 이력을 표현하는 JPA 엔티티 | `ExtensionPolicy`, `ExtensionPolicyQuota`, `ExtensionPolicyAuditHistory` |
 | `src/main/java/com/example/demo/file/domain/entity/vo` | 엔티티와 서비스가 사용하는 정규화·검증된 값 객체 | `ExtensionName` |
 | `src/main/java/com/example/demo/file/repository` | 확장자 정책·등록 한도·정책 변경 감사 이력의 영속성 저장소 인터페이스 | `ExtensionPolicyRepository`, `ExtensionPolicyQuotaRepository`, `ExtensionPolicyAuditHistoryRepository` |
