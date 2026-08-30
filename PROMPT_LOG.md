@@ -1480,3 +1480,22 @@
 - 검증 근거: `git push origin docs`가 `Permission to seokjun7410/file-upload.git denied`와 HTTP 403을 반환했다.
 - 결과와 연결 문서: 로컬 docs 커밋 `e0e2c9f`; 원격 push 미완료
 - 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 뒤 동일 push를 재시도한다.
+
+## 2026-08-30T22:49:40+09:00 — requestId 멱등 업로드 구현 및 회귀 검증 완료
+
+- 상태: 구현 완료·브라우저 smoke 후속
+- 시간 근거: 기능 커밋과 `./gradlew test`, `node --check` 실행 결과
+- 스프린트/범위: requestId 통합 멱등 업로드, 상태 선저장·atomic move·stale 복구·FE 재시도
+- 관련 문서·코드: 기능 커밋 `164a8e0`, ADR 0006·0013·0014·0015, `FileUploadRestController`, `UploadFile`, `FileUploadServiceImpl`, `extension-policy.js`
+- 요청·질문 요약: `Idempotency-Key` UUID v4를 requestId로 통합하고, 처리 중 `409 + Retry-After`, 완료·실패 결과 재사용, FE 자동 재시도를 구현한다.
+- 배경과 제약: 별도 attemptId·SHA-256 지문·상태 조회 API·비동기 worker는 도입하지 않는다. 새 논리 업로드마다 FE가 새 UUID를 생성해야 한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`
+  - plugin/도구: `apply_patch`, `./gradlew test`, `node --check`, Git
+- AI 제안: 상태를 파일 I/O와 분리해 `RECEIVING`을 먼저 커밋하고, 임시 저장·atomic move·완료 전환을 수행한다. 동일 requestId는 기존 결과를 재사용하고, 처리 중에는 서버 계산 Retry-After를 반환한다.
+- 사람의 판단과 이유: 채택. 동기 multipart API의 범위를 유지하면서 응답 유실과 동시 요청의 중복 파일을 막고, FE 재시도와 서버 저장 상태를 분리한다.
+- 코드·사용자 경험 영향: 업로드 헤더가 필수가 되고, 서버 오류에는 requestId·안전한 context가 포함된다. 처리 중에는 FE가 같은 키로 최대 3회·전체 30초까지 자동 재시도하고 이후 결과 확인 상태를 표시한다.
+- 검증 근거: 전체 `./gradlew test` 99개 성공, `node --check src/main/resources/static/js/extension-policy.js` 성공, controller·integration·domain·recovery 테스트 추가. 브라우저 smoke는 아직 실행하지 않았다.
+- 결과와 연결 문서: `docs` 브랜치에서 체크리스트·ADR 구현 상태·PRD·API 계약·PROMPT_LOG를 갱신한다. `origin/docs` push는 GitHub HTTP 403으로 미완료다.
+- 회고와 후속 조치: 키 보존 기간과 브라우저 접근성·반응형 smoke는 별도 운영·UX 검증으로 남긴다. 기존 미추적 `uploads/` 파일은 보존했다.
