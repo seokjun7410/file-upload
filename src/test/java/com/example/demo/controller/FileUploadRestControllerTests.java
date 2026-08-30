@@ -10,6 +10,7 @@ import com.example.demo.common.ExtensionPolicyRestExceptionHandler;
 import com.example.demo.file.controller.FileUploadRestController;
 import com.example.demo.file.exception.BlockedExtensionException;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.exception.handler.FileUploadExceptionHandler;
@@ -22,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -98,6 +100,23 @@ class FileUploadRestControllerTests {
     }
 
     @Test
+    @DisplayName("실행 가능한 MIME은 BLOCKED_EXECUTABLE_MIME 오류를 반환한다")
+    void rejectsExecutableMime() throws Exception {
+        // given
+        var file = new MockMultipartFile("file", "renamed.txt", "text/plain", "content".getBytes());
+        when(service.upload(any(MultipartFile.class)))
+                .thenThrow(new ExecutableMimeTypeException());
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files").file(file));
+
+        // then
+        result.andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("BLOCKED_EXECUTABLE_MIME"))
+                .andExpect(jsonPath("$.message").value("실행 가능한 파일 형식은 업로드할 수 없습니다."));
+    }
+
+    @Test
     @DisplayName("파일 저장 실패는 FILE_UPLOAD_FAILED 오류를 반환한다")
     void mapsStorageFailure() throws Exception {
         // given
@@ -112,5 +131,21 @@ class FileUploadRestControllerTests {
         // then
         result.andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.code").value("FILE_UPLOAD_FAILED"));
+    }
+
+    @Test
+    @DisplayName("업로드 용량 초과는 413과 FILE_SIZE_EXCEEDED 오류를 반환한다")
+    void rejectsExceededUploadSize() throws Exception {
+        // given
+        var file = new MockMultipartFile("file", "large.txt", "text/plain", "content".getBytes());
+        when(service.upload(any(MultipartFile.class)))
+                .thenThrow(new MaxUploadSizeExceededException(10L * 1024 * 1024));
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files").file(file));
+
+        // then
+        result.andExpect(status().isPayloadTooLarge())
+                .andExpect(jsonPath("$.code").value("FILE_SIZE_EXCEEDED"));
     }
 }

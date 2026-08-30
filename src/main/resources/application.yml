@@ -10,3 +10,10 @@ spring:
     open-in-view: false
   thymeleaf:
     check-template-location: false
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 12MB
+file:
+  upload:
+    storage-path: ./uploads
