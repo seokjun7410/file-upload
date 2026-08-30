@@ -106,6 +106,7 @@
 | [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-file-upload-storage-and-error-options.md`](docs/questions/sprint-1-file-upload-storage-and-error-options.md) | 파일 저장 위치·서버 생성 파일명·업로드 오류 코드 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md) | 파일 업로드 네트워크 재시도·Idempotency-Key·서버 결과 기록 선택지와 결정 전 추천 의견 | ADR 결정 전 검토 원문 |
+| [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md) | ADR 0016의 denylist 유지·scope별 allowlist·전역 guardrail 선택지와 전환 결정 질문 | ADR 결정 전 검토 원문 |
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 | [`docs/adr/0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md) | 고정 정책 변경 결과가 불확실할 때 서버 저장 상태를 기준으로 일관성을 복구하는 결정 | accepted |
 | [`docs/adr/0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md) | 서버 생성 파일명·로컬 저장 위치·업로드 오류 상태와 코드의 장기 정책 | accepted |

@@ -172,7 +172,7 @@
 
 ## 11. ADR 0016 — 정책 집합·allowlist 전환 결정
 
-- [ ] `proposed` ADR 0016의 결정 전 질문을 사용자 답변으로 닫는 질문 문서를 작성한다.
+- [x] `proposed` ADR 0016의 결정 전 질문을 사용자 답변으로 닫는 질문 문서를 작성한다. (`docs/questions/sprint-2-allowlist-transition-options.md`)
 - [ ] 답변을 ADR·API 계약·데이터 모델 방향에 반영한다.
 - [ ] shadow 평가의 측정 항목·기록 방식·복귀 기준을 문서로 확정한다.
 
