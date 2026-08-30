@@ -1538,6 +1538,25 @@
 - 결과와 연결 문서: 기능 커밋 `38e1277`; docs 후속 커밋에서 ADR 0012 구현 상태, 스프린트 체크리스트, 패키지 인덱스를 갱신한다.
 - 회고와 후속 조치: 정책 API requestId와 감사 조회 기능은 별도 결정 없이는 추가하지 않는다. 기존 미추적 `uploads/` 디렉터리는 커밋하지 않고 보존했다.
 
+## 2026-08-31T01:15:16+09:00 — ADR 0016 allowlist 전환 결정 전 검토 원문 작성
+
+- 상태: 검토 중
+- 시간 근거: 다른 에이전트의 정책 감사 이력 리팩터링·문서 병합 완료 후 다음 스프린트 작업으로 착수한 시각
+- 스프린트/범위: 스프린트 2 ADR 0016 정책 집합·allowlist 전환 결정 게이트
+- 관련 문서·코드: [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md), [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md)
+- 요청·질문 요약: 다른 에이전트 작업 완료 후 스프린트 2의 다음 실제 작업을 진행한다. 코드 구현에 앞서 ADR 0016의 결정 선택지를 정리한다.
+- 배경과 제약: 현재 구현은 전역 denylist이며 사용자·조직 인증과 policy-set은 범위 밖이다. `proposed` ADR의 결정 게이트가 닫히기 전에는 스키마·API·실제 allowlist 차단을 구현하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `adr-predecision-review`
+  - plugin/도구: `apply_patch`, Git, 로컬 문서·코드 검색
+- AI 제안: 전역 denylist 유지, scope별 정책 집합의 구체 범위 우선, 전역 강제 차단 guardrail을 포함한 정책 집합의 세 가지 선택지를 비교하고, 실제 allowlist 요구와 보안 불변식에 따라 조건부 추천을 제공한다.
+- 사람의 판단과 이유: 검토 중. 최종 선택은 미등록 확장자의 기본 의미, GLOBAL 강제 차단의 override 가능 여부, 기본 mode, 소유자·승인자, shadow 기간·거부율, 복귀 기준에 대한 사용자 결정 후 확정한다.
+- 코드·사용자 경험 영향: 현재 코드와 API는 변경하지 않는다. 결정 전까지 기존 denylist 동작과 신규 업로드 경계를 유지한다.
+- 검증 근거: ADR 0016, 미래 정책 모델 문서, 현재 ExtensionPolicy·정책 판정 코드와 테스트 구조를 대조했다. Markdown 링크와 `git diff --check`는 문서 커밋 전에 확인한다.
+- 결과와 연결 문서: 결정 전 검토 원문을 추가하고 문서 인덱스와 스프린트 체크리스트의 질문 문서 작성 항목을 갱신한다.
+- 회고와 후속 조치: 사용자의 답변을 받은 뒤 ADR 0016과 API·데이터 모델 방향을 별도 문서 커밋으로 확정한다. 답변 전에는 policy-set 구현을 시작하지 않는다.
+
 ## 2026-08-31T01:11:47+09:00 — 정책 감사 이력 requestId 제거와 상태 enum 전환
 
 - 상태: 수정 채택
