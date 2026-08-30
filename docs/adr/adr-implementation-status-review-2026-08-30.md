@@ -58,7 +58,7 @@ ADR 0010의 한글·영문·숫자 전용 제한은 보류하므로 이 정책�
 
 ### 바로 착수 가능 — ADR 0009 multipart 용량 제한
 
-설정값이 100MB/110MB로 확정되어 있다. `application.yml`에 multipart 제한을 추가하고, `MaxUploadSizeExceededException`을 `413 Payload Too Large`의 공통 오류 형식으로 변환하는 handler와 MockMvc 테스트를 추가할 수 있다.
+설정값이 10MB/12MB로 확정되어 있다. `application.yml`에 multipart 제한을 추가하고, `MaxUploadSizeExceededException`을 `413 Payload Too Large`의 공통 오류 형식으로 변환하는 handler와 MockMvc 테스트를 추가할 수 있다.
 
 주의할 점은 현재 `FileUploadExceptionHandler`가 넓은 `MultipartException`을 `400 INVALID_FILE`로 처리한다는 것이다. 용량 초과 예외를 먼저 구체적으로 처리하지 않으면 413 결정이 400으로 가려질 수 있다. 이 우선순위를 테스트로 고정해야 한다.
 
