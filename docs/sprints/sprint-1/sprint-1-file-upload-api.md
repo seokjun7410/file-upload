@@ -1,13 +1,13 @@
 # 스프린트 1 API 문서
 
-> 상태: 정책 REST API와 파일 업로드 API 구현 완료
+> 상태: 기존 정책 REST API와 파일 업로드 API 구현 완료. ADR 0013의 업로드 오류 응답 전환은 후속 구현 대상
 >
 > 정책 API의 구현은 `ExtensionPolicyRestController`와 `ExtensionPolicyService`, 파일 업로드 API의 구현은 `FileUploadRestController`와 `FileUploadService`를 기준으로 한다.
 
 ## 공통 사항
 
 - Base URL: `/api/v1`
-- 확장자 입력: 점(`.`)을 제외한 문자열
+- 확장자 입력: 한글·영문·숫자로만 구성된 문자열이며 점(`.`)·공백·기타 특수문자는 제외
 - 확장자 비교: 앞뒤 공백 제거 후 소문자로 정규화
 - 커스텀 확장자 최대 길이: 20자
 - 커스텀 확장자 최대 개수: 200개
@@ -89,7 +89,7 @@
 
 ### 오류
 
-- `400 Bad Request`: 빈 값 또는 20자 초과
+- `400 Bad Request`: 빈 값·허용되지 않은 문자 또는 20자 초과
 - `409 Conflict`: 이미 등록된 확장자 또는 커스텀 확장자 200개 초과
 
 ## 4. 커스텀 확장자 삭제
@@ -110,7 +110,7 @@
 
 ### `POST /files`
 
-업로드 파일의 확장자를 서버에서 확인한 뒤, 저장된 차단 정책을 적용한다.
+업로드 파일의 확장자를 서버에서 확인한 뒤, 저장된 차단 정책을 적용한다. 요청에는 하나의 논리적 업로드를 식별하는 UUID v4 `Idempotency-Key` 헤더가 필요하며, 헤더 값은 응답의 `requestId`로 사용한다.
 
 ### Request
 
@@ -119,54 +119,89 @@
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---:|---|
 | `file` | MultipartFile | 예 | 업로드할 파일 1개 |
+| `Idempotency-Key` 헤더 | UUID v4 | 예 | 재시도 동안 유지할 논리적 업로드 ID |
 
 ### 허용 Response `201 Created`
 
 ```json
 {
-  "filename": "550e8400-e29b-41d4-a716-446655440000.txt",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "filename": "650e8400-e29b-41d4-a716-446655440000.txt",
   "message": "파일 업로드가 완료되었습니다."
 }
 ```
 
 서버는 원본 파일명을 사용하지 않고 UUID와 정규화된 마지막 확장자로 생성한 이름을 `./uploads`에 저장한다. 예를 들어 `archive.TAR.GZ`는 `*.gz` 파일로 저장된다. `.bashrc`, `README`, `file.`처럼 확장자를 추출할 수 없는 파일은 거부한다.
 
+업로드 MIME은 multipart 요청의 `Content-Type`이나 원본 파일명이 아니라 파일 콘텐츠에서 감지한다. 실행 가능한 MIME으로 판정되지 않은 파일은 기존 확장자 차단 정책을 통과하면 허용한다. 따라서 `.txt`와 `text/plain` 파일은 업로드할 수 있으며, 확장자와 MIME이 다르다는 사실만으로는 차단하지 않는다. MIME을 확인할 수 없는 파일은 경고 로그를 남기고 업로드를 계속한다.
+
 ### 차단 Response `422 Unprocessable Entity`
 
 ```json
 {
   "code": "BLOCKED_EXTENSION",
-  "message": "차단된 확장자(exe)는 업로드할 수 없습니다."
+  "requestId": "01JEXAMPLEUPLOAD000000000000",
+  "context": {
+    "extension": "exe"
+  }
 }
 ```
 
 차단된 파일은 파일 저장을 수행하지 않는다.
 
+콘텐츠가 실행 가능한 MIME으로 감지된 경우에는 다음 오류를 반환한다.
+
+```json
+{
+  "code": "BLOCKED_EXECUTABLE_MIME",
+  "requestId": "550e8400-e29b-41d4-a716-446655440001",
+  "context": {},
+  "message": "실행 가능한 파일 형식은 업로드할 수 없습니다."
+}
+```
+
+실행 MIME 상세값과 원본 파일명은 응답에 포함하지 않는다.
+
+사용자에게 표시할 문장은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 FE가 `code`와 `context`로 조립한다. 기존 구현과의 호환을 위해 서버 `message`가 일시적으로 포함될 수 있지만, FE는 `message` 문자열을 분기 기준으로 사용하지 않는다.
+
 ### 오류
 
+- `400 Bad Request`, `INVALID_REQUEST_ID`: `Idempotency-Key`가 없거나 UUID v4 형식이 아님
 - `400 Bad Request`, `INVALID_FILE`: 파일이 없거나 비어 있거나 확장자를 추출할 수 없는 요청
+- `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
+- `409 Conflict`, `IDEMPOTENCY_IN_PROGRESS`: 같은 `requestId`의 업로드가 처리 중이며 `Retry-After` 헤더를 함께 반환
 - `422 Unprocessable Entity`: 차단 확장자
+- `422 Unprocessable Entity`, `BLOCKED_EXECUTABLE_MIME`: 실행 가능한 MIME으로 감지된 파일
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
+
+파일 용량 제한은 multipart 파싱 단계에서 적용되므로 확장자 정책·MIME·파일 저장
+로직을 실행하지 않고 거부한다. 전체 요청 한도에는 multipart boundary와 부가
+헤더를 위한 여유가 포함된다.
 
 ## 공통 오류 형식
 
 ```json
 {
   "code": "ERROR_CODE",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "context": {},
   "message": "사용자에게 표시할 오류 사유"
 }
 ```
+
+위 형식은 정책 API와 기존 업로드 API의 현재 계약을 설명한다. 업로드 API의 목표 오류 계약은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 `code`, `requestId`, 안전한 `context`를 중심으로 하며, `message`는 장기 계약에서 제외한다. 정책 API는 별도 결정 전까지 기존 `message` 계약을 유지한다.
 
 정책 API와 파일 업로드 API는 오류 상황에 따라 다음 `code`를 사용한다.
 
 | 상황 | 상태 | code |
 |---|---:|---|
-| 빈 값·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
+| 빈 값·허용되지 않은 문자·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
 | 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 | 업로드 파일 누락·빈 파일·무확장 파일 | `400 Bad Request` | `INVALID_FILE` |
+| 파일 10MB 초과 또는 전체 요청 12MB 초과 | `413 Payload Too Large` | `FILE_SIZE_EXCEEDED` |
 | 차단된 확장자 파일 업로드 | `422 Unprocessable Entity` | `BLOCKED_EXTENSION` |
 | 파일 저장 실패 | `500 Internal Server Error` | `FILE_UPLOAD_FAILED` |
 
