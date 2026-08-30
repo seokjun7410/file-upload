@@ -28,7 +28,7 @@ implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89
 | [0002](0002-use-server-policy-state-as-source-of-truth.md) | 구현 완료 | `extension-policy.js`가 고정 정책 PATCH 실패 뒤 전체 정책을 재조회하고, 재조회 실패 시 클릭 전 상태로 복구하며 조작을 잠근다. |
 | [0003](0003-server-generated-file-storage-policy.md) | 구현 완료 | `LocalFileStorage`가 UUID와 최종 확장자로 `./uploads`에 저장하고, 업로드 예외 handler가 `INVALID_FILE`·`BLOCKED_EXTENSION`·`FILE_UPLOAD_FAILED`를 구분한다. |
 | [0004](0004-use-extension-name-value-object.md) | 구현 완료 | `ExtensionName`이 정규화·기본 형식 검증을 담당하며 엔티티·서비스·저장소·파일 추출 흐름이 이 값을 사용한다. 허용 문자 강화는 후속 ADR 0010 항목이다. |
-| [0005](0005-limit-upload-to-known-non-executable-types.md) | 미구현 | `build.gradle`에 Tika 의존성이 없고, 콘텐츠 MIME 감지·확장자/MIME 호환 판정·비실행 형식 allowlist가 없다. |
+| [0005](0005-limit-upload-to-known-non-executable-types.md) | 구현 완료 | `tika-core` 기반 콘텐츠 MIME 감지, 실행 MIME denylist, 미확인 MIME 경고·허용, `BLOCKED_EXECUTABLE_MIME` 422 매핑과 위장 파일·텍스트·감지 실패 테스트가 존재한다(`b171051`). |
 | [0006](0006-persist-upload-file-name-mapping.md) | 의도적 보류 | ADR이 `proposed`이며 `UploadFile` 엔티티·`p_upload_file` 테이블·원본 파일명 검증·메타데이터 조회가 없다. |
 | [0007](0007-use-final-file-extension-for-upload-blocking.md) | 구현 완료 | `FileExtensionExtractor`가 basename의 마지막 점 뒤 확장자만 추출하고, 다중 점·확장자 없음 테스트가 이를 고정한다. |
 | [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑, 설정·MockMvc·통합 테스트가 존재한다. |
@@ -44,7 +44,7 @@ implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89
 
 현재 구현 대상이 아닌 `proposed` ADR을 포함해, 아직 완료되지 않은 ADR은 다음과 같다.
 
-- 미구현: 0005, 0012, 0013, 0014, 0015
+- 미구현: 0012, 0013, 0014, 0015
 - 부분 구현·보류: 0010
 - 의도적 보류: 0006, 0016
 
@@ -68,9 +68,9 @@ ADR 0010의 한글·영문·숫자 전용 제한은 보류하므로 이 정책�
 
 기존 `LocalFileStorage(Path)` 생성자와 직접 생성 테스트 경로는 유지했다. 기존 파일 이동·마이그레이션은 수행하지 않는다.
 
-### 결정 또는 설계 보강 후 착수 — ADR 0005 MIME allowlist
+### 구현 완료 — ADR 0005 실행 MIME 차단
 
-Tika 도입 자체는 가능하지만, ADR은 “지원이 명확한 비실행 형식”이라고만 하고 정확한 확장자↔MIME 호환표를 정하지 않았다. 이 표 없이 구현하면 허용 파일 형식을 개발자가 임의로 결정하게 된다. 먼저 지원 확장자, 허용 MIME, 빈/텍스트 파일의 감지 기준, 검증 실패 오류 코드와 사용자 안내를 API 계약으로 확정해야 한다.
+Tika 콘텐츠 감지와 애플리케이션 소유 실행 MIME denylist를 분리했다. `.txt`·`text/plain`은 허용하고, `application/octet-stream` 등 미확인 MIME와 감지 실패는 경고 로그 후 기존 확장자 정책으로 계속 처리한다. 실행 MIME은 `BLOCKED_EXECUTABLE_MIME` 422로 저장 전에 차단한다.
 
 ### 결정 또는 승인 후 착수 — ADR 0006, 0014, 0015 업로드 신뢰성 묶음
 
@@ -94,7 +94,7 @@ Tika 도입 자체는 가능하지만, ADR은 “지원이 명확한 비실행 �
 
 1. ADR 0009: 앞단 요청 자원 제한과 413 계약 추가 — 구현 완료
 2. ADR 0011: 운영 설정 경계 분리 — 구현 완료(`2745a89`)
-3. ADR 0005: 허용 MIME 표와 오류 계약을 확정한 뒤 구현
+3. ADR 0005: 실행 MIME denylist와 오류 계약을 확정한 뒤 구현 — 구현 완료(`b171051`)
 4. ADR 0013·0012: 요청 추적과 정책 감사 이력의 공통 식별자·로그 설계 확정 후 구현
 5. ADR 0006을 채택한 뒤 0014·0015를 하나의 업로드 신뢰성 작업으로 설계·구현
 
