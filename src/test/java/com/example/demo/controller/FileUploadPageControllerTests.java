@@ -34,6 +34,7 @@ class FileUploadPageControllerTests {
                 .andExpect(content().string(containsString("id=\"fixed-policy-list\"")))
                 .andExpect(content().string(containsString("id=\"custom-policy-form\"")))
                 .andExpect(content().string(containsString("id=\"custom-extension-input\"")))
+                .andExpect(content().string(containsString("id=\"custom-extension-input\" name=\"extension\" type=\"text\" maxlength=\"20\"")))
                 .andExpect(content().string(containsString("id=\"custom-extension-add-button\"")))
                 .andExpect(content().string(containsString("id=\"custom-policy-list\"")))
                 .andExpect(content().string(containsString("id=\"file-upload-form\"")))

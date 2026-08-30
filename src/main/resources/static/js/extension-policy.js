@@ -384,7 +384,7 @@ function appendCustomPolicyItem(customPolicyList, extension) {
     extensionText.textContent = extension;
     const deleteButton = document.createElement("button");
     deleteButton.type = "button";
-    deleteButton.textContent = "삭제";
+    deleteButton.textContent = "X";
     deleteButton.dataset.customPolicyDelete = "true";
     deleteButton.setAttribute("aria-label", `${extension} 삭제`);
     deleteButton.addEventListener("click", () => deleteCustomPolicy(extension));
