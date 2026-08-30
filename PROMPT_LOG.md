@@ -1537,3 +1537,22 @@
 - 검증 근거: Red에서 누락 타입·이력 미기록·삭제 이력 누락을 확인한 뒤 수직 슬라이스별 Green으로 전환했다. 초기화·생성·상태 변경·동일 상태 무변경·삭제·재등록·감사 저장 실패 롤백 테스트와 전체 `./gradlew test`가 통과했다.
 - 결과와 연결 문서: 기능 커밋 `38e1277`; docs 후속 커밋에서 ADR 0012 구현 상태, 스프린트 체크리스트, 패키지 인덱스를 갱신한다.
 - 회고와 후속 조치: 정책 API requestId와 감사 조회 기능은 별도 결정 없이는 추가하지 않는다. 기존 미추적 `uploads/` 디렉터리는 커밋하지 않고 보존했다.
+
+## 2026-08-31T01:11:47+09:00 — 정책 감사 이력 requestId 제거와 상태 enum 전환
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 diff comment로 현재 정책 감사 이력에는 requestId가 불필요하고 상태를 `BLOCKED`·`UNBLOCKED`로 표현할 수 있다고 판단한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: `ExtensionPolicyAuditHistory`, `ExtensionPolicyAuditState`, `ExtensionPolicyServiceImpl`, ADR 0012
+- 요청·질문 요약: 현재 사용되지 않는 정책 감사 requestId를 제거하고 Boolean 전후 값을 명시적인 상태 enum으로 단순화한다.
+- 배경과 제약: requestId는 업로드 API의 논리적 식별자이며 정책 API에는 현재 requestId 계약이 없다. 감사 이력은 생성·변경·삭제의 상태 차이를 설명해야 하므로 `BLOCKED`·`UNBLOCKED`와 정책 부재를 나타내는 nullable 전후 상태를 사용한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: requestId를 nullable로 유지하거나 제거하는 선택지와 Boolean 전후 값 유지 또는 상태 enum 전환의 trade-off를 설명했다.
+- 사람의 판단과 이유: 수정 채택. 현재 정책 API에서 생성되지 않는 requestId 컬럼은 제거하고, 상태 의미가 코드·DB에서 직접 드러나도록 `ExtensionPolicyAuditState`를 사용한다. 생성·삭제 이벤트의 정책 부재는 기존 action과 nullable 전후 상태로 구분한다.
+- 코드·사용자 경험 영향: 정책 REST 응답과 업로드 requestId 계약은 변경하지 않는다. 감사 이력 DB 컬럼은 `before_state`·`after_state`로 표현되며 정책 감사 행에는 requestId가 저장되지 않는다.
+- 검증 근거: Boolean getter 기반 테스트를 enum 상태 검증으로 먼저 전환해 Red를 확인했고, enum 매핑·서비스 변환 구현 후 관련 테스트와 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: 기능 커밋 후속 refactor `145a830`; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태·패키지 인덱스를 동기화한다.
+- 회고와 후속 조치: 기존 requestId 관련 기록은 당시 업로드·정책 계약 결정의 역사로 보존한다. 정책 감사 요청 추적이 필요해지면 별도 운영 결정으로 다룬다.
