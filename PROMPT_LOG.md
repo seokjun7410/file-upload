@@ -1575,3 +1575,22 @@
 - 검증 근거: Boolean getter 기반 테스트를 enum 상태 검증으로 먼저 전환해 Red를 확인했고, enum 매핑·서비스 변환 구현 후 관련 테스트와 전체 `./gradlew test`가 성공했다.
 - 결과와 연결 문서: 기능 커밋 후속 refactor `145a830`; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태·패키지 인덱스를 동기화한다.
 - 회고와 후속 조치: 기존 requestId 관련 기록은 당시 업로드·정책 계약 결정의 역사로 보존한다. 정책 감사 요청 추적이 필요해지면 별도 운영 결정으로 다룬다.
+
+## 2026-08-31T01:18:30+09:00 — 정책 감사 이력 상태를 단일 값으로 단순화
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 감사 이력의 변경 전 상태는 직전 이벤트를 쿼리로 조회할 수 있으므로 단일 상태로 단순화하기로 확정한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: `ExtensionPolicyAuditHistory`, `ExtensionPolicyAuditState`, `ExtensionPolicyServiceImpl`, ADR 0012
+- 요청·질문 요약: `beforeState`·`afterState`를 제거하고 이벤트 후 상태인 `state` 하나만 저장한다.
+- 배경과 제약: 동일 정책 ID의 이력은 생성 시각과 이력 ID 순으로 정렬할 수 있고, `BLOCKED_CHANGED`의 이전 상태는 직전 이벤트의 state에서 재구성할 수 있다. 삭제 이벤트는 state를 `null`로 둔다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: before/after를 유지하면 단건 조회는 쉽지만 중복 저장이 발생한다. 현재 감사 조회 API가 없고 쿼리 재구성이 허용되므로 이벤트 후 상태 하나를 사용하는 방향을 제시했다.
+- 사람의 판단과 이유: 채택. `BLOCKED`·`UNBLOCKED`라는 도메인 상태를 직접 저장하고, 정책 부재는 action과 nullable state로 표현해 감사 이력 구조를 단순화한다.
+- 코드·사용자 경험 영향: 감사 이력 컬럼이 `state` 하나로 줄어든다. 정책 API와 업로드 requestId 동작은 변경하지 않는다.
+- 검증 근거: 테스트를 `getState()` 계약으로 먼저 전환해 Red를 확인한 뒤 엔티티·factory·서비스를 수정했고, 관련 테스트와 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: refactor 커밋 `526d355` 이후 상태 단순화 변경; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태를 동기화한다.
+- 회고와 후속 조치: 향후 감사 조회 기능을 추가할 때 동일 정책 ID의 직전 이력 조회 정렬 기준을 `createdAt`, 동률 시 `id`로 고정한다.

@@ -35,7 +35,7 @@ implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89 +
 | [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑, 설정·MockMvc·통합 테스트가 존재한다. |
 | [0010](0010-limit-extension-name-characters.md) | 부분 구현·보류 | 공백 제거·소문자화·빈 값·20자·점 거부는 존재하지만, 한글·영문·숫자 전용 검증은 보류한다. 전체 원본 파일명 제한은 이 ADR의 대상이 아니다. |
 | [0011](0011-externalize-upload-storage-path.md) | 구현 완료 | `file.upload.storage-path` 기본값을 선언하고 설정 주입으로 `LocalFileStorage` 저장 루트를 변경한다. 기본 경로·override 경로·저장 실패·기존 업로드 회귀 테스트가 통과했다(`2745a89`). |
-| [0012](0012-preserve-policy-change-history-for-operations.md) | 구현 완료 | `ExtensionPolicyAuditHistory`와 action·state enum·저장소를 추가하고, 초기화·생성·실제 상태 변경·삭제를 같은 트랜잭션에서 기록한다. 동일 상태 PATCH는 기록하지 않으며 삭제 후 재등록은 정책 ID로 구분한다. 정책 감사 이력에는 requestId를 두지 않는다. |
+| [0012](0012-preserve-policy-change-history-for-operations.md) | 구현 완료 | `ExtensionPolicyAuditHistory`와 action·state enum·저장소를 추가하고, 초기화·생성·실제 상태 변경·삭제를 같은 트랜잭션에서 기록한다. 이벤트 후 상태 하나만 저장하고 동일 상태 PATCH는 기록하지 않으며 삭제 후 재등록은 정책 ID로 구분한다. 정책 감사 이력에는 requestId를 두지 않는다. |
 | [0013](0013-use-request-id-and-frontend-owned-upload-messages.md) | 구현 완료 | UUID v4 `Idempotency-Key`를 requestId로 검증·응답·오류·로그에 연결하고 안전한 context를 반환한다. |
 | [0014](0014-persist-upload-state-before-file-and-finalize-atomically.md) | 구현 완료 | `UploadFile` 상태·임시 경로·atomic move·30분 stale 기준·1분 정리 주기를 구현하고 상태·파일 조합을 복구한다. |
 | [0015](0015-separate-upload-retry-idempotency-and-state.md) | 구현 완료 | 동일 requestId 결과 재사용, 처리 중 `409 + Retry-After`, 지문 미사용, BE backoff/jitter와 FE 재시도 상한을 구현했다. 키 보존 기간은 미결정이다. |
@@ -86,7 +86,7 @@ Tika 콘텐츠 감지와 애플리케이션 소유 실행 MIME denylist를 분�
 
 ### 구현 완료 — ADR 0012
 
-0012의 이력 이벤트 action은 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정했다. 변경 전·후 상태는 `BLOCKED`·`UNBLOCKED` enum으로 표현하고, 생성·삭제처럼 정책이 없는 쪽은 `null`로 둔다. actor는 현재 `SYSTEM`만 기록하며 변경 경로와 requestId 필드는 두지 않는다. 정책 ID와 확장자를 함께 보존하고, 동일한 blocked 상태를 다시 요청한 PATCH는 실제 변경이 없으므로 이력을 남기지 않는다. 감사 조회 API와 관리자 화면은 범위에서 제외했다.
+0012의 이력 이벤트 action은 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정했다. 이력에는 이벤트 후 상태 하나만 저장하며 상태는 `BLOCKED`·`UNBLOCKED` enum으로 표현하고, 삭제 이벤트는 `null`로 둔다. `BLOCKED_CHANGED`의 이전 상태는 같은 정책 ID의 직전 이력에서 조회한다. actor는 현재 `SYSTEM`만 기록하며 변경 경로와 requestId 필드는 두지 않는다. 정책 ID와 확장자를 함께 보존하고, 동일한 blocked 상태를 다시 요청한 PATCH는 실제 변경이 없으므로 이력을 남기지 않는다. 감사 조회 API와 관리자 화면은 범위에서 제외했다.
 
 `ExtensionPolicyInitializer`와 `ExtensionPolicyServiceImpl`에 이력 저장을 연결했고, 생성·초기화·상태 변경·동일 상태 무변경·삭제·재등록·트랜잭션 롤백 테스트를 추가했다. 기능 커밋은 `38e1277`이며 전체 `./gradlew test`가 통과했다.
 
