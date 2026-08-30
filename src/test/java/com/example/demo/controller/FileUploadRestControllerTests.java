@@ -10,6 +10,7 @@ import com.example.demo.common.ExtensionPolicyRestExceptionHandler;
 import com.example.demo.file.controller.FileUploadRestController;
 import com.example.demo.file.exception.BlockedExtensionException;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.exception.handler.FileUploadExceptionHandler;
@@ -96,6 +97,23 @@ class FileUploadRestControllerTests {
         result.andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("BLOCKED_EXTENSION"))
                 .andExpect(jsonPath("$.message").value("차단된 확장자(exe)는 업로드할 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("실행 가능한 MIME은 BLOCKED_EXECUTABLE_MIME 오류를 반환한다")
+    void rejectsExecutableMime() throws Exception {
+        // given
+        var file = new MockMultipartFile("file", "renamed.txt", "text/plain", "content".getBytes());
+        when(service.upload(any(MultipartFile.class)))
+                .thenThrow(new ExecutableMimeTypeException());
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files").file(file));
+
+        // then
+        result.andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("BLOCKED_EXECUTABLE_MIME"))
+                .andExpect(jsonPath("$.message").value("실행 가능한 파일 형식은 업로드할 수 없습니다."));
     }
 
     @Test

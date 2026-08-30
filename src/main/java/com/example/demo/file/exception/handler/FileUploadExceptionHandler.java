@@ -3,6 +3,7 @@ package com.example.demo.file.exception.handler;
 import com.example.demo.common.ErrorResponse;
 import com.example.demo.file.controller.FileUploadRestController;
 import com.example.demo.file.exception.BlockedExtensionException;
+import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
 import com.example.demo.file.exception.InvalidFileException;
 import org.springframework.http.HttpStatus;
@@ -32,6 +33,18 @@ public class FileUploadExceptionHandler {
             BlockedExtensionException exception
     ) {
         return response(HttpStatus.UNPROCESSABLE_ENTITY, "BLOCKED_EXTENSION", exception.getMessage());
+    }
+
+    /** 실행 가능한 MIME 업로드를 422 BLOCKED_EXECUTABLE_MIME으로 변환한다. */
+    @ExceptionHandler(ExecutableMimeTypeException.class)
+    public ResponseEntity<ErrorResponse> handleExecutableMime(
+            ExecutableMimeTypeException exception
+    ) {
+        return response(
+                HttpStatus.UNPROCESSABLE_ENTITY,
+                "BLOCKED_EXECUTABLE_MIME",
+                exception.getMessage()
+        );
     }
 
     /** 파일 저장 실패를 500 FILE_UPLOAD_FAILED로 변환하고 내부 오류를 노출하지 않는다. */
