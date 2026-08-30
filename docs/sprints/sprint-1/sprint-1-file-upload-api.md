@@ -110,7 +110,7 @@
 
 ### `POST /files`
 
-업로드 파일의 확장자를 서버에서 확인한 뒤, 저장된 차단 정책을 적용한다.
+업로드 파일의 확장자를 서버에서 확인한 뒤, 저장된 차단 정책을 적용한다. 요청에는 하나의 논리적 업로드를 식별하는 UUID v4 `Idempotency-Key` 헤더가 필요하며, 헤더 값은 응답의 `requestId`로 사용한다.
 
 ### Request
 
@@ -119,12 +119,14 @@
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---:|---|
 | `file` | MultipartFile | 예 | 업로드할 파일 1개 |
+| `Idempotency-Key` 헤더 | UUID v4 | 예 | 재시도 동안 유지할 논리적 업로드 ID |
 
 ### 허용 Response `201 Created`
 
 ```json
 {
-  "filename": "550e8400-e29b-41d4-a716-446655440000.txt",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "filename": "650e8400-e29b-41d4-a716-446655440000.txt",
   "message": "파일 업로드가 완료되었습니다."
 }
 ```
@@ -152,6 +154,8 @@
 ```json
 {
   "code": "BLOCKED_EXECUTABLE_MIME",
+  "requestId": "550e8400-e29b-41d4-a716-446655440001",
+  "context": {},
   "message": "실행 가능한 파일 형식은 업로드할 수 없습니다."
 }
 ```
@@ -162,8 +166,10 @@
 
 ### 오류
 
+- `400 Bad Request`, `INVALID_REQUEST_ID`: `Idempotency-Key`가 없거나 UUID v4 형식이 아님
 - `400 Bad Request`, `INVALID_FILE`: 파일이 없거나 비어 있거나 확장자를 추출할 수 없는 요청
 - `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
+- `409 Conflict`, `IDEMPOTENCY_IN_PROGRESS`: 같은 `requestId`의 업로드가 처리 중이며 `Retry-After` 헤더를 함께 반환
 - `422 Unprocessable Entity`: 차단 확장자
 - `422 Unprocessable Entity`, `BLOCKED_EXECUTABLE_MIME`: 실행 가능한 MIME으로 감지된 파일
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
@@ -177,6 +183,8 @@
 ```json
 {
   "code": "ERROR_CODE",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
+  "context": {},
   "message": "사용자에게 표시할 오류 사유"
 }
 ```

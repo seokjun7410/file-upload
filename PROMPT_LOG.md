@@ -1442,3 +1442,22 @@
 - 검증 근거: 첫 전체 `./gradlew test`는 `FileUploadService` symbol 오류로 실패했고, import 복구 후 전체 `./gradlew test`가 성공했다.
 - 결과와 연결 문서: 기능 수정 커밋 `428950d`; 이 기록은 다음 docs merge commit에 포함한다.
 - 회고와 후속 조치: 명시적 import 리팩터링 후에는 기존 compile cache에 의존하지 않고 전체 컴파일을 확인한다.
+
+## 2026-08-30T22:26:08+09:00 — requestId와 멱등키 통합 정책 확정
+
+- 상태: 수정 채택
+- 시간 근거: 현재 대화에서 사용자가 requestId 통합 방향과 BE Retry-After 계산 방식을 확정한 시각
+- 스프린트/범위: 스프린트 2 ADR 0006·0013·0014·0015 업로드 신뢰성
+- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 요청·질문 요약: 업로드 멱등키를 별도 식별자로 두지 않고 `Idempotency-Key` UUID v4를 논리적 업로드 `requestId`로 사용하며, 처리 중 재시도 대기값을 백엔드가 계산하도록 작업계획을 확정한다.
+- 배경과 제약: 응답 유실 뒤 중복 파일을 만들지 않아야 하며, 현재 동기 multipart API와 별도 상태 조회 API를 유지한다. SHA-256 지문과 별도 attemptId는 범위에서 제외한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`
+  - plugin/도구: `apply_patch`, Git, `request_user_input`
+- AI 제안: `Idempotency-Key`를 표준 요청 헤더로 받고 응답·DB·로그의 `requestId`와 통합한다. 처리 중에는 `409`를 반환하고 백엔드가 capped exponential backoff와 jitter를 적용한 `Retry-After`를 제공한다.
+- 사람의 판단과 이유: 수정 채택. 프로젝트의 단일 업로드 API에서는 식별자 하나가 구현·운영 복잡도를 줄인다. 다만 requestId는 HTTP 시도 ID가 아니라 논리적 업로드 ID가 되며, FE는 새 업로드마다 UUID를 생성해야 한다.
+- 코드·사용자 경험 영향: 업로드 헤더가 필수가 되고, 완료 결과는 같은 requestId로 재사용된다. 처리 중 FE는 서버가 제공한 Retry-After를 따라 최대 3회·전체 30초까지 재시도한다.
+- 검증 근거: 기존 API·ADR·서비스 구조를 정적 분석해 multipart 컨트롤러, 오류 handler, 로컬 저장소가 현재 requestId·멱등 상태를 구현하지 않음을 확인했다. 코드 구현 전 문서 계약만 갱신했다.
+- 결과와 연결 문서: ADR 0006·0013·0014·0015, 스프린트 1 파일 업로드 API, 스프린트 2 PRD·구현 체크리스트·ADR 구현 상태 점검
+- 회고와 후속 조치: SHA-256 미사용으로 같은 ID에 다른 파일이 와도 기존 작업 결과를 사용한다. 구현 시 ID 재사용·동시 요청·stale `RECEIVING` 테스트를 우선 작성하고, 문서 커밋을 기능 브랜치에 병합한 뒤 코드를 구현한다.

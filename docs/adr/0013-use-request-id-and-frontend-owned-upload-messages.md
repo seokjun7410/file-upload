@@ -2,7 +2,7 @@
 status: accepted
 ---
 
-# 업로드 오류는 requestId와 오류 코드로 추적하고 사용자 메시지는 FE가 관리한다
+# 업로드 오류와 멱등 업로드를 requestId로 추적하고 사용자 메시지는 FE가 관리한다
 
 ## 배경
 
@@ -10,16 +10,20 @@ status: accepted
 
 현재 업로드 오류 응답은 `code`와 사용자용 `message`를 함께 반환한다. `BLOCKED_EXTENSION`의 확장자처럼 사용자 안내에 필요한 값은 오류 의미의 일부지만, 문장 자체는 API의 안정적인 기계 계약으로 볼 필요가 없다.
 
+파일 업로드는 응답 유실 뒤 같은 논리적 업로드를 재요청할 수 있으므로, 로그 추적 ID와 멱등성 ID를 별도로 만들면 FE와 서버가 같은 업로드를 두 값으로 연결해야 한다. 현재 범위에서는 클라이언트가 논리적 업로드 시작 시 만든 `Idempotency-Key`를 업로드 `requestId`로 통합한다.
+
 ## 결정
 
-- 파일 업로드 API의 오류 응답에는 서버가 생성한 `requestId`를 포함한다.
-- 서버 로그는 `requestId`와 오류 `code`를 함께 기록해 하나의 업로드 요청과 처리 결과를 연결한다.
+- 파일 업로드 API는 UUID v4 형식의 `Idempotency-Key` 헤더를 필수로 받는다.
+- `Idempotency-Key`의 값은 하나의 논리적 업로드를 식별하는 `requestId`로 사용하며, 성공·오류 응답과 서버 로그에 같은 값을 기록한다.
+- `requestId`는 HTTP 시도마다 바뀌지 않고 같은 논리적 업로드의 재시도 동안 유지된다.
 - 클라이언트가 분기할 안정적인 계약은 오류 `code`와 안전하게 제한된 `context`다.
 - 사용자 메시지는 FE가 오류 `code`와 `context`를 이용해 조립한다.
 - 서버는 원본 파일명, 내부 저장 경로, stack trace와 같은 값을 `context`나 메시지에 포함하지 않는다.
 - 업로드 오류 응답에서 `message`는 장기 계약으로 취급하지 않는다. FE 전환 전까지 기존 응답에 남아 있을 수 있지만, FE는 이를 분기 기준으로 사용하지 않는다.
-- `retryable`, `Retry-After`와 업로드 재시도·멱등성 정책은 이 ADR에서 다루지 않는다.
-- 업로드 재시도·멱등성·상태 책임의 분리 원칙은 [ADR 0015](0015-separate-upload-retry-idempotency-and-state.md)에서 다룬다.
+- 처리 중인 동일 `requestId`는 `409 IDEMPOTENCY_IN_PROGRESS`와 서버가 계산한 `Retry-After`를 반환한다.
+- 서버는 capped exponential backoff와 jitter를 계산하지만 실제 재요청·최대 횟수·전체 대기 시간은 FE가 책임진다.
+- 구체적인 멱등 기록·업로드 상태·재시도 정책은 [ADR 0015](0015-separate-upload-retry-idempotency-and-state.md)에서 다룬다.
 - 이 결정의 범위는 파일 업로드 API이며, 정책 관리 API의 메시지 책임은 별도 결정이 있기 전까지 기존 계약을 따른다.
 
 ## 응답 예시
@@ -29,7 +33,7 @@ status: accepted
 ```json
 {
   "code": "BLOCKED_EXTENSION",
-  "requestId": "01JEXAMPLEUPLOAD000000000000",
+  "requestId": "550e8400-e29b-41d4-a716-446655440000",
   "context": {
     "extension": "exe"
   }
@@ -47,7 +51,7 @@ FE는 위 응답을 바탕으로 다음과 같은 화면 문장을 선택할 수
 ```json
 {
   "code": "FILE_UPLOAD_FAILED",
-  "requestId": "01JEXAMPLEUPLOAD000000000001",
+  "requestId": "550e8400-e29b-41d4-a716-446655440001",
   "context": {}
 }
 ```
@@ -62,15 +66,16 @@ FE는 위 응답을 바탕으로 다음과 같은 화면 문장을 선택할 수
 
 ## 보안·운영 규칙
 
-- `requestId`는 로그 상관관계용 불투명 식별자이며 파일명·경로·사용자 입력을 포함하지 않는다.
+- `requestId`는 FE가 생성한 UUID v4 불투명 식별자이며 파일명·경로·사용자 입력을 포함하지 않는다.
+- 서버는 `Idempotency-Key`를 파일명이나 저장 경로로 사용하지 않는다.
 - `context`에는 정규화·검증된 확장자처럼 화면 안내에 필요한 최소 값만 담는다.
 - 내부 예외 메시지와 stack trace는 로그에만 남기고 외부 응답에는 노출하지 않는다.
 - 로그에는 `requestId`, 오류 `code`, HTTP 상태, 처리 결과를 구조화된 필드로 남긴다.
 
 ## 범위 제외
 
-- 오류의 재시도 가능 여부를 응답 필드로 제공하지 않는다.
-- 업로드 재시도 시 중복 저장을 막는 멱등성 키나 업로드 작업 식별자를 정의하지 않는다.
+- 오류의 재시도 가능 여부를 별도 응답 필드로 제공하지 않으며, 처리 중 재시도 안내는 HTTP `Retry-After`로 제공한다.
+- `requestId`와 별도의 멱등성 키 또는 `attemptId`를 정의하지 않는다.
 - `requestId`의 보존 기간, 외부 로그 수집 시스템, 분산 추적 표준 도입은 결정하지 않는다.
 - 정책 관리 API의 국제화·메시지 책임은 결정하지 않는다.
 
