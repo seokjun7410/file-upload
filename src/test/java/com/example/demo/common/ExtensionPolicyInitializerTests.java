@@ -3,11 +3,13 @@ package com.example.demo.common;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.ExtensionPolicyAuditAction;
 import com.example.demo.file.domain.entity.ExtensionPolicy;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
 import com.example.demo.file.repository.ExtensionPolicyRepository;
+import com.example.demo.file.repository.ExtensionPolicyAuditHistoryRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,29 @@ class ExtensionPolicyInitializerTests {
 
     @Autowired
     private ExtensionPolicyInitializer initializer;
+
+    @Autowired
+    private ExtensionPolicyAuditHistoryRepository auditHistoryRepository;
+
+    @Test
+    @DisplayName("누락된 고정 확장자를 초기화하면 초기화 감사 이력을 남긴다")
+    void recordsInitializedAuditHistoryForMissingFixedPolicy() {
+        // given
+        ExtensionName extension = ExtensionName.from("exe");
+
+        // when
+        var history = auditHistoryRepository.findAll().stream()
+                .filter(item -> item.getExtension().equals(extension))
+                .findFirst()
+                .orElseThrow();
+
+        // then
+        assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.INITIALIZED);
+        assertThat(history.getBeforeBlocked()).isNull();
+        assertThat(history.getAfterBlocked()).isFalse();
+        assertThat(history.getActor()).isEqualTo("SYSTEM");
+        assertThat(history.getRequestId()).isNull();
+    }
 
     @Test
     @DisplayName("애플리케이션 시작 시 고정 확장자 일곱 개가 하나의 정책 테이블에 준비된다")

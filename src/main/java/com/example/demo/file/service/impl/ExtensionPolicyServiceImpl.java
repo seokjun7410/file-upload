@@ -3,9 +3,11 @@ package com.example.demo.file.service.impl;
 import com.example.demo.file.domain.PolicyType;
 import com.example.demo.file.domain.entity.ExtensionPolicy;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
+import com.example.demo.file.domain.entity.ExtensionPolicyAuditHistory;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
 import com.example.demo.file.repository.ExtensionPolicyRepository;
+import com.example.demo.file.repository.ExtensionPolicyAuditHistoryRepository;
 import com.example.demo.file.exception.CustomExtensionLimitExceededException;
 import com.example.demo.file.exception.DuplicateExtensionPolicyException;
 import com.example.demo.common.EntityNotFoundException;
@@ -23,6 +25,7 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
 
     private final ExtensionPolicyRepository repository;
     private final ExtensionPolicyQuotaRepository quotaRepository;
+    private final ExtensionPolicyAuditHistoryRepository auditHistoryRepository;
 
     /** fixed와 custom 정책을 각각 확장자명 오름차순으로 조회해 fixed부터 반환한다. */
     @Override
@@ -49,7 +52,9 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
             throw new CustomExtensionLimitExceededException("custom extension policy limit exceeded");
         }
         ExtensionPolicy policy = ExtensionPolicy.custom(extension);
-        return repository.save(policy);
+        ExtensionPolicy savedPolicy = repository.save(policy);
+        auditHistoryRepository.save(ExtensionPolicyAuditHistory.created(savedPolicy));
+        return savedPolicy;
     }
 
     /** 검증된 고정 확장자 이름의 차단 상태를 변경하고 저장된 최신 정책을 반환한다. */
@@ -59,7 +64,12 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
         ExtensionPolicy policy = repository.findByExtension(extension)
                 .filter(ExtensionPolicy::isFixed)
                 .orElseThrow(() -> new EntityNotFoundException("fixed extension policy"));
+        boolean beforeBlocked = policy.isBlocked();
+        if (beforeBlocked == blocked) {
+            return policy;
+        }
         policy.changeBlocked(blocked);
+        auditHistoryRepository.save(ExtensionPolicyAuditHistory.blockedChanged(policy, beforeBlocked, blocked));
         return policy;
     }
 
@@ -71,6 +81,7 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
                 .filter(ExtensionPolicy::isCustom)
                 .orElseThrow(() -> new EntityNotFoundException("custom extension policy"));
         repository.delete(policy);
+        auditHistoryRepository.save(ExtensionPolicyAuditHistory.deleted(policy));
     }
 
     /** 확장자 이름에 저장된 fixed·custom 차단 정책이 적용되는지 반환한다. */
