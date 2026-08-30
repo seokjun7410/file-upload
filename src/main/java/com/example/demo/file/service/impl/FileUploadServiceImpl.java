@@ -32,6 +32,15 @@ public class FileUploadServiceImpl implements FileUploadService {
     @Override
     public UploadedFile upload(MultipartFile file) {
         ExtensionName extension = extensionExtractor.extract(file);
+        validateMimeType(file, extension);
+
+        if (extensionPolicyService.isBlocked(extension)) {
+            throw new BlockedExtensionException(extension);
+        }
+        return new UploadedFile(fileStorage.store(file, extension));
+    }
+
+    private void validateMimeType(MultipartFile file, ExtensionName extension) {
         var mimeDetection = mimeTypeDetector.detect(file);
         if (mimeDetection.isDetected()
                 && ExecutableMimeCatalog.isBlocked(mimeDetection.mimeType())) {
@@ -45,10 +54,6 @@ public class FileUploadServiceImpl implements FileUploadService {
                     mimeDetection.status()
             );
         }
-        if (extensionPolicyService.isBlocked(extension)) {
-            throw new BlockedExtensionException(extension);
-        }
-        return new UploadedFile(fileStorage.store(file, extension));
     }
 
 }
