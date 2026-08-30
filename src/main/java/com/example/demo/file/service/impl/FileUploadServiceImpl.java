@@ -8,6 +8,7 @@ import com.example.demo.file.service.ExtensionPolicyService;
 import com.example.demo.file.service.FileExtensionExtractor;
 import com.example.demo.file.service.FileStorage;
 import com.example.demo.file.service.MimeTypeDetector;
+import com.example.demo.file.service.FileUploadService;
 import com.example.demo.file.service.UploadedFile;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
