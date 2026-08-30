@@ -36,11 +36,17 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 12MB
+      resolve-lazily: true
+server:
+  tomcat:
+    max-swallow-size: -1
 ```
 
 위 설정은 용량 정책을 애플리케이션의 multipart 경계에서 강제하기 위한 구현
-수단이다. 프록시나 로드밸런서가 있는 환경에서는 동일한 정책이 앞단에서도
-완화되지 않도록 별도로 확인한다.
+수단이다. `resolve-lazily`는 multipart 예외가 업로드 컨트롤러의 오류 처리 경계에서
+변환될 수 있게 하고, Tomcat의 `max-swallow-size`는 거부된 요청 본문을 소진해
+클라이언트가 일관된 413 응답을 받을 수 있게 한다. 프록시나 로드밸런서가 있는
+환경에서는 동일한 정책이 앞단에서도 완화되지 않도록 별도로 확인한다.
 
 ## 고려한 대안
 
