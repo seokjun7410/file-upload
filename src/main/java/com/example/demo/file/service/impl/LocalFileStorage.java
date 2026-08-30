@@ -8,20 +8,30 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-/** 프로젝트의 고정 `./uploads` 경로에 UUID 기반 파일명으로 업로드 파일을 저장한다. */
+/** 설정된 저장 루트에 UUID 기반 파일명으로 업로드 파일을 저장한다. */
 @Component
 public class LocalFileStorage implements FileStorage {
 
-    private static final Path DEFAULT_UPLOAD_DIRECTORY = Path.of("uploads");
+    private static final String DEFAULT_UPLOAD_DIRECTORY = "./uploads";
 
     private final Path uploadDirectory;
 
-    /** 애플리케이션 기본 업로드 디렉터리를 사용하는 저장소를 생성한다. */
+    /** 애플리케이션 설정으로 지정된 업로드 디렉터리를 사용하는 저장소를 생성한다. */
+    @Autowired
+    public LocalFileStorage(
+            @Value("${file.upload.storage-path:./uploads}") String uploadDirectory
+    ) {
+        this(Path.of(uploadDirectory));
+    }
+
+    /** 테스트와 기본 동작에서 사용할 업로드 디렉터리를 생성한다. */
     public LocalFileStorage() {
-        this(DEFAULT_UPLOAD_DIRECTORY);
+        this(Path.of(DEFAULT_UPLOAD_DIRECTORY));
     }
 
     /** 지정한 디렉터리를 사용하는 저장소를 생성한다. 테스트에서 격리된 저장 위치를 주입할 때 사용한다. */
