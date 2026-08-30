@@ -112,7 +112,7 @@
 }
 ```
 
-- 빈 값 또는 20자 초과: `400 Bad Request`, `INVALID_EXTENSION`
+- 빈 값·허용되지 않은 문자 또는 20자 초과: `400 Bad Request`, `INVALID_EXTENSION`
 - 이미 등록된 확장자 또는 커스텀 200개 초과: `409 Conflict`
 - 오류 응답은 공통 `{ "code": "ERROR_CODE", "message": "..." }` 형식을 따른다.
 
@@ -120,8 +120,8 @@
 
 #### BE
 
-- [x] 확장자를 앞뒤 공백 제거 후 소문자로 정규화하고 점(`.`)을 제외한 형식으로 저장한다.
-- [x] 빈 값·20자 초과·중복·커스텀 200개 초과를 거부한다.
+- [x] 확장자를 앞뒤 공백 제거 후 소문자로 정규화하고 한글·영문·숫자만 허용하며 점(`.`)·공백·기타 특수문자를 제외한 형식으로 저장한다.
+- [x] 빈 값·허용되지 않은 문자·20자 초과·중복·커스텀 200개 초과를 거부한다.
 - [x] 고정 확장자를 커스텀으로 저장하거나 응답하지 않는다.
 - [x] 중복은 `DUPLICATE_EXTENSION`, 한도 초과는 `CUSTOM_LIMIT_EXCEEDED`로 반환한다.
 
@@ -240,7 +240,7 @@
 
 | 상황 | 상태 | code |
 |---|---:|---|
-| 빈 값·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
+| 빈 값·허용되지 않은 문자·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
