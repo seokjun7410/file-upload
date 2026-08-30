@@ -56,7 +56,7 @@ Issue tracker: local Markdown
 - 동일 requestId의 완료 요청은 새 파일을 만들지 않고 저장된 결과를 반환한다. 처리 중 동일 requestId는 저장을 다시 시작하지 않고 `409 IDEMPOTENCY_IN_PROGRESS`를 반환한다. 실패한 동일 requestId는 저장된 실패 결과를 반환한다.
 - 처리 중 응답은 `409 Conflict`와 `Retry-After`를 사용한다. 서버가 중복 요청 관찰 횟수에 따라 최소 1초·최대 30초의 capped exponential backoff와 jitter를 계산하며, FE는 최대 3회·전체 30초까지만 자동 재시도한다.
 - 업로드 오류 응답은 `code`, requestId, 안전한 `context`를 중심으로 한다. 서버 `message`는 호환 기간에만 유지할 수 있고, FE는 코드·context로 문구를 조립한다. 로그에는 requestId, 오류 코드, HTTP 상태, 처리 결과를 구조화해 남긴다.
-- 정책 생성·고정 정책 변경·커스텀 삭제는 현재 상태 변경과 append-only 감사 이력을 같은 트랜잭션에서 기록한다. 이력에는 시각, 대상, action, 전후 값, 변경 경로, requestId, actor 또는 `SYSTEM`을 남긴다.
+- 정책 생성·고정 정책 변경·커스텀 삭제는 현재 상태 변경과 append-only 감사 이력을 같은 트랜잭션에서 기록한다. 이력에는 시각, 정책 식별자·확장자, action, 이벤트 후 `BLOCKED`·`UNBLOCKED` 상태, actor 또는 `SYSTEM`을 남긴다. 현재 정책 API에는 변경 경로와 requestId를 추가하지 않는다.
 - allowlist 전환은 기존 전역 denylist를 즉시 대체하지 않는다. 정책 집합은 `DENYLIST` 또는 `ALLOWLIST` mode를 명시하고, 정책 항목과 적용 관계를 분리한다. 신규 업로드만 새 정책의 대상이며 기존 완료 파일은 소급 평가하지 않는다.
 - ADR 0016은 현재 `proposed`이며 allowlist 전환 조건이 확정되기 전에는 구현하지 않는다. ADR 0006은 이번 작업에서 채택하고 원본 파일명 메타데이터를 영속화한다.
 - ADR 0016 구현 게이트는 전역 강제 차단 override 여부, 정책 집합이 없는 대상의 기본 mode, allowlist 소유자·승인자, shadow 평가 기간과 허용 거부율, 적용 범위 우선순위의 명시적 결정이다. 이 게이트가 닫히기 전에는 policy-set 스키마·API·실제 allowlist 차단을 확정하지 않는다.
@@ -72,7 +72,7 @@ Issue tracker: local Markdown
 - 업로드 메타데이터와 상태 전이는 receiving 선저장, 임시 파일 쓰기, atomic move, completed 전환, 저장 실패 시 failed 전환을 통합 테스트한다. 프로세스 중단을 직접 재현하지 못하는 경우에는 복구 서비스가 stale 상태·파일 조합별로 수행하는 외부 결과를 단위 테스트한다.
 - 멱등성은 같은 키의 성공 결과 재사용, 같은 키에 다른 파일이 와도 지문 비교 없이 기존 결과를 사용하는 정책, 처리 중 중복 요청의 비저장, 응답 유실 뒤 재요청, stale 복구 뒤 재처리를 통합 테스트한다.
 - 오류 계약은 requestId 형식, context의 허용 필드, 내부 경로·stack trace 비노출, FE 코드 기반 메시지 표시를 controller와 브라우저 smoke로 검증한다.
-- 감사 이력은 정책 생성·수정·삭제마다 전후 값과 action이 같은 트랜잭션으로 기록되고, 현재 상태 변경 실패 시 이력도 남지 않는지 JPA·통합 테스트한다.
+- 감사 이력은 정책 생성·수정·삭제마다 action과 이벤트 후 상태가 같은 트랜잭션으로 기록되고, 현재 상태 변경 실패 시 이력도 남지 않는지 JPA·통합 테스트한다. `BLOCKED_CHANGED`의 이전 상태는 직전 이력과 비교해 해석한다.
 - policy-set과 allowlist는 mode별 판정, scope 우선순위, global 강제 차단, shadow 결과, denylist 복귀를 도메인 단위 테스트로 먼저 고정하고 API 흐름을 통합 테스트한다.
 - 기존 테스트 관례대로 한글 `@DisplayName`과 given/when/then 주석을 사용한다. 고정 카탈로그의 개수·순서는 원천 카탈로그 또는 초기화 테스트 한 곳에서만 단언한다.
 
