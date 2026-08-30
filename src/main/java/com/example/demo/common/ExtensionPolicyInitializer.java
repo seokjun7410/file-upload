@@ -1,10 +1,11 @@
 package com.example.demo.common;
 
-import com.example.demo.domain.ExtensionPolicy;
-import com.example.demo.domain.ExtensionPolicyQuota;
-import com.example.demo.domain.ExtensionPolicyQuotaRepository;
-import com.example.demo.domain.ExtensionPolicyRepository;
-import com.example.demo.domain.FixedExtensionCatalog;
+import com.example.demo.file.domain.FixedExtensionCatalog;
+import com.example.demo.file.domain.entity.ExtensionPolicy;
+import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
+import com.example.demo.file.repository.ExtensionPolicyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -25,7 +26,7 @@ public class ExtensionPolicyInitializer implements CommandLineRunner {
         if (quotaRepository.findByQuotaKey(ExtensionPolicyQuota.CUSTOM_QUOTA_KEY).isEmpty()) {
             quotaRepository.save(ExtensionPolicyQuota.customDefault());
         }
-        for (String extension : FixedExtensionCatalog.defaultExtensions()) {
+        for (ExtensionName extension : FixedExtensionCatalog.defaultExtensions()) {
             if (!repository.existsByExtension(extension)) {
                 repository.save(ExtensionPolicy.fixed(extension));
             }

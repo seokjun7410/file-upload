@@ -2,11 +2,12 @@ package com.example.demo.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.example.demo.domain.ExtensionPolicy;
-import com.example.demo.domain.ExtensionPolicyQuota;
-import com.example.demo.domain.ExtensionPolicyQuotaRepository;
-import com.example.demo.domain.ExtensionPolicyRepository;
-import com.example.demo.domain.PolicyType;
+import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.entity.ExtensionPolicy;
+import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
+import com.example.demo.file.repository.ExtensionPolicyRepository;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,13 +40,13 @@ class ExtensionPolicyInitializerTests {
         // given
 
         // when
-        var policies = repository.findAllByOrderByIdAsc();
+        var policies = repository.findAllByPolicyTypeOrderByExtension_ValueAsc(PolicyType.FIXED);
 
         // then
         assertThat(policies)
-                .extracting(ExtensionPolicy::getExtension)
-                .containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js");
-        assertThat(policies).allMatch(policy -> policy.getPolicyType() == PolicyType.FIXED);
+                .extracting(policy -> policy.getExtension().value())
+                .containsExactly("bat", "cmd", "com", "cpl", "exe", "js", "scr");
+        assertThat(policies).allMatch(ExtensionPolicy::isFixed);
         assertThat(policies).allMatch(policy -> !policy.isBlocked());
     }
 
@@ -67,7 +68,7 @@ class ExtensionPolicyInitializerTests {
     @DisplayName("고정 확장자 초기화는 기존 차단 상태를 덮어쓰지 않는다")
     void initializerPreservesExistingBlockedState() {
         // given
-        ExtensionPolicy policy = repository.findByExtension("exe").orElseThrow();
+        ExtensionPolicy policy = repository.findByExtension(ExtensionName.from("exe")).orElseThrow();
         policy.changeBlocked(true);
         repository.saveAndFlush(policy);
         entityManager.clear();
@@ -76,6 +77,6 @@ class ExtensionPolicyInitializerTests {
         initializer.run();
 
         // then
-        assertThat(repository.findByExtension("exe").orElseThrow().isBlocked()).isTrue();
+        assertThat(repository.findByExtension(ExtensionName.from("exe")).orElseThrow().isBlocked()).isTrue();
     }
 }

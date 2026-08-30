@@ -7,11 +7,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.demo.common.ExtensionPolicyRestExceptionHandler;
-import com.example.demo.exception.BlockedExtensionException;
-import com.example.demo.exception.FileUploadFailedException;
-import com.example.demo.exception.InvalidFileException;
-import com.example.demo.service.FileUploadService;
-import com.example.demo.service.UploadedFile;
+import com.example.demo.file.controller.FileUploadRestController;
+import com.example.demo.file.exception.BlockedExtensionException;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.exception.FileUploadFailedException;
+import com.example.demo.file.exception.InvalidFileException;
+import com.example.demo.file.exception.handler.FileUploadExceptionHandler;
+import com.example.demo.file.service.FileUploadService;
+import com.example.demo.file.service.UploadedFile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +26,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(FileUploadRestController.class)
-@Import(ExtensionPolicyRestExceptionHandler.class)
+@Import({ExtensionPolicyRestExceptionHandler.class, FileUploadExceptionHandler.class})
 class FileUploadRestControllerTests {
 
     @Autowired
@@ -82,7 +85,8 @@ class FileUploadRestControllerTests {
     void rejectsBlockedExtension() throws Exception {
         // given
         var file = new MockMultipartFile("file", "malware.exe", "application/octet-stream", "blocked".getBytes());
-        when(service.upload(any(MultipartFile.class))).thenThrow(new BlockedExtensionException("exe"));
+        when(service.upload(any(MultipartFile.class)))
+                .thenThrow(new BlockedExtensionException(ExtensionName.from("exe")));
 
         // when
         var result = mockMvc.perform(multipart("/api/v1/files").file(file));

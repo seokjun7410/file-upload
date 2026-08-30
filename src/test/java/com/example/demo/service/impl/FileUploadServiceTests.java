@@ -3,14 +3,19 @@ package com.example.demo.service.impl;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.example.demo.exception.BlockedExtensionException;
-import com.example.demo.exception.FileUploadFailedException;
-import com.example.demo.exception.InvalidFileException;
-import com.example.demo.service.ExtensionPolicyService;
+import com.example.demo.file.exception.BlockedExtensionException;
+import com.example.demo.file.exception.FileUploadFailedException;
+import com.example.demo.file.exception.InvalidFileException;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.service.ExtensionPolicyService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import com.example.demo.file.service.impl.FileUploadServiceImpl;
+import com.example.demo.file.service.FileExtensionExtractor;
+import com.example.demo.file.service.impl.LocalFileStorage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -68,7 +73,7 @@ class FileUploadServiceTests {
     @DisplayName("차단된 고정 확장자는 저장하지 않는다")
     void rejectsBlockedFixedExtensionBeforeStorage() throws IOException {
         // given
-        extensionPolicyService.changeFixedBlocked("exe", true);
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
         var service = uploadService();
         var file = multipartFile("malware.exe", "blocked");
 
@@ -85,10 +90,10 @@ class FileUploadServiceTests {
     @DisplayName("커스텀 확장자를 삭제하면 같은 확장자 파일을 다시 업로드할 수 있다")
     void allowsCustomExtensionAfterPolicyDeletion() {
         // given
-        extensionPolicyService.registerCustom("sh");
+        extensionPolicyService.registerCustom(ExtensionName.from("sh"));
         var service = uploadService();
         var file = multipartFile("script.SH", "allowed after deletion");
-        extensionPolicyService.deleteCustom("sh");
+        extensionPolicyService.deleteCustom(ExtensionName.from("sh"));
 
         // when
         var uploadedFile = service.upload(file);
@@ -123,7 +128,8 @@ class FileUploadServiceTests {
         Files.createFile(fileInsteadOfDirectory);
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
-                new LocalFileStorage(fileInsteadOfDirectory)
+                new LocalFileStorage(fileInsteadOfDirectory),
+                new FileExtensionExtractor()
         );
         var file = multipartFile("readme.txt", "content");
 
@@ -139,7 +145,8 @@ class FileUploadServiceTests {
     private FileUploadServiceImpl uploadService() {
         return new FileUploadServiceImpl(
                 extensionPolicyService,
-                new LocalFileStorage(uploadDirectory)
+                new LocalFileStorage(uploadDirectory),
+                new FileExtensionExtractor()
         );
     }
 

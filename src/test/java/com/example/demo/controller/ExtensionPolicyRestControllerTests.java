@@ -14,13 +14,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.example.demo.common.ExtensionPolicyRestExceptionHandler;
-import com.example.demo.domain.ExtensionPolicy;
-import com.example.demo.exception.CustomExtensionLimitExceededException;
-import com.example.demo.exception.CustomExtensionPolicyNotFoundException;
-import com.example.demo.exception.DuplicateExtensionPolicyException;
-import com.example.demo.exception.FixedExtensionPolicyNotFoundException;
-import com.example.demo.exception.InvalidExtensionException;
-import com.example.demo.service.ExtensionPolicyService;
+import com.example.demo.file.controller.ExtensionPolicyRestController;
+import com.example.demo.file.domain.entity.ExtensionPolicy;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.exception.CustomExtensionLimitExceededException;
+import com.example.demo.file.exception.DuplicateExtensionPolicyException;
+import com.example.demo.common.EntityNotFoundException;
+import com.example.demo.file.exception.handler.ExtensionPolicyExceptionHandler;
+import com.example.demo.file.service.ExtensionPolicyService;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ExtensionPolicyRestController.class)
-@Import(ExtensionPolicyRestExceptionHandler.class)
+@Import({ExtensionPolicyRestExceptionHandler.class, ExtensionPolicyExceptionHandler.class})
 class ExtensionPolicyRestControllerTests {
 
     @Autowired
@@ -46,15 +47,15 @@ class ExtensionPolicyRestControllerTests {
     void getsExtensionPolicies() throws Exception {
         // given
         when(service.findAll()).thenReturn(List.of(
-                ExtensionPolicy.fixed("bat"),
-                ExtensionPolicy.fixed("cmd"),
-                ExtensionPolicy.fixed("com"),
-                ExtensionPolicy.fixed("cpl"),
-                ExtensionPolicy.fixed("exe"),
-                ExtensionPolicy.fixed("scr"),
-                ExtensionPolicy.fixed("js"),
-                ExtensionPolicy.custom("php"),
-                ExtensionPolicy.custom("sh")
+                ExtensionPolicy.fixed(ExtensionName.from("bat")),
+                ExtensionPolicy.fixed(ExtensionName.from("cmd")),
+                ExtensionPolicy.fixed(ExtensionName.from("com")),
+                ExtensionPolicy.fixed(ExtensionName.from("cpl")),
+                ExtensionPolicy.fixed(ExtensionName.from("exe")),
+                ExtensionPolicy.fixed(ExtensionName.from("scr")),
+                ExtensionPolicy.fixed(ExtensionName.from("js")),
+                ExtensionPolicy.custom(ExtensionName.from("php")),
+                ExtensionPolicy.custom(ExtensionName.from("sh"))
         ));
 
         // when
@@ -76,9 +77,9 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("고정 정책 변경 API는 변경된 정책을 200 응답으로 반환한다")
     void changesFixedPolicy() throws Exception {
         // given
-        ExtensionPolicy changedPolicy = ExtensionPolicy.fixed("exe");
+        ExtensionPolicy changedPolicy = ExtensionPolicy.fixed(ExtensionName.from("exe"));
         changedPolicy.changeBlocked(true);
-        when(service.changeFixedBlocked(eq("exe"), eq(true))).thenReturn(changedPolicy);
+        when(service.changeFixedBlocked(eq(ExtensionName.from("exe")), eq(true))).thenReturn(changedPolicy);
 
         // when
         var result = mockMvc.perform(patch("/api/v1/extension-policies/fixed/exe")
@@ -95,7 +96,8 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("커스텀 정책 등록 API는 정규화된 확장자를 201 응답으로 반환한다")
     void registersCustomPolicy() throws Exception {
         // given
-        when(service.registerCustom(" SH ")).thenReturn(ExtensionPolicy.custom("sh"));
+        when(service.registerCustom(eq(ExtensionName.from(" SH "))))
+                .thenReturn(ExtensionPolicy.custom(ExtensionName.from("sh")));
 
         // when
         var result = mockMvc.perform(post("/api/v1/extension-policies/custom")
@@ -111,7 +113,7 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("커스텀 정책 삭제 API는 본문 없는 204 응답을 반환한다")
     void deletesCustomPolicy() throws Exception {
         // given
-        doNothing().when(service).deleteCustom("SH");
+        doNothing().when(service).deleteCustom(ExtensionName.from("SH"));
 
         // when
         var result = mockMvc.perform(delete("/api/v1/extension-policies/custom/SH"));
@@ -125,9 +127,6 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("빈 확장자 요청은 INVALID_EXTENSION 오류를 반환한다")
     void rejectsBlankExtension() throws Exception {
         // given
-        when(service.registerCustom(" "))
-                .thenThrow(new InvalidExtensionException("extension must not be blank"));
-
         // when
         var result = mockMvc.perform(post("/api/v1/extension-policies/custom")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +174,7 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("이미 등록된 확장자 요청은 DUPLICATE_EXTENSION 오류를 반환한다")
     void rejectsDuplicateExtension() throws Exception {
         // given
-        when(service.registerCustom("exe"))
+        when(service.registerCustom(ExtensionName.from("exe")))
                 .thenThrow(new DuplicateExtensionPolicyException("extension policy already exists"));
 
         // when
@@ -192,7 +191,7 @@ class ExtensionPolicyRestControllerTests {
     @DisplayName("커스텀 최대 개수 초과 요청은 CUSTOM_LIMIT_EXCEEDED 오류를 반환한다")
     void rejectsCustomLimitExceeded() throws Exception {
         // given
-        when(service.registerCustom("overflow"))
+        when(service.registerCustom(ExtensionName.from("overflow")))
                 .thenThrow(new CustomExtensionLimitExceededException("custom extension policy limit exceeded"));
 
         // when
@@ -206,11 +205,11 @@ class ExtensionPolicyRestControllerTests {
     }
 
     @Test
-    @DisplayName("없는 고정 정책 변경 요청은 FIXED_EXTENSION_NOT_FOUND 오류를 반환한다")
+    @DisplayName("없는 고정 정책 변경 요청은 ENTITY_NOT_FOUND 오류를 반환한다")
     void rejectsUnknownFixedPolicy() throws Exception {
         // given
-        when(service.changeFixedBlocked(eq("unknown"), anyBoolean()))
-                .thenThrow(new FixedExtensionPolicyNotFoundException("fixed extension policy not found"));
+        when(service.changeFixedBlocked(eq(ExtensionName.from("unknown")), anyBoolean()))
+                .thenThrow(new EntityNotFoundException("fixed extension policy"));
 
         // when
         var result = mockMvc.perform(patch("/api/v1/extension-policies/fixed/unknown")
@@ -219,33 +218,31 @@ class ExtensionPolicyRestControllerTests {
 
         // then
         result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("FIXED_EXTENSION_NOT_FOUND"));
+                .andExpect(jsonPath("$.code").value("ENTITY_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("fixed extension policy not found"));
     }
 
     @Test
-    @DisplayName("없는 커스텀 정책 삭제 요청은 CUSTOM_EXTENSION_NOT_FOUND 오류를 반환한다")
+    @DisplayName("없는 커스텀 정책 삭제 요청은 ENTITY_NOT_FOUND 오류를 반환한다")
     void rejectsUnknownCustomPolicy() throws Exception {
         // given
-        doThrow(new CustomExtensionPolicyNotFoundException(
-                        "custom extension policy not found"
-                ))
+        doThrow(new EntityNotFoundException("custom extension policy"))
                 .when(service)
-                .deleteCustom("missing");
+                .deleteCustom(ExtensionName.from("missing"));
 
         // when
         var result = mockMvc.perform(delete("/api/v1/extension-policies/custom/missing"));
 
         // then
         result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("CUSTOM_EXTENSION_NOT_FOUND"));
+                .andExpect(jsonPath("$.code").value("ENTITY_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("custom extension policy not found"));
     }
 
     @Test
-    @DisplayName("서비스가 잘못된 확장자를 거부하면 INVALID_EXTENSION 오류를 반환한다")
+    @DisplayName("잘못된 확장자 요청은 INVALID_EXTENSION 오류를 반환한다")
     void mapsInvalidExtensionException() throws Exception {
         // given
-        when(service.registerCustom("tar.gz"))
-                .thenThrow(new InvalidExtensionException("extension must not contain a dot"));
 
         // when
         var result = mockMvc.perform(post("/api/v1/extension-policies/custom")

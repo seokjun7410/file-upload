@@ -67,7 +67,7 @@
 }
 ```
 
-- 알 수 없는 고정 확장자: `404 Not Found`와 `FIXED_EXTENSION_NOT_FOUND`
+- 정책 엔티티를 찾을 수 없음: `404 Not Found`와 `ENTITY_NOT_FOUND`
 
 ### 내부 체크리스트
 
@@ -145,7 +145,7 @@
 ### API 계약
 
 - 성공: `204 No Content`, 응답 본문 없음
-- 등록되지 않은 커스텀 확장자: `404 Not Found`, `CUSTOM_EXTENSION_NOT_FOUND`
+- 등록되지 않은 커스텀 확장자: `404 Not Found`, `ENTITY_NOT_FOUND`
 
 ### 내부 체크리스트
 
@@ -242,8 +242,7 @@
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
-| 고정 정책을 찾을 수 없음 | `404 Not Found` | `FIXED_EXTENSION_NOT_FOUND` |
-| 커스텀 정책을 찾을 수 없음 | `404 Not Found` | `CUSTOM_EXTENSION_NOT_FOUND` |
+| 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 
 - [x] Thymeleaf는 화면 구조와 정적 초기 페이지만 제공하며 `Model` 데이터를 사용하지 않는다.
 - [x] Thymeleaf 페이지 테스트로 화면이 정상 렌더링되고 서버 `Model` 데이터에 의존하지 않는지 검증한다.

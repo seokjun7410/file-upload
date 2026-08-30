@@ -29,10 +29,10 @@
     { "extension": "com", "blocked": false },
     { "extension": "cpl", "blocked": false },
     { "extension": "exe", "blocked": true },
-    { "extension": "scr", "blocked": false },
-    { "extension": "js", "blocked": false }
+    { "extension": "js", "blocked": false },
+    { "extension": "scr", "blocked": false }
   ],
-  "custom": ["sh", "php"]
+  "custom": ["php", "sh"]
 }
 ```
 
@@ -165,8 +165,7 @@
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
-| 고정 정책을 찾을 수 없음 | `404 Not Found` | `FIXED_EXTENSION_NOT_FOUND` |
-| 커스텀 정책을 찾을 수 없음 | `404 Not Found` | `CUSTOM_EXTENSION_NOT_FOUND` |
+| 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 | 업로드 파일 누락·빈 파일·무확장 파일 | `400 Bad Request` | `INVALID_FILE` |
 | 차단된 확장자 파일 업로드 | `422 Unprocessable Entity` | `BLOCKED_EXTENSION` |
 | 파일 저장 실패 | `500 Internal Server Error` | `FILE_UPLOAD_FAILED` |

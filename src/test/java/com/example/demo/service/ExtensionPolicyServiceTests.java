@@ -3,19 +3,20 @@ package com.example.demo.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.example.demo.domain.ExtensionPolicy;
-import com.example.demo.domain.ExtensionPolicyRepository;
-import com.example.demo.domain.ExtensionPolicyQuota;
-import com.example.demo.domain.ExtensionPolicyQuotaRepository;
-import com.example.demo.domain.PolicyType;
-import com.example.demo.exception.CustomExtensionPolicyNotFoundException;
-import com.example.demo.exception.FixedExtensionPolicyNotFoundException;
+import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
+import com.example.demo.file.repository.ExtensionPolicyRepository;
+import com.example.demo.common.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import com.example.demo.file.service.ExtensionPolicyService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,27 +45,27 @@ class ExtensionPolicyServiceTests {
         // given
 
         // when
-        var policy = service.registerCustom(" Sh ");
+        var policy = service.registerCustom(ExtensionName.from(" Sh "));
 
         // then
-        assertThat(policy.getExtension()).isEqualTo("sh");
+        assertThat(policy.getExtension().value()).isEqualTo("sh");
         assertThat(repository.countByPolicyType(PolicyType.CUSTOM)).isEqualTo(1);
     }
 
     @Test
-    @DisplayName("정책 조회는 고정 확장자를 목록 순서로 먼저 반환하고 커스텀 확장자를 뒤에 반환한다")
-    void findsPoliciesInCatalogOrderThenCustomOrder() {
+    @DisplayName("정책 조회는 fixed와 custom을 각각 확장자명 오름차순으로 반환한다")
+    void findsPoliciesInTypeAndExtensionAscendingOrder() {
         // given
-        service.registerCustom(" PHP ");
-        service.registerCustom("sh");
+        service.registerCustom(ExtensionName.from(" PHP "));
+        service.registerCustom(ExtensionName.from("sh"));
 
         // when
         var policies = service.findAll();
 
         // then
         assertThat(policies)
-                .extracting(ExtensionPolicy::getExtension)
-                .containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js", "php", "sh");
+                .extracting(policy -> policy.getExtension().value())
+                .containsExactly("bat", "cmd", "com", "cpl", "exe", "js", "scr", "php", "sh");
     }
 
     @Test
@@ -73,24 +74,24 @@ class ExtensionPolicyServiceTests {
         // given
 
         // when
-        var policy = service.changeFixedBlocked(" EXE ", true);
+        var policy = service.changeFixedBlocked(ExtensionName.from(" EXE "), true);
 
         // then
         assertThat(policy.isBlocked()).isTrue();
-        assertThat(repository.findByExtension("exe").orElseThrow().isBlocked()).isTrue();
+        assertThat(repository.findByExtension(ExtensionName.from("exe")).orElseThrow().isBlocked()).isTrue();
     }
 
     @Test
     @DisplayName("저장된 고정·커스텀 정책의 차단 상태를 판정한다")
     void determinesBlockedPolicyState() {
         // given
-        service.registerCustom("sh");
-        service.changeFixedBlocked("exe", true);
+        service.registerCustom(ExtensionName.from("sh"));
+        service.changeFixedBlocked(ExtensionName.from("exe"), true);
 
         // when
-        boolean blockedFixed = service.isBlocked(" EXE ");
-        boolean blockedCustom = service.isBlocked(" SH ");
-        boolean allowedExtension = service.isBlocked("txt");
+        boolean blockedFixed = service.isBlocked(ExtensionName.from(" EXE "));
+        boolean blockedCustom = service.isBlocked(ExtensionName.from(" SH "));
+        boolean allowedExtension = service.isBlocked(ExtensionName.from("txt"));
 
         // then
         assertThat(blockedFixed).isTrue();
@@ -102,13 +103,13 @@ class ExtensionPolicyServiceTests {
     @DisplayName("커스텀 확장자를 물리적으로 삭제한다")
     void deletesCustomPolicyPhysically() {
         // given
-        service.registerCustom("sh");
+        service.registerCustom(ExtensionName.from("sh"));
 
         // when
-        service.deleteCustom(" SH ");
+        service.deleteCustom(ExtensionName.from(" SH "));
 
         // then
-        assertThat(repository.findByExtension("sh")).isEmpty();
+        assertThat(repository.findByExtension(ExtensionName.from("sh"))).isEmpty();
     }
 
     @Test
@@ -119,33 +120,33 @@ class ExtensionPolicyServiceTests {
         // when
 
         // then
-        assertThatThrownBy(() -> service.deleteCustom("exe"))
-                .isInstanceOf(CustomExtensionPolicyNotFoundException.class);
+        assertThatThrownBy(() -> service.deleteCustom(ExtensionName.from("exe")))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @DisplayName("커스텀 확장자를 고정 정책처럼 변경할 수 없다")
     void rejectsChangingCustomPolicyAsFixed() {
         // given
-        service.registerCustom("sh");
+        service.registerCustom(ExtensionName.from("sh"));
 
         // when
 
         // then
-        assertThatThrownBy(() -> service.changeFixedBlocked("sh", true))
-                .isInstanceOf(FixedExtensionPolicyNotFoundException.class);
+        assertThatThrownBy(() -> service.changeFixedBlocked(ExtensionName.from("sh"), true))
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
     @Test
     @DisplayName("이미 존재하는 정규화 확장자는 커스텀 정책으로 다시 등록할 수 없다")
     void rejectsDuplicateCustomExtension() {
         // given
-        service.registerCustom("sh");
+        service.registerCustom(ExtensionName.from("sh"));
 
         // when
 
         // then
-        assertThatThrownBy(() -> service.registerCustom(" SH "))
+        assertThatThrownBy(() -> service.registerCustom(ExtensionName.from(" SH ")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("extension policy already exists");
     }
@@ -159,13 +160,13 @@ class ExtensionPolicyServiceTests {
                 .orElseThrow()
                 .getMaxCount();
         for (int index = 0; index < maxCount; index++) {
-            service.registerCustom("custom" + index);
+            service.registerCustom(ExtensionName.from("custom" + index));
         }
 
         // when
 
         // then
-        assertThatThrownBy(() -> service.registerCustom("overflow"))
+        assertThatThrownBy(() -> service.registerCustom(ExtensionName.from("overflow")))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("custom extension policy limit exceeded");
     }
@@ -205,7 +206,7 @@ class ExtensionPolicyServiceTests {
     private boolean registerAfter(CountDownLatch start, int requestIndex) throws InterruptedException {
         start.await();
         try {
-            service.registerCustom("parallel" + requestIndex);
+            service.registerCustom(ExtensionName.from("parallel" + requestIndex));
             return true;
         } catch (IllegalStateException exception) {
             return false;

@@ -3,6 +3,9 @@ package com.example.demo.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.example.demo.file.domain.FixedExtensionCatalog;
+import com.example.demo.file.domain.entity.ExtensionPolicy;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,12 +18,14 @@ class ExtensionPolicyDomainTests {
         String extension = " EXE ";
 
         // when
-        ExtensionPolicy policy = ExtensionPolicy.fixed(extension);
+        ExtensionPolicy policy = ExtensionPolicy.fixed(ExtensionName.from(extension));
 
         // then
-        assertThat(policy.getExtension()).isEqualTo("exe");
-        assertThat(policy.getPolicyType()).isEqualTo(PolicyType.FIXED);
+        assertThat(policy.getExtension().value()).isEqualTo("exe");
+        assertThat(policy.isFixed()).isTrue();
+        assertThat(policy.isCustom()).isFalse();
         assertThat(policy.isBlocked()).isFalse();
+        assertThat(policy.isBlockedForUpload()).isFalse();
     }
 
     @Test
@@ -29,11 +34,13 @@ class ExtensionPolicyDomainTests {
         // given
 
         // when
-        ExtensionPolicy policy = ExtensionPolicy.custom("sh");
+        ExtensionPolicy policy = ExtensionPolicy.custom(ExtensionName.from("sh"));
 
         // then
-        assertThat(policy.getPolicyType()).isEqualTo(PolicyType.CUSTOM);
+        assertThat(policy.isFixed()).isFalse();
+        assertThat(policy.isCustom()).isTrue();
         assertThat(policy.isBlocked()).isTrue();
+        assertThat(policy.isBlockedForUpload()).isTrue();
     }
 
     @Test
@@ -44,7 +51,7 @@ class ExtensionPolicyDomainTests {
         // when
 
         // then
-        assertThatThrownBy(() -> ExtensionPolicy.fixed("unknown"))
+        assertThatThrownBy(() -> ExtensionPolicy.fixed(ExtensionName.from("unknown")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("fixed policy must use a catalog extension");
     }
@@ -57,7 +64,7 @@ class ExtensionPolicyDomainTests {
         // when
 
         // then
-        assertThatThrownBy(() -> ExtensionPolicy.custom("exe"))
+        assertThatThrownBy(() -> ExtensionPolicy.custom(ExtensionName.from("exe")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("custom policy cannot use a fixed extension");
     }
@@ -66,7 +73,7 @@ class ExtensionPolicyDomainTests {
     @DisplayName("고정 정책의 차단 상태를 변경할 수 있다")
     void fixedPolicyChangesBlockedState() {
         // given
-        ExtensionPolicy policy = ExtensionPolicy.fixed("exe");
+        ExtensionPolicy policy = ExtensionPolicy.fixed(ExtensionName.from("exe"));
 
         // when
         policy.changeBlocked(true);
@@ -79,7 +86,7 @@ class ExtensionPolicyDomainTests {
     @DisplayName("커스텀 정책의 차단 상태를 직접 변경할 수 없다")
     void customPolicyCannotChangeBlockedState() {
         // given
-        ExtensionPolicy policy = ExtensionPolicy.custom("sh");
+        ExtensionPolicy policy = ExtensionPolicy.custom(ExtensionName.from("sh"));
 
         // when
 
@@ -97,7 +104,7 @@ class ExtensionPolicyDomainTests {
         // when
 
         // then
-        assertThatThrownBy(() -> ExtensionPolicy.custom(" "))
+        assertThatThrownBy(() -> ExtensionPolicy.custom(ExtensionName.from(" ")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("extension must not be blank");
     }
@@ -110,7 +117,7 @@ class ExtensionPolicyDomainTests {
         // when
 
         // then
-        assertThatThrownBy(() -> ExtensionPolicy.custom(null))
+        assertThatThrownBy(() -> ExtensionPolicy.custom(ExtensionName.from(null)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("extension must not be blank");
     }
@@ -122,10 +129,10 @@ class ExtensionPolicyDomainTests {
         String extension = "abcdefghijklmnopqrst";
 
         // when
-        ExtensionPolicy policy = ExtensionPolicy.custom(extension);
+        ExtensionPolicy policy = ExtensionPolicy.custom(ExtensionName.from(extension));
 
         // then
-        assertThat(policy.getExtension()).isEqualTo(extension);
+        assertThat(policy.getExtension().value()).isEqualTo(extension);
     }
 
     @Test
@@ -137,7 +144,7 @@ class ExtensionPolicyDomainTests {
         // when
 
         // then
-        assertThatThrownBy(() -> ExtensionPolicy.custom(extension))
+        assertThatThrownBy(() -> ExtensionPolicy.custom(ExtensionName.from(extension)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("extension must be 20 characters or fewer");
     }
@@ -148,7 +155,7 @@ class ExtensionPolicyDomainTests {
         // given
 
         // when / then
-        assertThatThrownBy(() -> ExtensionPolicy.custom("tar.gz"))
+        assertThatThrownBy(() -> ExtensionPolicy.custom(ExtensionName.from("tar.gz")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("extension must not contain a dot");
     }
@@ -162,6 +169,8 @@ class ExtensionPolicyDomainTests {
         var extensions = FixedExtensionCatalog.defaultExtensions();
 
         // then
-        assertThat(extensions).containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js");
+        assertThat(extensions)
+                .extracting(ExtensionName::value)
+                .containsExactly("bat", "cmd", "com", "cpl", "exe", "scr", "js");
     }
 }

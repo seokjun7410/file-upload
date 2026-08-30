@@ -3,6 +3,11 @@ package com.example.demo.domain;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.entity.ExtensionPolicy;
+import com.example.demo.file.domain.entity.vo.ExtensionName;
+import com.example.demo.file.repository.ExtensionPolicyRepository;
+import java.time.LocalDateTime;
 import jakarta.persistence.EntityManager;
 import org.hibernate.exception.DataException;
 import org.hibernate.exception.ConstraintViolationException;
@@ -21,38 +26,73 @@ class ExtensionPolicyRepositoryTests {
     @Autowired
     private EntityManager entityManager;
 
+    /** 엔티티 저장 시 생성 시각을 기록하고 변경 시 수정 시각을 갱신하는지 검증한다. */
     @Test
-    @DisplayName("fixed와 custom 정책을 하나의 테이블에 저장하고 유형과 상태를 조회할 수 있다")
-    void savesAndLoadsPoliciesFromOneTable() {
+    @DisplayName("정책을 저장하면 생성 시각과 수정 시각이 기록되고 변경 시 수정 시각이 갱신된다")
+    void recordsCreatedAtAndUpdatesUpdatedAt() throws InterruptedException {
         // given
-        ExtensionPolicy fixed = repository.save(ExtensionPolicy.fixed("exe"));
-        ExtensionPolicy custom = repository.save(ExtensionPolicy.custom("sh"));
+        ExtensionPolicy policy = ExtensionPolicy.fixed(ExtensionName.from("exe"));
 
         // when
-        repository.flush();
-        var policies = repository.findAllByOrderByIdAsc();
+        repository.saveAndFlush(policy);
+        LocalDateTime createdAt = policy.getCreatedAt();
+        LocalDateTime firstUpdatedAt = policy.getUpdatedAt();
+        Thread.sleep(2);
+        policy.changeBlocked(true);
+        repository.saveAndFlush(policy);
 
         // then
-        assertThat(policies).hasSize(2);
-        assertThat(repository.findByExtension("exe").orElseThrow().getPolicyType())
+        assertThat(createdAt).isNotNull();
+        assertThat(firstUpdatedAt).isNotNull();
+        assertThat(policy.getCreatedAt()).isEqualTo(createdAt);
+        assertThat(policy.getUpdatedAt()).isAfter(firstUpdatedAt);
+    }
+
+    @Test
+    @DisplayName("fixed와 custom 정책을 유형별 확장자 오름차순으로 조회한다")
+    void savesAndLoadsPoliciesInTypeAndExtensionOrder() {
+        // given
+        ExtensionPolicy fixed = repository.save(ExtensionPolicy.fixed(ExtensionName.from("exe")));
+        ExtensionPolicy secondFixed = repository.save(ExtensionPolicy.fixed(ExtensionName.from("js")));
+        ExtensionPolicy custom = repository.save(ExtensionPolicy.custom(ExtensionName.from("sh")));
+        ExtensionPolicy secondCustom = repository.save(ExtensionPolicy.custom(ExtensionName.from("php")));
+
+        // when
+        var fixedPolicies = repository.findAllByPolicyTypeOrderByExtension_ValueAsc(PolicyType.FIXED);
+        var customPolicies = repository.findAllByPolicyTypeOrderByExtension_ValueAsc(PolicyType.CUSTOM);
+
+        // then
+        assertThat(fixedPolicies)
+                .extracting(policy -> policy.getExtension().value())
+                .containsExactly("exe", "js");
+        assertThat(customPolicies)
+                .extracting(policy -> policy.getExtension().value())
+                .containsExactly("php", "sh");
+        entityManager.flush();
+        entityManager.clear();
+        ExtensionPolicy loadedFixed = repository.findByExtension(ExtensionName.from("exe")).orElseThrow();
+        assertThat(loadedFixed.getExtension()).isEqualTo(ExtensionName.from("exe"));
+        assertThat(loadedFixed.getPolicyType())
                 .isEqualTo(PolicyType.FIXED);
-        assertThat(repository.findByExtension("sh").orElseThrow().getPolicyType())
+        assertThat(repository.findByExtension(ExtensionName.from("sh")).orElseThrow().getPolicyType())
                 .isEqualTo(PolicyType.CUSTOM);
         assertThat(fixed.getId()).isNotNull();
+        assertThat(secondFixed.getId()).isNotNull();
         assertThat(custom.getId()).isNotNull();
+        assertThat(secondCustom.getId()).isNotNull();
     }
 
     @Test
     @DisplayName("하나의 정규화 확장자에는 하나의 정책만 저장할 수 있다")
     void rejectsDuplicateNormalizedExtension() {
         // given
-        repository.saveAndFlush(ExtensionPolicy.fixed(" EXE "));
+        repository.saveAndFlush(ExtensionPolicy.fixed(ExtensionName.from(" EXE ")));
 
         // when
 
         // then
         assertThatThrownBy(
-                        () -> repository.saveAndFlush(ExtensionPolicy.fixed("exe"))
+                        () -> repository.saveAndFlush(ExtensionPolicy.fixed(ExtensionName.from("exe")))
                 )
                 .isInstanceOf(DataIntegrityViolationException.class)
                 .hasMessageContaining("UK_EXTENSION_POLICY_EXTENSION");
