@@ -150,23 +150,23 @@
 | `src/main/java/com/example/demo/file/controller` | Thymeleaf 페이지와 정책·파일 업로드 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `FileUploadRestController` |
 | `src/main/java/com/example/demo/file/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
 | `src/main/java/com/example/demo/file/controller/dto/res` | 엔티티·업로드 결과를 REST 응답으로 변환 | 정책·파일 업로드 응답 record |
-| `src/main/java/com/example/demo/file/domain` | 확장자 정책 유형, 고정 카탈로그, 정규화·검증 규칙 | `FixedExtensionCatalog`, `PolicyType`, `ExtensionNormalizer`, `ExtensionValidator` |
+| `src/main/java/com/example/demo/file/domain` | 확장자 정책 유형, 고정 카탈로그, 정규화·검증·실행 MIME 차단 규칙 | `FixedExtensionCatalog`, `ExecutableMimeCatalog`, `PolicyType`, `ExtensionNormalizer`, `ExtensionValidator` |
 | `src/main/java/com/example/demo/file/domain/entity` | 확장자 정책과 등록 한도를 표현하는 JPA 엔티티 | `ExtensionPolicy`, `ExtensionPolicyQuota` |
 | `src/main/java/com/example/demo/file/domain/entity/vo` | 엔티티와 서비스가 사용하는 정규화·검증된 값 객체 | `ExtensionName` |
 | `src/main/java/com/example/demo/file/repository` | 확장자 정책과 등록 한도의 영속성 저장소 인터페이스 | `ExtensionPolicyRepository`, `ExtensionPolicyQuotaRepository` |
-| `src/main/java/com/example/demo/file/exception` | 확장자 정책·파일 업로드 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책·파일 입력·차단·저장 실패 예외 |
+| `src/main/java/com/example/demo/file/exception` | 확장자 정책·파일 업로드 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책·파일 입력·확장자·실행 MIME·저장 실패 예외 |
 | `src/main/java/com/example/demo/file/exception/handler` | 도메인·기능별 예외를 REST 오류 응답으로 변환 | `ExtensionPolicyExceptionHandler`, `FileUploadExceptionHandler` |
-| `src/main/java/com/example/demo/file/service` | 정책·파일 업로드 기능의 인터페이스와 파일 저장 포트 | `ExtensionPolicyService`, `FileUploadService`, `FileStorage` |
-| `src/main/java/com/example/demo/file/service/impl` | 정책 저장소·quota·파일명 추출·로컬 파일 저장을 조정해 서비스 구현 | `ExtensionPolicyServiceImpl`, `FileExtensionExtractor`, `FileUploadServiceImpl`, `LocalFileStorage` |
+| `src/main/java/com/example/demo/file/service` | 정책·파일 업로드 기능의 인터페이스, MIME 감지 결과와 파일 저장 포트 | `ExtensionPolicyService`, `FileUploadService`, `MimeTypeDetector`, `MimeTypeDetectionResult`, `FileStorage` |
+| `src/main/java/com/example/demo/file/service/impl` | 정책 저장소·quota·파일명·MIME 감지·로컬 파일 저장을 조정해 서비스 구현 | `ExtensionPolicyServiceImpl`, `FileExtensionExtractor`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`, `LocalFileStorage` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
 | `src/main/resources/static/js` | Axios로 정책을 조회·변경하고 파일 업로드 결과를 화면에 반영 | `extension-policy.js` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
 | `src/test/java/com/example/demo/common` | 초기 데이터 구성 테스트 | `ExtensionPolicyInitializerTests` |
 | `src/test/java/com/example/demo/controller` | 파일 업로드 페이지와 정책 REST 요청·응답·DB 통합 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests`, `ExtensionPolicyApiIntegrationTests` |
-| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests`, 정규화·검증·값 객체 테스트 |
+| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota·실행 MIME 카탈로그 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests`, `ExecutableMimeCatalogTests`, 정규화·검증·값 객체 테스트 |
 | `src/test/java/com/example/demo/service` | 확장자 정책 등록·중복·최대 개수·동시성 테스트 | `ExtensionPolicyServiceTests` |
-| `src/test/java/com/example/demo/service/impl` | 파일명 확장자 추출과 업로드 서비스 orchestration 테스트 | `FileExtensionExtractorTests`, `FileUploadServiceTests` |
+| `src/test/java/com/example/demo/service/impl` | 파일명 확장자 추출·MIME 감지와 업로드 서비스 orchestration 테스트 | `FileExtensionExtractorTests`, `TikaMimeTypeDetectorTests`, `FileUploadMimePolicyTests`, `FileUploadServiceTests` |
 
 ### 패키지 설계 원칙
 

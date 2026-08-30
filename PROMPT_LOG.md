@@ -1385,3 +1385,22 @@
 - 검증 근거: `git push origin docs`가 `Permission denied`와 HTTP 403으로 실패했다.
 - 결과와 연결 문서: 로컬 커밋 `e4d2207`; 원격 push는 미완료
 - 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 뒤 `git push origin docs`를 재시도해야 한다.
+
+## 2026-08-30T21:34:07+09:00 — 실행 MIME 차단 구현 완료
+
+- 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
+- 시간 근거: 기능 커밋 `b171051`과 전체 `./gradlew test` 성공 시각
+- 스프린트/범위: 스프린트 2 ADR 0005 실행 MIME denylist 기반 업로드 검증
+- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), `ExecutableMimeCatalog`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`
+- 요청·질문 요약: 확장자와 MIME 불일치를 일괄 차단하지 않고 실행 가능한 MIME만 차단하며, `.txt`·`text/plain`과 미확인 MIME·감지 실패는 허용한다.
+- 배경과 제약: 파일 확장자와 multipart `Content-Type`은 신뢰할 수 없지만 MIME 감지만으로 악성코드나 텍스트 스크립트 의미를 완전히 판정할 수 없다. 기존 확장자 denylist와 서버 생성 파일명 저장은 유지한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`
+  - plugin/도구: `apply_patch`, `./gradlew test`, Git
+- AI 제안: Tika를 파일 바이트에만 적용하고, 실행 MIME 카탈로그에 포함될 때 `BLOCKED_EXECUTABLE_MIME` 422로 차단한다. 미확인·감지 실패는 민감 정보 없이 경고 후 기존 정책으로 위임한다.
+- 사람의 판단과 이유: 채택. 텍스트 파일 사용성을 보존하면서 명백한 바이너리 실행 파일 위장을 줄이는 수준을 현재 스프린트의 적정 보안 경계로 결정했다.
+- 코드·사용자 경험 영향: `.txt` 파일은 정상 업로드되고, `MZ` 실행 파일을 `.txt`로 바꾼 대표 fixture는 저장 전에 거부된다. MIME 불일치 자체는 거부하지 않는다.
+- 검증 근거: 카탈로그·Tika 감지기·서비스 단위 테스트, 실제 Tika `MZ` 헤더 테스트, MockMvc 오류 계약 테스트, 기존 업로드 회귀 테스트와 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: 기능 커밋 `b171051`; 문서 후속 커밋에서 ADR 구현 상태·패키지 인덱스·체크리스트를 갱신한다.
+- 회고와 후속 조치: `text/javascript`·`text/x-shellscript`의 의미 분석과 악성코드 검사는 하지 않는다. 다운로드·미리보기·파싱 기능을 추가할 때 실행·렌더링 경계를 별도 결정한다.
