@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API와 Axios 정책 조회·고정 정책 변경 화면까지 구현되어 있으며, 커스텀 정책 변경 화면·파일 저장은 다음 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API·Axios 정책 관리 화면·multipart 파일 저장 및 업로드 정책 적용까지 구현되어 있다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 작성 규칙 인덱스
