@@ -131,6 +131,8 @@
 
 서버는 원본 파일명을 사용하지 않고 UUID와 정규화된 마지막 확장자로 생성한 이름을 `./uploads`에 저장한다. 예를 들어 `archive.TAR.GZ`는 `*.gz` 파일로 저장된다. `.bashrc`, `README`, `file.`처럼 확장자를 추출할 수 없는 파일은 거부한다.
 
+업로드 MIME은 multipart 요청의 `Content-Type`이나 원본 파일명이 아니라 파일 콘텐츠에서 감지한다. 실행 가능한 MIME으로 판정되지 않은 파일은 기존 확장자 차단 정책을 통과하면 허용한다. 따라서 `.txt`와 `text/plain` 파일은 업로드할 수 있으며, 확장자와 MIME이 다르다는 사실만으로는 차단하지 않는다. MIME을 확인할 수 없는 파일은 경고 로그를 남기고 업로드를 계속한다.
+
 ### 차단 Response `422 Unprocessable Entity`
 
 ```json
@@ -145,6 +147,17 @@
 
 차단된 파일은 파일 저장을 수행하지 않는다.
 
+콘텐츠가 실행 가능한 MIME으로 감지된 경우에는 다음 오류를 반환한다.
+
+```json
+{
+  "code": "BLOCKED_EXECUTABLE_MIME",
+  "message": "실행 가능한 파일 형식은 업로드할 수 없습니다."
+}
+```
+
+실행 MIME 상세값과 원본 파일명은 응답에 포함하지 않는다.
+
 사용자에게 표시할 문장은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 FE가 `code`와 `context`로 조립한다. 기존 구현과의 호환을 위해 서버 `message`가 일시적으로 포함될 수 있지만, FE는 `message` 문자열을 분기 기준으로 사용하지 않는다.
 
 ### 오류
@@ -152,6 +165,7 @@
 - `400 Bad Request`, `INVALID_FILE`: 파일이 없거나 비어 있거나 확장자를 추출할 수 없는 요청
 - `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
 - `422 Unprocessable Entity`: 차단 확장자
+- `422 Unprocessable Entity`, `BLOCKED_EXECUTABLE_MIME`: 실행 가능한 MIME으로 감지된 파일
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
 
 파일 용량 제한은 multipart 파싱 단계에서 적용되므로 확장자 정책·MIME·파일 저장
