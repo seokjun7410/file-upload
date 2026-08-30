@@ -7,22 +7,13 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API와 Axios 정책 조회·고정 정책 변경 화면까지 구현되어 있으며, 커스텀 정책 변경 화면·파일 저장은 다음 단계다.
+- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API·Axios 정책 관리 화면·multipart 파일 저장 및 업로드 정책 적용까지 구현되어 있다.
 - 현재 기준 브랜치: `main`
 
-## 2. 코드 가독성 우선
+## 2. 코드 작성 규칙 인덱스
 
-- 프로그래밍 초보자도 이해할 수 있도록 간결하고 책임이 나뉜 코드를 작성한다.
-- 긴 함수형 코드와 일반적으로 잘 사용되지 않는 기법은 피한다.
-- 객체지향과 다형성은 실제 책임 분리와 확장성에 도움이 되는 곳에만 사용한다.
-- 과도한 성능 최적화보다 읽기 쉬운 구조를 우선한다. 애매한 선택에서는 가독성을 선택한다.
-- 공개 클래스, 레코드, 인터페이스, enum에는 코드를 읽지 않아도 책임과 도메인 맥락을 이해할 수 있는 Javadoc을 작성한다.
-- 모든 공개 메서드와 private 메서드(테스트 보조 메서드 포함)에는 Javadoc을 작성한다. Javadoc에는 해당 메서드가 무엇을 조회·변경·판단하는지와 반환 결과를 호출자가 어떻게 해석해야 하는지를 설명한다.
-- 단순한 record accessor처럼 의미가 자명한 메서드는 메서드 Javadoc을 생략할 수 있다.
-- enum과 enum 상수에는 단순한 번역이 아니라 그래프·분석 파이프라인에서 어떤 상태나 관계를 의미하는지 설명한다.
-- 주석은 코드의 내용을 반복하지 말고, 복잡한 이유와 의도를 설명한다.
-- 주석과 Javadoc을 읽으면 해당 타입의 책임, 주요 입력·출력, 다른 도메인 객체와의 관계, 실패·미확정 상태의 의미를 파악할 수 있어야 한다.
-- 구현을 변경할 때 관련 주석의 계약과 실제 동작이 어긋나지 않는지 함께 검토하고 수정한다.
+- 코드의 가독성, 책임 분리, 도메인 모델링, Lombok 사용, 예외·트랜잭션·테스트 작성 기준은 [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md)를 따른다.
+- 이 문서는 작업 범위·문서 인덱스·브랜치·커밋·검증 절차를 정의하고, 세부 코드 표현 규칙은 위 문서에서 관리한다.
 
 ## 3. 요구사항 범위와 의사결정
 
@@ -114,6 +105,8 @@
 | [`docs/adr/0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md) | fixed/custom을 단일 `ExtensionPolicy` 엔티티와 유형으로 관리하는 결정과 결과 | accepted |
 | [`docs/adr/0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md) | 고정 정책 변경 결과가 불확실할 때 서버 저장 상태를 기준으로 일관성을 복구하는 결정 | accepted |
 | [`docs/adr/0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md) | 서버 생성 파일명·로컬 저장 위치·업로드 오류 상태와 코드의 장기 정책 | accepted |
+| [`docs/adr/0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md) | 확장자 정규화·검증을 `ExtensionName` 값 객체로 통합하는 모듈 경계 | accepted |
+| [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md) | 코드 가독성·책임 분리·도메인 모델링·Lombok·예외·트랜잭션·테스트 작성 규칙 | 세션 리팩터링 기준으로 정리한 코드 작성 기준 |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 
@@ -136,23 +129,27 @@
 | 경로 | 책임 | 주요 구성 |
 |---|---|---|
 | `src/main/java/com/example/demo` | Spring Boot 애플리케이션 진입점과 전역 구성 | `DemoApplication` |
-| `src/main/java/com/example/demo/common` | JPA 공통 식별자, 초기 데이터 구성, REST 예외와 공통 오류 응답 변환 | `BaseEntity`, `ExtensionPolicyInitializer`, `ExtensionPolicyRestExceptionHandler`, `ErrorResponse` |
-| `src/main/java/com/example/demo/controller` | Thymeleaf 페이지와 정책·파일 업로드 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `FileUploadRestController` |
-| `src/main/java/com/example/demo/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
-| `src/main/java/com/example/demo/controller/dto/res` | 엔티티·업로드 결과를 REST 응답으로 변환 | 정책·파일 업로드 응답 record |
-| `src/main/java/com/example/demo/domain` | 확장자 정책 도메인, 정책 유형, 영속성 저장소와 quota | `ExtensionPolicy`, `PolicyType`, `ExtensionPolicyQuota`, 정책 저장소 |
-| `src/main/java/com/example/demo/domain/validator` | 도메인과 API가 공유하는 확장자 형식 검증·정규화 | `ExtensionValidator` |
-| `src/main/java/com/example/demo/exception` | 확장자 정책·파일 업로드 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책·파일 입력·차단·저장 실패 예외 |
-| `src/main/java/com/example/demo/service` | 컨트롤러가 사용하는 정책·파일 업로드 기능의 인터페이스 | `ExtensionPolicyService`, `FileUploadService`, `FileStorage` |
-| `src/main/java/com/example/demo/service/impl` | 정책 저장소·quota·로컬 파일 저장을 조정해 서비스 인터페이스를 구현 | `ExtensionPolicyServiceImpl`, `FileUploadServiceImpl`, `LocalFileStorage` |
+| `src/main/java/com/example/demo/common` | JPA 공통 식별자, 초기 데이터 구성, 공통 REST 오류 응답과 전역 예외 | `BaseEntity`, `EntityNotFoundException`, `ExtensionPolicyInitializer`, `ExtensionPolicyRestExceptionHandler`, `ErrorResponse` |
+| `src/main/java/com/example/demo/file/controller` | Thymeleaf 페이지와 정책·파일 업로드 REST 요청 처리 | `FileUploadPageController`, `ExtensionPolicyRestController`, `FileUploadRestController` |
+| `src/main/java/com/example/demo/file/controller/dto/req` | 정책 REST 요청 값을 표현하고 필수값을 검증 | 정책 요청 record |
+| `src/main/java/com/example/demo/file/controller/dto/res` | 엔티티·업로드 결과를 REST 응답으로 변환 | 정책·파일 업로드 응답 record |
+| `src/main/java/com/example/demo/file/domain` | 확장자 정책 유형, 고정 카탈로그, 정규화·검증 규칙 | `FixedExtensionCatalog`, `PolicyType`, `ExtensionNormalizer`, `ExtensionValidator` |
+| `src/main/java/com/example/demo/file/domain/entity` | 확장자 정책과 등록 한도를 표현하는 JPA 엔티티 | `ExtensionPolicy`, `ExtensionPolicyQuota` |
+| `src/main/java/com/example/demo/file/domain/entity/vo` | 엔티티와 서비스가 사용하는 정규화·검증된 값 객체 | `ExtensionName` |
+| `src/main/java/com/example/demo/file/repository` | 확장자 정책과 등록 한도의 영속성 저장소 인터페이스 | `ExtensionPolicyRepository`, `ExtensionPolicyQuotaRepository` |
+| `src/main/java/com/example/demo/file/exception` | 확장자 정책·파일 업로드 요청이 실패한 의미를 표현하는 커스텀 예외 | 정책·파일 입력·차단·저장 실패 예외 |
+| `src/main/java/com/example/demo/file/exception/handler` | 도메인·기능별 예외를 REST 오류 응답으로 변환 | `ExtensionPolicyExceptionHandler`, `FileUploadExceptionHandler` |
+| `src/main/java/com/example/demo/file/service` | 정책·파일 업로드 기능의 인터페이스와 파일 저장 포트 | `ExtensionPolicyService`, `FileUploadService`, `FileStorage` |
+| `src/main/java/com/example/demo/file/service/impl` | 정책 저장소·quota·파일명 추출·로컬 파일 저장을 조정해 서비스 구현 | `ExtensionPolicyServiceImpl`, `FileExtensionExtractor`, `FileUploadServiceImpl`, `LocalFileStorage` |
 | `src/main/resources` | 애플리케이션 설정과 정적·템플릿 리소스 | `application.yml` |
 | `src/main/resources/static/js` | Axios로 정책을 조회·변경하고 파일 업로드 결과를 화면에 반영 | `extension-policy.js` |
 | `src/main/resources/templates` | 서버 렌더링 화면 | `index.html` |
 | `src/test/java/com/example/demo` | 애플리케이션 통합 테스트 | `DemoApplicationTests` |
 | `src/test/java/com/example/demo/common` | 초기 데이터 구성 테스트 | `ExtensionPolicyInitializerTests` |
 | `src/test/java/com/example/demo/controller` | 파일 업로드 페이지와 정책 REST 요청·응답·DB 통합 테스트 | `FileUploadPageControllerTests`, `ExtensionPolicyRestControllerTests`, `ExtensionPolicyApiIntegrationTests` |
-| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests` |
+| `src/test/java/com/example/demo/domain` | 확장자 정책 도메인·JPA·quota 테스트 | `ExtensionPolicyDomainTests`, `ExtensionPolicyRepositoryTests`, 정규화·검증·값 객체 테스트 |
 | `src/test/java/com/example/demo/service` | 확장자 정책 등록·중복·최대 개수·동시성 테스트 | `ExtensionPolicyServiceTests` |
+| `src/test/java/com/example/demo/service/impl` | 파일명 확장자 추출과 업로드 서비스 orchestration 테스트 | `FileExtensionExtractorTests`, `FileUploadServiceTests` |
 
 ### 패키지 설계 원칙
 

@@ -67,7 +67,7 @@
 }
 ```
 
-- 알 수 없는 고정 확장자: `404 Not Found`와 `FIXED_EXTENSION_NOT_FOUND`
+- 정책 엔티티를 찾을 수 없음: `404 Not Found`와 `ENTITY_NOT_FOUND`
 
 ### 내부 체크리스트
 
@@ -128,6 +128,7 @@
 #### FE
 
 - [x] 커스텀 확장자 추가를 Axios `POST /api/v1/extension-policies/custom`으로 호출한다.
+- [x] 커스텀 확장자 입력창에 최대 20자 제한을 표시한다.
 - [x] 추가 성공 뒤 전체 정책을 재조회해 결과를 목록과 사용자 메시지에 반영한다.
 - [x] `400`, `409` 및 공통 오류 JSON의 `message`를 사용자 메시지로 표시한다.
 
@@ -145,7 +146,7 @@
 ### API 계약
 
 - 성공: `204 No Content`, 응답 본문 없음
-- 등록되지 않은 커스텀 확장자: `404 Not Found`, `CUSTOM_EXTENSION_NOT_FOUND`
+- 등록되지 않은 커스텀 확장자: `404 Not Found`, `ENTITY_NOT_FOUND`
 
 ### 내부 체크리스트
 
@@ -158,6 +159,7 @@
 #### FE
 
 - [x] 커스텀 확장자 삭제를 Axios `DELETE /api/v1/extension-policies/custom/{extension}`으로 호출한다.
+- [x] 각 커스텀 확장자 항목 옆에 `X` 삭제 버튼을 표시한다.
 - [x] 삭제 성공 시 목록에서 항목을 제거하고 완료 상태를 표시한다.
 - [x] `404`와 공통 오류 JSON의 `message`를 사용자 메시지로 표시한다.
 
@@ -242,8 +244,7 @@
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
-| 고정 정책을 찾을 수 없음 | `404 Not Found` | `FIXED_EXTENSION_NOT_FOUND` |
-| 커스텀 정책을 찾을 수 없음 | `404 Not Found` | `CUSTOM_EXTENSION_NOT_FOUND` |
+| 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 
 - [x] Thymeleaf는 화면 구조와 정적 초기 페이지만 제공하며 `Model` 데이터를 사용하지 않는다.
 - [x] Thymeleaf 페이지 테스트로 화면이 정상 렌더링되고 서버 `Model` 데이터에 의존하지 않는지 검증한다.

@@ -189,17 +189,17 @@ ExtensionPolicyService
 com.example.demo.domain.validator.ExtensionValidator
 ```
 
-`ExtensionValidator`가 입력의 공백·대소문자·길이·점 포함 여부를 검증하고 정규화 결과를 반환한다.
+`ExtensionValidator`가 정규화된 입력의 길이·점 포함 여부를 검증한다. 정규화는 별도의 `ExtensionNormalizer`가 담당한다.
 
 - 장점: 검증 책임 객체를 한 패키지에서 찾기 쉽고 클래스명만으로 책임을 알 수 있다.
 - 장점: `FilenameValidator`, `UploadRequestValidator`처럼 유사 책임의 명명 규칙을 확장하기 쉽다.
 - 단점: 정규화가 단순 검증을 넘어 확장자 값 자체의 도메인 규칙이라면 validator 패키지가 도메인 의미를 약하게 표현할 수 있다.
-- 예시: `ExtensionValidator.normalize(" EXE ")`는 `exe`를 반환하고, `ExtensionValidator.normalize("tar.gz")`는 예외를 반환한다.
+- 예시: `ExtensionNormalizer.normalize(" EXE ")`가 `exe`를 반환한 뒤 `ExtensionValidator.validateExtension("exe")`가 형식을 검증한다.
 
 ### 검증 책임 선택지 2: 도메인 공통 유틸리티 유지
 
 ```text
-com.example.demo.domain.ExtensionNormalizer
+com.example.demo.domain.normalizer.ExtensionNormalizer
 ```
 
 - 장점: 정규화라는 동작 이름이 검증보다 정확한 경우 의미가 분명하다.
@@ -209,16 +209,16 @@ com.example.demo.domain.ExtensionNormalizer
 ### 검증 책임 선택지 3: 값 객체로 책임 이동
 
 ```text
-com.example.demo.domain.ExtensionName
+com.example.demo.domain.value.ExtensionName
 ```
 
-`ExtensionName.create(" EXE ")`가 정규화와 검증을 수행하고, 엔티티는 유효한 값 객체만 받는다.
+`ExtensionName.from(" EXE ")`가 정규화와 검증을 수행하고, 엔티티는 유효한 값 객체만 받는다.
 
 - 장점: 확장자라는 도메인 값의 유효성·동일성·정규화를 한 곳에 모을 수 있다.
 - 장점: 엔티티와 업로드 판정이 문자열 처리 규칙을 직접 알지 않아도 된다.
 - 단점: JPA 컬럼 매핑을 위해 `@Embeddable` 또는 converter가 필요하다.
 - 단점: 문자열 필드 중심 모델보다 코드와 테스트 구조가 커진다.
-- 예시: `ExtensionName.create(" EXE ").value()`는 `exe`를 반환하고, 서로 다른 입력이 같은 값 객체로 정규화된다.
+- 예시: `ExtensionName.from(" EXE ").value()`는 `exe`를 반환하고, 서로 다른 입력이 같은 값 객체로 정규화된다.
 
 ## 9. 비교 요약
 
