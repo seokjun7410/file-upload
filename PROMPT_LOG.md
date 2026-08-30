@@ -1423,3 +1423,22 @@
 - 검증 근거: push 결과가 `Permission to seokjun7410/file-upload.git denied`와 HTTP 403을 반환했다.
 - 결과와 연결 문서: 로컬 문서 커밋 `a7fe4f7`; 원격 push 미완료
 - 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 후 `git push origin docs`를 재시도한다.
+
+## 2026-08-30T21:36:51+09:00 — 최종 회귀 컴파일 오류 복구
+
+- 상태: 검증 실패·수정 완료
+- 시간 근거: 최종 `./gradlew test` 첫 실행 실패와 수정 후 재실행 성공 시각
+- 스프린트/범위: 실행 MIME 차단 기능 최종 회귀 검증
+- 관련 문서·코드: [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), 기능 커밋 `428950d`
+- 요청·질문 요약: 문서 merge 후 전체 테스트를 실행하고 실패 원인을 수정한다.
+- 배경과 제약: 명시적 import 정리 과정에서 `FileUploadService` import가 누락되어 전체 컴파일이 실패했다. MIME 로직이나 테스트 계약의 문제는 아니었다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`
+  - plugin/도구: `./gradlew test`, `apply_patch`, Git
+- AI 제안: 컴파일 오류의 누락 import를 복구한 뒤 동일한 전체 회귀 테스트를 다시 실행한다.
+- 사람의 판단과 이유: 채택. 오류 원인이 명확한 단일 import 누락이므로 동작 변경 없이 import만 복구했다.
+- 코드·사용자 경험 영향: 없음. 기능 동작은 변경하지 않고 빌드 가능 상태를 복구했다.
+- 검증 근거: 첫 전체 `./gradlew test`는 `FileUploadService` symbol 오류로 실패했고, import 복구 후 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: 기능 수정 커밋 `428950d`; 이 기록은 다음 docs merge commit에 포함한다.
+- 회고와 후속 조치: 명시적 import 리팩터링 후에는 기존 compile cache에 의존하지 않고 전체 컴파일을 확인한다.
