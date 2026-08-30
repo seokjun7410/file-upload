@@ -73,7 +73,6 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
         auditHistoryRepository.save(
                 ExtensionPolicyAuditHistory.blockedChanged(
                         policy,
-                        ExtensionPolicyAuditState.from(beforeBlocked),
                         ExtensionPolicyAuditState.from(blocked)
                 )
         );

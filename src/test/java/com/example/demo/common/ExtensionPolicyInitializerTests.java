@@ -54,8 +54,7 @@ class ExtensionPolicyInitializerTests {
 
         // then
         assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.INITIALIZED);
-        assertThat(history.getBeforeState()).isNull();
-        assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.UNBLOCKED);
+        assertThat(history.getState()).isEqualTo(ExtensionPolicyAuditState.UNBLOCKED);
         assertThat(history.getActor()).isEqualTo("SYSTEM");
     }
 

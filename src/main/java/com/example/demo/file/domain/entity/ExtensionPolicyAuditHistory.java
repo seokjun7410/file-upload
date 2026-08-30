@@ -45,12 +45,8 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
     private ExtensionPolicyAuditAction action;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "before_state", length = 10)
-    private ExtensionPolicyAuditState beforeState;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "after_state", length = 10)
-    private ExtensionPolicyAuditState afterState;
+    @Column(name = "state", length = 10)
+    private ExtensionPolicyAuditState state;
 
     @Column(name = "actor", nullable = false, length = 30)
     private String actor;
@@ -58,8 +54,7 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
     private ExtensionPolicyAuditHistory(
             final ExtensionPolicy policy,
             final ExtensionPolicyAuditAction action,
-            final ExtensionPolicyAuditState beforeState,
-            final ExtensionPolicyAuditState afterState
+            final ExtensionPolicyAuditState state
     ) {
         this.policyId = Objects.requireNonNull(policy, "policy must not be null").getId();
         if (this.policyId == null) {
@@ -68,8 +63,7 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
         this.extension = policy.getExtension();
         this.policyType = policy.getPolicyType();
         this.action = Objects.requireNonNull(action, "action must not be null");
-        this.beforeState = beforeState;
-        this.afterState = afterState;
+        this.state = state;
         this.actor = SYSTEM_ACTOR;
     }
 
@@ -78,7 +72,6 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
         return new ExtensionPolicyAuditHistory(
                 policy,
                 ExtensionPolicyAuditAction.CREATED,
-                null,
                 ExtensionPolicyAuditState.from(policy.isBlocked())
         );
     }
@@ -88,7 +81,6 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
         return new ExtensionPolicyAuditHistory(
                 policy,
                 ExtensionPolicyAuditAction.INITIALIZED,
-                null,
                 ExtensionPolicyAuditState.from(policy.isBlocked())
         );
     }
@@ -96,14 +88,12 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
     /** 고정 정책의 차단 상태 변경 이력을 만든다. */
     public static ExtensionPolicyAuditHistory blockedChanged(
             final ExtensionPolicy policy,
-            final ExtensionPolicyAuditState beforeState,
-            final ExtensionPolicyAuditState afterState
+            final ExtensionPolicyAuditState state
     ) {
         return new ExtensionPolicyAuditHistory(
                 policy,
                 ExtensionPolicyAuditAction.BLOCKED_CHANGED,
-                Objects.requireNonNull(beforeState, "beforeState must not be null"),
-                Objects.requireNonNull(afterState, "afterState must not be null")
+                Objects.requireNonNull(state, "state must not be null")
         );
     }
 
@@ -112,7 +102,6 @@ public class ExtensionPolicyAuditHistory extends BaseEntity {
         return new ExtensionPolicyAuditHistory(
                 policy,
                 ExtensionPolicyAuditAction.DELETED,
-                ExtensionPolicyAuditState.from(policy.isBlocked()),
                 null
         );
     }

@@ -62,8 +62,7 @@ class ExtensionPolicyServiceTests {
                 .satisfies(history -> {
                     assertThat(history.getPolicyId()).isEqualTo(policy.getId());
                     assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.CREATED);
-                    assertThat(history.getBeforeState()).isNull();
-                    assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
+                    assertThat(history.getState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
                 });
     }
@@ -83,8 +82,7 @@ class ExtensionPolicyServiceTests {
                 .filteredOn(history -> history.getAction() == ExtensionPolicyAuditAction.BLOCKED_CHANGED)
                 .singleElement()
                 .satisfies(history -> {
-                    assertThat(history.getBeforeState()).isEqualTo(ExtensionPolicyAuditState.UNBLOCKED);
-                    assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
+                    assertThat(history.getState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
                 });
     }
@@ -124,8 +122,7 @@ class ExtensionPolicyServiceTests {
                 .singleElement()
                 .satisfies(history -> {
                     assertThat(history.getPolicyId()).isEqualTo(policyId);
-                    assertThat(history.getBeforeState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
-                    assertThat(history.getAfterState()).isNull();
+                    assertThat(history.getState()).isNull();
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
                 });
     }
