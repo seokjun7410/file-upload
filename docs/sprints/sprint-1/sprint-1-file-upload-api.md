@@ -1,6 +1,6 @@
 # 스프린트 1 API 문서
 
-> 상태: 정책 REST API와 파일 업로드 API 구현 완료
+> 상태: 기존 정책 REST API와 파일 업로드 API 구현 완료. ADR 0013의 업로드 오류 응답 전환은 후속 구현 대상
 >
 > 정책 API의 구현은 `ExtensionPolicyRestController`와 `ExtensionPolicyService`, 파일 업로드 API의 구현은 `FileUploadRestController`와 `FileUploadService`를 기준으로 한다.
 
@@ -136,11 +136,16 @@
 ```json
 {
   "code": "BLOCKED_EXTENSION",
-  "message": "차단된 확장자(exe)는 업로드할 수 없습니다."
+  "requestId": "01JEXAMPLEUPLOAD000000000000",
+  "context": {
+    "extension": "exe"
+  }
 }
 ```
 
 차단된 파일은 파일 저장을 수행하지 않는다.
+
+사용자에게 표시할 문장은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 FE가 `code`와 `context`로 조립한다. 기존 구현과의 호환을 위해 서버 `message`가 일시적으로 포함될 수 있지만, FE는 `message` 문자열을 분기 기준으로 사용하지 않는다.
 
 ### 오류
 
@@ -156,6 +161,8 @@
   "message": "사용자에게 표시할 오류 사유"
 }
 ```
+
+위 형식은 정책 API와 기존 업로드 API의 현재 계약을 설명한다. 업로드 API의 목표 오류 계약은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 `code`, `requestId`, 안전한 `context`를 중심으로 하며, `message`는 장기 계약에서 제외한다. 정책 API는 별도 결정 전까지 기존 `message` 계약을 유지한다.
 
 정책 API와 파일 업로드 API는 오류 상황에 따라 다음 `code`를 사용한다.
 
