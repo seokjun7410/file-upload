@@ -106,6 +106,7 @@
 | [`docs/adr/0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md) | 고정 정책 변경 결과가 불확실할 때 서버 저장 상태를 기준으로 일관성을 복구하는 결정 | accepted |
 | [`docs/adr/0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md) | 서버 생성 파일명·로컬 저장 위치·업로드 오류 상태와 코드의 장기 정책 | accepted |
 | [`docs/adr/0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md) | 확장자 정규화·검증을 `ExtensionName` 값 객체로 통합하는 모듈 경계 | accepted |
+| [`docs/adr/0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md) | Tika 기반 MIME 감지와 알려진 비실행 파일 형식 허용 범위 | accepted |
 | [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md) | 코드 가독성·책임 분리·도메인 모델링·Lombok·예외·트랜잭션·테스트 작성 규칙 | 세션 리팩터링 기준으로 정리한 코드 작성 기준 |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
