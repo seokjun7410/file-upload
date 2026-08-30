@@ -1594,3 +1594,22 @@
 - 검증 근거: 테스트를 `getState()` 계약으로 먼저 전환해 Red를 확인한 뒤 엔티티·factory·서비스를 수정했고, 관련 테스트와 전체 `./gradlew test`가 성공했다.
 - 결과와 연결 문서: refactor 커밋 `526d355` 이후 상태 단순화 변경; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태를 동기화한다.
 - 회고와 후속 조치: 향후 감사 조회 기능을 추가할 때 동일 정책 ID의 직전 이력 조회 정렬 기준을 `createdAt`, 동률 시 `id`로 고정한다.
+
+## 2026-08-31T01:37:30+09:00 — 현재 코드 기준으로 문서 구현 상태 정정
+
+- 상태: 수정 채택
+- 시간 근거: 현재 기준 브랜치 `feat/extension-policy-audit-history@ddb5698`의 코드·설정·테스트와 기존 문서 대조를 완료한 시각
+- 스프린트/범위: 스프린트 2 구현 상태 문서·스프린트 1 API 계약·ADR 0012 연계 문서
+- 관련 문서·코드: `docs/adr/adr-implementation-status-review-2026-08-30.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/sprints/sprint-1/sprint-1-file-upload-api.md`, `docs/sprints/sprint-2/sprint-2-prd.md`, `AGENTS.md`, `ExtensionPolicyAuditHistory`
+- 요청·질문 요약: ADR과 체크리스트의 구현 완료 표시가 실제 현재 코드와 일치하는지 판단하고 문서를 코드 기준으로 갱신한다.
+- 배경과 제약: 업로드 신뢰성 구현 커밋 `164a8e0`과 MIME·용량·저장 루트 구현 커밋은 별도 기능 브랜치에만 있으며 현재 기준 브랜치에 병합되지 않았다. ADR의 정책 결정과 구현 완료 상태를 혼동하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `diagnose`, `backend-documentation`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`, `rg`
+- AI 제안: 현재 브랜치에 없는 구현을 완료로 표시한 상태 점검·체크리스트·API 문서를 실제 코드 기준으로 낮추고, ADR 자체의 정책 결정은 유지한다.
+- 사람의 판단과 이유: 채택. 구현 여부의 진실 원천은 현재 기준 브랜치의 코드이며, 다른 기능 브랜치의 커밋은 병합 전까지 현재 구현으로 주장하지 않는다. 정책 감사 이력의 `state` 단순화는 현재 코드와 문서가 일치하므로 유지한다.
+- 코드·사용자 경험 영향: 코드 변경은 없다. 현재 API는 파일 파트 기반 기본 업로드와 `code`·`message` 오류 응답만 제공하며, requestId·MIME 차단·용량 제한·업로드 상태 영속화는 구현 대기로 문서화한다.
+- 검증 근거: 현재 기준 브랜치에서 `./gradlew test` 성공. `UploadFile`, `UploadRequestId`, `UploadFileRecoveryService`, Tika 감지기, `file.upload.storage-path` 설정이 현재 기준 브랜치에 없음을 확인했다. `git diff --check`도 통과했다.
+- 결과와 연결 문서: ADR 구현 상태 점검, 스프린트 2 체크리스트, 스프린트 1 API 계약, 스프린트 2 PRD, `AGENTS.md`를 현재 코드 기준으로 갱신했다.
+- 회고와 후속 조치: 문서 브랜치와 기능 브랜치의 병합 상태를 구현 완료 판단 전에 확인한다. `PROMPT_LOG.md` 기존 기록의 일부 시각 순서 위반은 이번 변경 범위에서 재작성하지 않고 별도 정리 대상으로 남긴다.

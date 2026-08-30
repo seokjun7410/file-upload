@@ -7,7 +7,7 @@
 - 기술 스택: Java 21, Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf
 - 빌드 도구: Gradle Wrapper (`./gradlew`)
 - 애플리케이션 패키지: `com.example.demo`
-- 현재 상태: 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API·Axios 정책 관리 화면·multipart 파일 저장 및 업로드 정책 적용까지 구현되어 있다.
+- 현재 상태: main 기준으로 스프린트 1의 정책 도메인·JPA 저장소·quota 기반 커스텀 등록 한도·고정 정책 초기화·정책 REST API·Axios 정책 관리 화면·multipart 파일 저장 및 업로드 정책 적용까지 구현되어 있다. 스프린트 2 추가 기능의 구현 여부는 현재 작업 브랜치의 코드와 [`docs/adr/adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)를 함께 확인한다.
 - 현재 기준 브랜치: `main`
 
 ## 2. 코드 작성 규칙 인덱스
@@ -101,7 +101,7 @@
 | [`docs/sprints/sprint-1/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 스프린트 1 정책 관리·파일 업로드 구현 및 검증 완료 |
 | [`docs/sprints/sprint-2/sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md) | 업로드 정책 신뢰성·보안·운영 완성을 위한 스프린트 목표·범위·결정 게이트 | ready-for-agent |
 | [`docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md) | 20자·200개 정책 한도의 브라우저 UX 검증 요구사항과 후속 결정 기준 | 스프린트 2 검증 요구사항 |
-| [`docs/sprints/sprint-2/sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md) | 스프린트 2 미완료 ADR의 구현 순서, 작업별 시작 전 질문·중단 규칙·검증 기준 | 구현 진행·ADR 0011 완료 |
+| [`docs/sprints/sprint-2/sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md) | 스프린트 2 미완료 ADR의 구현 순서, 작업별 시작 전 질문·중단 규칙·검증 기준 | 기준 브랜치 코드에 따른 구현 대기·완료 상태 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-file-upload-storage-and-error-options.md`](docs/questions/sprint-1-file-upload-storage-and-error-options.md) | 파일 저장 위치·서버 생성 파일명·업로드 오류 코드 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
@@ -112,17 +112,17 @@
 | [`docs/adr/0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md) | 서버 생성 파일명·로컬 저장 위치·업로드 오류 상태와 코드의 장기 정책 | accepted |
 | [`docs/adr/0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md) | 확장자 정규화·검증을 `ExtensionName` 값 객체로 통합하는 모듈 경계 | accepted |
 | [`docs/adr/0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md) | Tika 기반 MIME 감지와 알려진 비실행 파일 형식 허용 범위 | accepted |
-| [`docs/adr/0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md) | 원본 파일명·서버 저장 파일명 매핑을 `UploadFile` 메타데이터로 영속화하고 원본 파일명 길이를 제한하는 정책 | proposed |
+| [`docs/adr/0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md) | 원본 파일명·서버 저장 파일명 매핑을 `UploadFile` 메타데이터로 영속화하고 원본 파일명 길이를 제한하는 정책 | accepted |
 | [`docs/adr/0007-use-final-file-extension-for-upload-blocking.md`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md) | 다중 점 파일명의 최종 확장자만 기준으로 업로드 차단하는 정책 | accepted |
 | [`docs/adr/0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md) | 커스텀 확장자 이름을 한글·영문·숫자로 제한하는 입력 정책 | accepted |
-| [`docs/adr/0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md) | multipart 업로드 파일 1개를 100MB, 전체 요청을 110MB로 제한하는 정책 | accepted |
+| [`docs/adr/0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md) | multipart 업로드 파일 1개를 10MB, 전체 요청을 12MB로 제한하는 정책 | accepted |
 | [`docs/adr/0011-externalize-upload-storage-path.md`](docs/adr/0011-externalize-upload-storage-path.md) | 업로드 물리 저장 루트를 `file.upload.storage-path` 설정으로 외부화하는 운영 경계 | accepted |
 | [`docs/adr/0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md) | 정책 변경·삭제·재등록의 운영 원인 추적을 위한 append-only 이력 보존 | accepted |
 | [`docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md) | 업로드 오류 로그 연결을 위한 `requestId`와 FE 메시지 조립 책임 | accepted |
 | [`docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md) | 업로드 상태 선저장·임시 파일 동기 저장·atomic move·완료 상태 전환 정책 | accepted |
 | [`docs/adr/0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md) | 파일 업로드 재시도·멱등키·서버 저장 상태·파일 정리 책임 분리 | accepted |
 | [`docs/adr/0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md) | 화이트리스트 전환 조건·단계적 마이그레이션·사용자·조직 정책 연결 모델 | proposed |
-| [`docs/adr/adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md) | `main` 구현을 기준으로 ADR별 구현 상태, 즉시 구현 후보와 선결 조건을 점검 | review |
+| [`docs/adr/adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md) | 기준 브랜치 코드와 병합 이력을 기준으로 ADR별 구현 상태와 선결 조건을 점검 | review |
 | [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md) | 코드 가독성·책임 분리·도메인 모델링·Lombok·예외·트랜잭션·테스트 작성 규칙 | 세션 리팩터링 기준으로 정리한 코드 작성 기준 |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`docs/agents/`](docs/agents/) | 로컬 Markdown 이슈 추적기, triage 라벨, 도메인 문서 탐색 규칙 | 에이전트 작업 설정 |
