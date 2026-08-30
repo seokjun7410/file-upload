@@ -6,6 +6,10 @@ const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 �
 const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
 const DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE = "커스텀 확장자를 삭제하지 못했습니다.";
 const DEFAULT_FILE_UPLOAD_ERROR_MESSAGE = "파일을 업로드하지 못했습니다.";
+const UPLOAD_MAX_RETRIES = 3;
+const UPLOAD_MAX_DURATION_MS = 30 * 1000;
+const UPLOAD_RESULT_CONFIRMATION_MESSAGE =
+    "자동 재시도를 종료했습니다. 업로드 결과를 확인한 뒤 다시 시도해 주세요.";
 const RESYNCHRONIZE_ERROR_MESSAGE =
     "최신 정책 상태도 확인하지 못했습니다. 페이지를 새로고침해 주세요.";
 
@@ -258,6 +262,7 @@ async function deleteCustomPolicy(extension) {
 /**
  * 선택된 파일을 FormData로 서버에 업로드하고 서버가 생성한 파일명을 표시한다.
  * 확장자 차단 여부는 화면에서 판단하지 않고 서버 응답을 최종 결과로 사용한다.
+ * 한 번의 논리 업로드 동안 같은 UUID v4를 Idempotency-Key로 유지한다.
  *
  * @returns {Promise<void>} 업로드 요청과 화면 결과 표시가 끝난 뒤 완료된다.
  */
@@ -272,12 +277,49 @@ async function uploadFile() {
     setFileUploadControlsDisabled(true);
     showFileUploadStatus("파일을 업로드하는 중입니다.");
 
+    const requestId = crypto.randomUUID();
+    const startedAt = Date.now();
+    let retryCount = 0;
+
     try {
-        const response = await axios.post("/api/v1/files", formData);
-        input.value = "";
-        showFileUploadStatus(
-            `${response.data.message} 저장된 파일명: ${response.data.filename}`
-        );
+        while (true) {
+            try {
+                const response = await axios.post("/api/v1/files", formData, {
+                    headers: {"Idempotency-Key": requestId}
+                });
+                input.value = "";
+                showFileUploadStatus(
+                    `${response.data.message} 저장된 파일명: ${response.data.filename}`
+                );
+                break;
+            } catch (error) {
+                const retryAfterSeconds = resolveRetryAfterSeconds(error);
+                const elapsedMs = Date.now() - startedAt;
+                const waitMs = retryAfterSeconds * 1000;
+                const canRetry = error?.response?.status === 409
+                    && error?.response?.data?.code === "IDEMPOTENCY_IN_PROGRESS"
+                    && retryCount < UPLOAD_MAX_RETRIES
+                    && elapsedMs + waitMs <= UPLOAD_MAX_DURATION_MS;
+
+                if (!canRetry) {
+                    if (error?.response?.status === 409
+                        && error?.response?.data?.code === "IDEMPOTENCY_IN_PROGRESS") {
+                        showFileUploadStatus(UPLOAD_RESULT_CONFIRMATION_MESSAGE);
+                    } else {
+                        showFileUploadStatus(
+                            resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+                        );
+                    }
+                    break;
+                }
+
+                retryCount++;
+                showFileUploadStatus(
+                    `업로드 처리 중입니다. ${retryAfterSeconds}초 후 재시도합니다. (${retryCount}/${UPLOAD_MAX_RETRIES})`
+                );
+                await delay(retryAfterSeconds * 1000);
+            }
+        }
     } catch (error) {
         showFileUploadStatus(
             resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
@@ -285,6 +327,20 @@ async function uploadFile() {
     } finally {
         setFileUploadControlsDisabled(false);
     }
+}
+
+/** 서버가 계산한 Retry-After 초 값을 안전한 범위로 해석한다. */
+function resolveRetryAfterSeconds(error) {
+    const value = Number.parseInt(error?.response?.headers?.["retry-after"], 10);
+    if (!Number.isFinite(value)) {
+        return 1;
+    }
+    return Math.min(30, Math.max(1, value));
+}
+
+/** 재시도 전에 서버가 지정한 대기 시간을 기다린다. */
+function delay(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 /**

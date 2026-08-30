@@ -18,6 +18,8 @@ import com.example.demo.file.service.impl.FileUploadServiceImpl;
 import com.example.demo.file.service.impl.TikaMimeTypeDetector;
 import com.example.demo.file.service.FileExtensionExtractor;
 import com.example.demo.file.service.impl.LocalFileStorage;
+import com.example.demo.file.service.impl.RetryAfterCalculator;
+import com.example.demo.file.service.impl.UploadFileStateService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -35,6 +37,12 @@ class FileUploadServiceTests {
 
     @Autowired
     private ExtensionPolicyService extensionPolicyService;
+
+    @Autowired
+    private UploadFileStateService uploadFileStateService;
+
+    @Autowired
+    private RetryAfterCalculator retryAfterCalculator;
 
     @TempDir
     private Path uploadDirectory;
@@ -151,7 +159,9 @@ class FileUploadServiceTests {
                 extensionPolicyService,
                 new LocalFileStorage(fileInsteadOfDirectory),
                 new FileExtensionExtractor(),
-                new TikaMimeTypeDetector()
+                new TikaMimeTypeDetector(),
+                uploadFileStateService,
+                retryAfterCalculator
         );
         var file = multipartFile("readme.txt", "content");
 
@@ -169,7 +179,9 @@ class FileUploadServiceTests {
                 extensionPolicyService,
                 new LocalFileStorage(uploadDirectory),
                 new FileExtensionExtractor(),
-                new TikaMimeTypeDetector()
+                new TikaMimeTypeDetector(),
+                uploadFileStateService,
+                retryAfterCalculator
         );
     }
 

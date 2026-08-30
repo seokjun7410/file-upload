@@ -3,10 +3,12 @@ package com.example.demo.file.service.impl;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.exception.FileUploadFailedException;
 import com.example.demo.file.service.FileStorage;
+import com.example.demo.file.service.StoredFile;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,22 +41,62 @@ public class LocalFileStorage implements FileStorage {
         this.uploadDirectory = uploadDirectory.toAbsolutePath().normalize();
     }
 
-    /** 업로드 파일을 UUID와 확장자로 구성한 새 파일명으로 저장한다. */
+    /** UUID와 확장자로 서버 저장 파일명을 생성한다. */
     @Override
-    public String store(MultipartFile file, ExtensionName extension) {
-        String filename = UUID.randomUUID() + "." + extension.value();
-        Path target = uploadDirectory.resolve(filename).normalize();
+    public String generateFilename(ExtensionName extension) {
+        return UUID.randomUUID() + "." + extension.value();
+    }
+
+    /** 업로드 파일을 지정한 이름으로 임시 저장한다. */
+    @Override
+    public void storeTemporary(MultipartFile file, String filename) {
+        Path target = temporaryPath(filename);
 
         try {
-            Files.createDirectories(uploadDirectory);
+            Files.createDirectories(target.getParent());
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, target);
             }
-            return filename;
         } catch (IOException exception) {
             deletePartialFile(target);
             throw new FileUploadFailedException("파일을 저장하지 못했습니다.", exception);
         }
+    }
+
+    /** 임시 파일을 같은 파일시스템의 최종 경로로 원자적으로 이동한다. */
+    @Override
+    public void finalizeFile(String filename) {
+        Path temporary = temporaryPath(filename);
+        Path target = uploadDirectory.resolve(filename).normalize();
+        try {
+            Files.createDirectories(uploadDirectory);
+            Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException exception) {
+            throw new FileUploadFailedException("파일을 저장하지 못했습니다.", exception);
+        }
+    }
+
+    /** 임시 파일을 삭제한다. */
+    @Override
+    public void deleteTemporary(String filename) {
+        deletePartialFile(temporaryPath(filename));
+    }
+
+    /** 최종 저장 파일을 삭제한다. */
+    @Override
+    public void deleteFinal(String filename) {
+        deletePartialFile(uploadDirectory.resolve(filename).normalize());
+    }
+
+    /** 최종 경로에 확정 파일이 존재하는지 반환한다. */
+    @Override
+    public boolean finalFileExists(String filename) {
+        return Files.isRegularFile(uploadDirectory.resolve(filename).normalize());
+    }
+
+    /** 저장 루트 아래의 임시 파일 경로를 계산한다. */
+    private Path temporaryPath(String filename) {
+        return uploadDirectory.resolve(".tmp").resolve(filename + ".part").normalize();
     }
 
     /** 저장에 실패한 부분 파일을 제거해 불완전한 업로드가 남지 않도록 한다. */

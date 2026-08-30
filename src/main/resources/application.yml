@@ -17,3 +17,5 @@ spring:
 file:
   upload:
     storage-path: ./uploads
+    recovery-stale-after-seconds: 1800
+    recovery-interval-ms: 60000

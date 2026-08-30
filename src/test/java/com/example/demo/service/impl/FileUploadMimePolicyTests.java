@@ -6,7 +6,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
+import com.example.demo.file.domain.entity.UploadFile;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.service.ExtensionPolicyService;
@@ -14,7 +17,10 @@ import com.example.demo.file.service.FileExtensionExtractor;
 import com.example.demo.file.service.FileStorage;
 import com.example.demo.file.service.MimeTypeDetectionResult;
 import com.example.demo.file.service.MimeTypeDetector;
+import com.example.demo.file.service.UploadReservation;
 import com.example.demo.file.service.impl.FileUploadServiceImpl;
+import com.example.demo.file.service.impl.RetryAfterCalculator;
+import com.example.demo.file.service.impl.UploadFileStateService;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
@@ -38,13 +44,16 @@ class FileUploadMimePolicyTests {
         var extensionPolicyService = mock(ExtensionPolicyService.class);
         var fileStorage = mock(FileStorage.class);
         var mimeTypeDetector = mock(MimeTypeDetector.class);
+        var stateService = mock(UploadFileStateService.class);
         when(mimeTypeDetector.detect(file))
                 .thenReturn(MimeTypeDetectionResult.detected("application/x-dosexec"));
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
                 fileStorage,
                 new FileExtensionExtractor(),
-                mimeTypeDetector
+                mimeTypeDetector,
+                stateService,
+                new RetryAfterCalculator()
         );
 
         // when
@@ -70,14 +79,19 @@ class FileUploadMimePolicyTests {
         var extensionPolicyService = mock(ExtensionPolicyService.class);
         var fileStorage = mock(FileStorage.class);
         var mimeTypeDetector = mock(MimeTypeDetector.class);
+        var stateService = mock(UploadFileStateService.class);
         when(mimeTypeDetector.detect(file))
                 .thenReturn(MimeTypeDetectionResult.unknown("application/octet-stream"));
-        when(fileStorage.store(file, ExtensionName.from("bin"))).thenReturn("generated.bin");
+        when(fileStorage.generateFilename(ExtensionName.from("bin"))).thenReturn("generated.bin");
+        when(stateService.reserve(anyString(), any(), anyString()))
+                .thenReturn(new UploadReservation(mock(UploadFile.class), true));
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
                 fileStorage,
                 new FileExtensionExtractor(),
-                mimeTypeDetector
+                mimeTypeDetector,
+                stateService,
+                new RetryAfterCalculator()
         );
 
         // when
@@ -86,7 +100,7 @@ class FileUploadMimePolicyTests {
         // then
         assertThat(uploadedFile.filename()).isEqualTo("generated.bin");
         verify(extensionPolicyService).isBlocked(ExtensionName.from("bin"));
-        verify(fileStorage).store(file, ExtensionName.from("bin"));
+        verify(fileStorage).storeTemporary(file, "generated.bin");
     }
 
     @Test
@@ -102,13 +116,18 @@ class FileUploadMimePolicyTests {
         var extensionPolicyService = mock(ExtensionPolicyService.class);
         var fileStorage = mock(FileStorage.class);
         var mimeTypeDetector = mock(MimeTypeDetector.class);
+        var stateService = mock(UploadFileStateService.class);
         when(mimeTypeDetector.detect(file)).thenReturn(MimeTypeDetectionResult.failed());
-        when(fileStorage.store(file, ExtensionName.from("txt"))).thenReturn("generated.txt");
+        when(fileStorage.generateFilename(ExtensionName.from("txt"))).thenReturn("generated.txt");
+        when(stateService.reserve(anyString(), any(), anyString()))
+                .thenReturn(new UploadReservation(mock(UploadFile.class), true));
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
                 fileStorage,
                 new FileExtensionExtractor(),
-                mimeTypeDetector
+                mimeTypeDetector,
+                stateService,
+                new RetryAfterCalculator()
         );
 
         // when
@@ -116,7 +135,7 @@ class FileUploadMimePolicyTests {
 
         // then
         assertThat(uploadedFile.filename()).isEqualTo("generated.txt");
-        verify(fileStorage).store(file, ExtensionName.from("txt"));
+        verify(fileStorage).storeTemporary(file, "generated.txt");
     }
 
     @Test
@@ -132,9 +151,12 @@ class FileUploadMimePolicyTests {
         var extensionPolicyService = mock(ExtensionPolicyService.class);
         var fileStorage = mock(FileStorage.class);
         var mimeTypeDetector = mock(MimeTypeDetector.class);
+        var stateService = mock(UploadFileStateService.class);
         when(mimeTypeDetector.detect(file))
                 .thenReturn(MimeTypeDetectionResult.unknown("application/octet-stream"));
-        when(fileStorage.store(file, ExtensionName.from("bin"))).thenReturn("generated.bin");
+        when(fileStorage.generateFilename(ExtensionName.from("bin"))).thenReturn("generated.bin");
+        when(stateService.reserve(anyString(), any(), anyString()))
+                .thenReturn(new UploadReservation(mock(UploadFile.class), true));
         var logger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(FileUploadServiceImpl.class);
         var appender = new ListAppender<ILoggingEvent>();
         appender.start();
@@ -144,7 +166,9 @@ class FileUploadMimePolicyTests {
                 extensionPolicyService,
                 fileStorage,
                 new FileExtensionExtractor(),
-                mimeTypeDetector
+                mimeTypeDetector,
+                stateService,
+                new RetryAfterCalculator()
         );
 
         // when
