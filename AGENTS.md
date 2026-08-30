@@ -171,3 +171,4 @@
 - 실패한 테스트가 있으면 원인을 확인한 뒤 수정하고 다시 실행한다.
 - 커밋 또는 최종 보고 전에 `PROMPT_LOG.md` 기록 대상을 확인하고, 필요한 기록은 `docs` 브랜치에서 먼저 반영한다.
 - 변경 파일, 테스트 결과, 문서 갱신 여부를 최종 보고에 포함한다.
+| [`docs/adr/0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md) | 정책 변경·삭제·재등록의 운영 원인 추적을 위한 append-only 이력 보존 | accepted |
