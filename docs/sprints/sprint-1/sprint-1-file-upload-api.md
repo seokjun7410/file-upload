@@ -150,8 +150,13 @@
 ### 오류
 
 - `400 Bad Request`, `INVALID_FILE`: 파일이 없거나 비어 있거나 확장자를 추출할 수 없는 요청
+- `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
 - `422 Unprocessable Entity`: 차단 확장자
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
+
+파일 용량 제한은 multipart 파싱 단계에서 적용되므로 확장자 정책·MIME·파일 저장
+로직을 실행하지 않고 거부한다. 전체 요청 한도에는 multipart boundary와 부가
+헤더를 위한 여유가 포함된다.
 
 ## 공통 오류 형식
 
@@ -174,6 +179,7 @@
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
 | 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 | 업로드 파일 누락·빈 파일·무확장 파일 | `400 Bad Request` | `INVALID_FILE` |
+| 파일 10MB 초과 또는 전체 요청 12MB 초과 | `413 Payload Too Large` | `FILE_SIZE_EXCEEDED` |
 | 차단된 확장자 파일 업로드 | `422 Unprocessable Entity` | `BLOCKED_EXTENSION` |
 | 파일 저장 실패 | `500 Internal Server Error` | `FILE_UPLOAD_FAILED` |
 
