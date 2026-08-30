@@ -18,6 +18,7 @@ implementation_baseline: main@0f6b53c
 - `부분 구현`: 일부 결정은 존재하지만, ADR이 요구하는 핵심 규칙 또는 계약이 빠져 있다.
 - `미구현`: 현재 코드·설정·테스트에서 ADR의 구현 근거를 찾지 못했다.
 - `의도적 보류`: `proposed` ADR이며, 문서가 현재 기능의 도입을 보류한다고 명시한다.
+- `부분 구현·보류`: 기존 일부 동작은 유지하지만, 나머지 정책 구현은 필요성이 확인될 때까지 진행하지 않는다.
 
 ## ADR별 구현 상태
 
@@ -31,7 +32,7 @@ implementation_baseline: main@0f6b53c
 | [0006](0006-persist-upload-file-name-mapping.md) | 의도적 보류 | ADR이 `proposed`이며 `UploadFile` 엔티티·`p_upload_file` 테이블·원본 파일명 검증·메타데이터 조회가 없다. |
 | [0007](0007-use-final-file-extension-for-upload-blocking.md) | 구현 완료 | `FileExtensionExtractor`가 basename의 마지막 점 뒤 확장자만 추출하고, 다중 점·확장자 없음 테스트가 이를 고정한다. |
 | [0009](0009-limit-multipart-upload-size.md) | 미구현 | `application.yml`에 `spring.servlet.multipart.max-file-size`와 `max-request-size`가 없고, 용량 초과를 `413`으로 변환하는 handler·테스트가 없다. |
-| [0010](0010-limit-extension-name-characters.md) | 부분 구현 | 공백 제거·소문자화·빈 값·20자·점 거부는 존재하지만, 한글·영문·숫자만 허용하는 검증이 없다. 현재 `-`, 공백, 경로 구분자 등도 점이 없고 길이가 짧으면 통과한다. |
+| [0010](0010-limit-extension-name-characters.md) | 부분 구현·보류 | 공백 제거·소문자화·빈 값·20자·점 거부는 존재하지만, 한글·영문·숫자 전용 검증은 보류한다. 전체 원본 파일명 제한은 이 ADR의 대상이 아니다. |
 | [0011](0011-externalize-upload-storage-path.md) | 미구현 | `LocalFileStorage`가 상수 `Path.of("uploads")`를 사용하며 `file.upload.storage-path` 설정 바인딩과 설정별 통합 테스트가 없다. |
 | [0012](0012-preserve-policy-change-history-for-operations.md) | 미구현 | append-only 이력 엔티티·저장소·정책 변경과 같은 트랜잭션의 이력 저장이 없다. |
 | [0013](0013-use-request-id-and-frontend-owned-upload-messages.md) | 미구현 | `ErrorResponse`는 `code`, `message`만 포함한다. `requestId`·안전한 `context`·구조화 로그·FE 오류 코드 메시지 매핑이 없다. |
@@ -44,16 +45,16 @@ implementation_baseline: main@0f6b53c
 현재 구현 대상이 아닌 `proposed` ADR을 포함해, 아직 완료되지 않은 ADR은 다음과 같다.
 
 - 미구현: 0005, 0009, 0011, 0012, 0013, 0014, 0015
-- 부분 구현: 0010
+- 부분 구현·보류: 0010
 - 의도적 보류: 0006, 0016
 
 ## 하단 코멘트: 바로 구현해도 되는 후보와 선결 조건
 
-### 바로 착수 가능 — ADR 0010 허용 문자 검증
+### 보류 — ADR 0010 허용 문자 검증
 
-결정이 충분히 구체적이다. `ExtensionValidator`에 한글·영문·숫자만 허용하는 정규식 검증을 추가하고, `ExtensionName` 단위 테스트에 허용·거부 경계를 추가하면 된다. 파일 업로드와 커스텀 정책 등록은 이미 동일 값 객체 경계를 사용하므로 별도 API 설계가 필요 없다.
+현재 제품 요구에서 한글·영문·숫자 전용 제한의 필요성이 확인되지 않아 구현하지 않는다. 기존 빈 값·20자·점 검증과 `ExtensionName` 공유 구조는 유지한다. 보안상 필요한 경로·제어문자 검증이 별도로 요구되면 새로운 결정으로 다룬다.
 
-주의할 점은 길이 기준이다. ADR 0006의 원본 파일명 255 code point 정책과 달리, ADR 0010은 확장자 20자의 측정 단위를 명시하지 않는다. 기존 구현은 Java UTF-16 `String.length()`를 사용한다. 한글·영문·숫자만 허용할 때는 대부분의 입력이 BMP이므로 즉시 문제는 작지만, 테스트와 API 계약에는 현재 기준을 명시해야 한다.
+ADR 0010의 한글·영문·숫자 전용 제한은 보류하므로 이 정책의 추가 길이·문자 집합 결정은 구현하지 않는다. 기존 확장자 검증 동작만 유지한다.
 
 ### 바로 착수 가능 — ADR 0009 multipart 용량 제한
 
@@ -91,11 +92,10 @@ Tika 도입 자체는 가능하지만, ADR은 “지원이 명확한 비실행 �
 
 ## 추천 구현 순서
 
-1. ADR 0010: 현재 값 객체 경계의 누락 검증 보완
-2. ADR 0009: 앞단 요청 자원 제한과 413 계약 추가
-3. ADR 0011: 운영 설정 경계 분리
-4. ADR 0005: 허용 MIME 표와 오류 계약을 확정한 뒤 구현
-5. ADR 0013·0012: 요청 추적과 정책 감사 이력의 공통 식별자·로그 설계 확정 후 구현
-6. ADR 0006을 채택한 뒤 0014·0015를 하나의 업로드 신뢰성 작업으로 설계·구현
+1. ADR 0009: 앞단 요청 자원 제한과 413 계약 추가
+2. ADR 0011: 운영 설정 경계 분리
+3. ADR 0005: 허용 MIME 표와 오류 계약을 확정한 뒤 구현
+4. ADR 0013·0012: 요청 추적과 정책 감사 이력의 공통 식별자·로그 설계 확정 후 구현
+5. ADR 0006을 채택한 뒤 0014·0015를 하나의 업로드 신뢰성 작업으로 설계·구현
 
 0016은 위 구현 순서의 완료 조건이 아니다.
