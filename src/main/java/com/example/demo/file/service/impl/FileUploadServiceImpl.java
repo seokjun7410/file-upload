@@ -46,7 +46,7 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         OriginalFilename originalFilename = OriginalFilename.from(file.getOriginalFilename());
         ExtensionName extension = extensionExtractor.extract(file);
-        validateMimeType(file, extension);
+        enforceExecutableMimePolicy(file, extension);
 
         if (extensionPolicyService.isBlocked(extension)) {
             throw new BlockedExtensionException(extension);
@@ -107,7 +107,7 @@ public class FileUploadServiceImpl implements FileUploadService {
         throw new FileUploadFailedException("파일을 저장하지 못했습니다.", null);
     }
 
-    private void validateMimeType(MultipartFile file, ExtensionName extension) {
+    private void enforceExecutableMimePolicy(MultipartFile file, ExtensionName extension) {
         var mimeDetection = mimeTypeDetector.detect(file);
         if (mimeDetection.isDetected()
                 && ExecutableMimeCatalog.isBlocked(mimeDetection.mimeType())) {
