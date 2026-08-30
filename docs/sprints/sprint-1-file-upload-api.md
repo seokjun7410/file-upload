@@ -89,7 +89,7 @@
 
 ### 오류
 
-- `400 Bad Request`: 빈 값 또는 20자 초과
+- `400 Bad Request`: 빈 값·허용되지 않은 문자 또는 20자 초과
 - `409 Conflict`: 이미 등록된 확장자 또는 커스텀 확장자 200개 초과
 
 ## 4. 커스텀 확장자 삭제
@@ -161,7 +161,7 @@
 
 | 상황 | 상태 | code |
 |---|---:|---|
-| 빈 값·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
+| 빈 값·허용되지 않은 문자·점 포함·20자 초과 | `400 Bad Request` | `INVALID_EXTENSION` |
 | JSON 구조·필수 필드 오류 | `400 Bad Request` | `INVALID_REQUEST` |
 | 이미 등록된 확장자 | `409 Conflict` | `DUPLICATE_EXTENSION` |
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
