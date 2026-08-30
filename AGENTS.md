@@ -101,7 +101,7 @@
 | [`docs/sprints/sprint-1/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 스프린트 1 정책 관리·파일 업로드 구현 및 검증 완료 |
 | [`docs/sprints/sprint-2/sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md) | 업로드 정책 신뢰성·보안·운영 완성을 위한 스프린트 목표·범위·결정 게이트 | ready-for-agent |
 | [`docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md) | 20자·200개 정책 한도의 브라우저 UX 검증 요구사항과 후속 결정 기준 | 스프린트 2 검증 요구사항 |
-| [`docs/sprints/sprint-2/sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md) | 스프린트 2 미완료 ADR의 구현 순서, 작업별 시작 전 질문·중단 규칙·검증 기준 | 계획 수립 완료·구현 대기 |
+| [`docs/sprints/sprint-2/sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md) | 스프린트 2 미완료 ADR의 구현 순서, 작업별 시작 전 질문·중단 규칙·검증 기준 | 구현 진행·ADR 0011 완료 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md) | 고정 확장자 PATCH 화면 범위·실패 복구·프런트 검증 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |
 | [`docs/questions/sprint-1-file-upload-storage-and-error-options.md`](docs/questions/sprint-1-file-upload-storage-and-error-options.md) | 파일 저장 위치·서버 생성 파일명·업로드 오류 코드 선택지와 사용자 결정 | 요구사항·ADR 결정 배경 원문 |

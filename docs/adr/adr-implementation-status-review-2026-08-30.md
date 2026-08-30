@@ -1,14 +1,14 @@
 ---
 status: review
 reviewed_at: 2026-08-30
-implementation_baseline: main@0f6b53c
+implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89
 ---
 
 # ADR 구현 상태 점검과 즉시 구현 후보
 
 ## 점검 기준
 
-이 문서는 ADR의 `accepted` 표기만으로 구현 완료를 판단하지 않는다. 2026-08-30 기준 `main@0f6b53c`의 Java 코드, `application.yml`, 프런트 JavaScript, 테스트를 대조했다.
+이 문서는 ADR의 `accepted` 표기만으로 구현 완료를 판단하지 않는다. 2026-08-30 기준 `main@0f6b53c`의 Java 코드, `application.yml`, 프런트 JavaScript, 테스트와 `feat/upload-policy-reliability@2745a89`의 ADR 0011 구현을 대조했다.
 
 현재 체크아웃은 문서 전용 `docs` 브랜치다. 이 브랜치의 `src`는 예제 애플리케이션이므로 구현 근거로 사용하지 않았고, 파일 업로드 기능이 존재하는 `main`을 기준으로 판정했다. `docs` 브랜치에서 아직 커밋되지 않은 ADR 초안은 문서 상태만 확인했다.
 
@@ -31,9 +31,9 @@ implementation_baseline: main@0f6b53c
 | [0005](0005-limit-upload-to-known-non-executable-types.md) | 미구현 | `build.gradle`에 Tika 의존성이 없고, 콘텐츠 MIME 감지·확장자/MIME 호환 판정·비실행 형식 allowlist가 없다. |
 | [0006](0006-persist-upload-file-name-mapping.md) | 의도적 보류 | ADR이 `proposed`이며 `UploadFile` 엔티티·`p_upload_file` 테이블·원본 파일명 검증·메타데이터 조회가 없다. |
 | [0007](0007-use-final-file-extension-for-upload-blocking.md) | 구현 완료 | `FileExtensionExtractor`가 basename의 마지막 점 뒤 확장자만 추출하고, 다중 점·확장자 없음 테스트가 이를 고정한다. |
-| [0009](0009-limit-multipart-upload-size.md) | 미구현 | `application.yml`에 `spring.servlet.multipart.max-file-size`와 `max-request-size`가 없고, 용량 초과를 `413`으로 변환하는 handler·테스트가 없다. |
+| [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑, 설정·MockMvc·통합 테스트가 존재한다. |
 | [0010](0010-limit-extension-name-characters.md) | 부분 구현·보류 | 공백 제거·소문자화·빈 값·20자·점 거부는 존재하지만, 한글·영문·숫자 전용 검증은 보류한다. 전체 원본 파일명 제한은 이 ADR의 대상이 아니다. |
-| [0011](0011-externalize-upload-storage-path.md) | 미구현 | `LocalFileStorage`가 상수 `Path.of("uploads")`를 사용하며 `file.upload.storage-path` 설정 바인딩과 설정별 통합 테스트가 없다. |
+| [0011](0011-externalize-upload-storage-path.md) | 구현 완료 | `file.upload.storage-path` 기본값을 선언하고 설정 주입으로 `LocalFileStorage` 저장 루트를 변경한다. 기본 경로·override 경로·저장 실패·기존 업로드 회귀 테스트가 통과했다(`2745a89`). |
 | [0012](0012-preserve-policy-change-history-for-operations.md) | 미구현 | append-only 이력 엔티티·저장소·정책 변경과 같은 트랜잭션의 이력 저장이 없다. |
 | [0013](0013-use-request-id-and-frontend-owned-upload-messages.md) | 미구현 | `ErrorResponse`는 `code`, `message`만 포함한다. `requestId`·안전한 `context`·구조화 로그·FE 오류 코드 메시지 매핑이 없다. |
 | [0014](0014-persist-upload-state-before-file-and-finalize-atomically.md) | 미구현 | 업로드 메타데이터 상태가 없고, 파일을 임시 경로가 아닌 최종 경로에 직접 복사한다. atomic move·stale `RECEIVING` 복구도 없다. |
@@ -44,7 +44,7 @@ implementation_baseline: main@0f6b53c
 
 현재 구현 대상이 아닌 `proposed` ADR을 포함해, 아직 완료되지 않은 ADR은 다음과 같다.
 
-- 미구현: 0005, 0009, 0011, 0012, 0013, 0014, 0015
+- 미구현: 0005, 0012, 0013, 0014, 0015
 - 부분 구현·보류: 0010
 - 의도적 보류: 0006, 0016
 
@@ -56,17 +56,17 @@ implementation_baseline: main@0f6b53c
 
 ADR 0010의 한글·영문·숫자 전용 제한은 보류하므로 이 정책의 추가 길이·문자 집합 결정은 구현하지 않는다. 기존 확장자 검증 동작만 유지한다.
 
-### 바로 착수 가능 — ADR 0009 multipart 용량 제한
+### 구현 완료 — ADR 0009 multipart 용량 제한
 
-설정값이 10MB/12MB로 확정되어 있다. `application.yml`에 multipart 제한을 추가하고, `MaxUploadSizeExceededException`을 `413 Payload Too Large`의 공통 오류 형식으로 변환하는 handler와 MockMvc 테스트를 추가할 수 있다.
+설정값 10MB/12MB와 `FILE_SIZE_EXCEEDED` 413 계약을 적용했고, `MaxUploadSizeExceededException` 매핑·설정·MockMvc·통합 테스트를 완료했다.
 
-주의할 점은 현재 `FileUploadExceptionHandler`가 넓은 `MultipartException`을 `400 INVALID_FILE`로 처리한다는 것이다. 용량 초과 예외를 먼저 구체적으로 처리하지 않으면 413 결정이 400으로 가려질 수 있다. 이 우선순위를 테스트로 고정해야 한다.
+용량 초과 예외는 파일 업로드 도메인 예외의 넓은 `MultipartException` 처리에 가려지지 않도록 공통 handler에서 413으로 변환한다.
 
-### 바로 착수 가능 — ADR 0011 저장 루트 외부화
+### 구현 완료 — ADR 0011 저장 루트 외부화
 
-설정 키·기본값·실패 의미가 모두 확정되어 있다. `@ConfigurationProperties` 또는 명시적 설정 주입으로 `file.upload.storage-path`를 `LocalFileStorage`에 전달하고, 기본값과 임시 경로 override 통합 테스트를 추가하면 된다.
+`file.upload.storage-path` 설정과 기본값 `./uploads`를 선언하고 명시적 생성자 주입으로 `LocalFileStorage`에 전달했다. 기본 경로·임시 경로 override·저장 실패·기존 업로드 회귀 테스트가 전체 `./gradlew test`에서 통과했다.
 
-현재 `LocalFileStorage(Path)` 생성자는 테스트 주입을 위해 이미 존재한다. 프로덕션 기본 생성자를 설정 주입 생성자로 교체할 때 스프링 빈 생성 방식과 단위 테스트의 직접 생성 경로가 함께 유지되는지 확인한다.
+기존 `LocalFileStorage(Path)` 생성자와 직접 생성 테스트 경로는 유지했다. 기존 파일 이동·마이그레이션은 수행하지 않는다.
 
 ### 결정 또는 설계 보강 후 착수 — ADR 0005 MIME allowlist
 
@@ -92,8 +92,8 @@ Tika 도입 자체는 가능하지만, ADR은 “지원이 명확한 비실행 �
 
 ## 추천 구현 순서
 
-1. ADR 0009: 앞단 요청 자원 제한과 413 계약 추가
-2. ADR 0011: 운영 설정 경계 분리
+1. ADR 0009: 앞단 요청 자원 제한과 413 계약 추가 — 구현 완료
+2. ADR 0011: 운영 설정 경계 분리 — 구현 완료(`2745a89`)
 3. ADR 0005: 허용 MIME 표와 오류 계약을 확정한 뒤 구현
 4. ADR 0013·0012: 요청 추적과 정책 감사 이력의 공통 식별자·로그 설계 확정 후 구현
 5. ADR 0006을 채택한 뒤 0014·0015를 하나의 업로드 신뢰성 작업으로 설계·구현
