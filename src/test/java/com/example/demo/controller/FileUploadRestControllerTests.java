@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -112,5 +113,21 @@ class FileUploadRestControllerTests {
         // then
         result.andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.code").value("FILE_UPLOAD_FAILED"));
+    }
+
+    @Test
+    @DisplayName("업로드 용량 초과는 413과 FILE_SIZE_EXCEEDED 오류를 반환한다")
+    void rejectsExceededUploadSize() throws Exception {
+        // given
+        var file = new MockMultipartFile("file", "large.txt", "text/plain", "content".getBytes());
+        when(service.upload(any(MultipartFile.class)))
+                .thenThrow(new MaxUploadSizeExceededException(10L * 1024 * 1024));
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files").file(file));
+
+        // then
+        result.andExpect(status().isPayloadTooLarge())
+                .andExpect(jsonPath("$.code").value("FILE_SIZE_EXCEEDED"));
     }
 }
