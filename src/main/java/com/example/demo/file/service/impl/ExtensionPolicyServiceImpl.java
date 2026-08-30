@@ -1,6 +1,7 @@
 package com.example.demo.file.service.impl;
 
 import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.ExtensionPolicyAuditState;
 import com.example.demo.file.domain.entity.ExtensionPolicy;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
 import com.example.demo.file.domain.entity.ExtensionPolicyAuditHistory;
@@ -69,7 +70,13 @@ public class ExtensionPolicyServiceImpl implements ExtensionPolicyService {
             return policy;
         }
         policy.changeBlocked(blocked);
-        auditHistoryRepository.save(ExtensionPolicyAuditHistory.blockedChanged(policy, beforeBlocked, blocked));
+        auditHistoryRepository.save(
+                ExtensionPolicyAuditHistory.blockedChanged(
+                        policy,
+                        ExtensionPolicyAuditState.from(beforeBlocked),
+                        ExtensionPolicyAuditState.from(blocked)
+                )
+        );
         return policy;
     }
 

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.demo.file.domain.PolicyType;
 import com.example.demo.file.domain.ExtensionPolicyAuditAction;
+import com.example.demo.file.domain.ExtensionPolicyAuditState;
 import com.example.demo.file.domain.entity.ExtensionPolicy;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
@@ -53,10 +54,9 @@ class ExtensionPolicyInitializerTests {
 
         // then
         assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.INITIALIZED);
-        assertThat(history.getBeforeBlocked()).isNull();
-        assertThat(history.getAfterBlocked()).isFalse();
+        assertThat(history.getBeforeState()).isNull();
+        assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.UNBLOCKED);
         assertThat(history.getActor()).isEqualTo("SYSTEM");
-        assertThat(history.getRequestId()).isNull();
     }
 
     @Test

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.file.domain.PolicyType;
 import com.example.demo.file.domain.ExtensionPolicyAuditAction;
+import com.example.demo.file.domain.ExtensionPolicyAuditState;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
@@ -61,10 +62,9 @@ class ExtensionPolicyServiceTests {
                 .satisfies(history -> {
                     assertThat(history.getPolicyId()).isEqualTo(policy.getId());
                     assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.CREATED);
-                    assertThat(history.getBeforeBlocked()).isNull();
-                    assertThat(history.getAfterBlocked()).isTrue();
+                    assertThat(history.getBeforeState()).isNull();
+                    assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
-                    assertThat(history.getRequestId()).isNull();
                 });
     }
 
@@ -83,10 +83,9 @@ class ExtensionPolicyServiceTests {
                 .filteredOn(history -> history.getAction() == ExtensionPolicyAuditAction.BLOCKED_CHANGED)
                 .singleElement()
                 .satisfies(history -> {
-                    assertThat(history.getBeforeBlocked()).isFalse();
-                    assertThat(history.getAfterBlocked()).isTrue();
+                    assertThat(history.getBeforeState()).isEqualTo(ExtensionPolicyAuditState.UNBLOCKED);
+                    assertThat(history.getAfterState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
-                    assertThat(history.getRequestId()).isNull();
                 });
     }
 
@@ -125,10 +124,9 @@ class ExtensionPolicyServiceTests {
                 .singleElement()
                 .satisfies(history -> {
                     assertThat(history.getPolicyId()).isEqualTo(policyId);
-                    assertThat(history.getBeforeBlocked()).isTrue();
-                    assertThat(history.getAfterBlocked()).isNull();
+                    assertThat(history.getBeforeState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
+                    assertThat(history.getAfterState()).isNull();
                     assertThat(history.getActor()).isEqualTo("SYSTEM");
-                    assertThat(history.getRequestId()).isNull();
                 });
     }
 
