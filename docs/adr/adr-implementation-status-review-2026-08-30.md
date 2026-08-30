@@ -35,7 +35,7 @@ implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89 +
 | [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑, 설정·MockMvc·통합 테스트가 존재한다. |
 | [0010](0010-limit-extension-name-characters.md) | 부분 구현·보류 | 공백 제거·소문자화·빈 값·20자·점 거부는 존재하지만, 한글·영문·숫자 전용 검증은 보류한다. 전체 원본 파일명 제한은 이 ADR의 대상이 아니다. |
 | [0011](0011-externalize-upload-storage-path.md) | 구현 완료 | `file.upload.storage-path` 기본값을 선언하고 설정 주입으로 `LocalFileStorage` 저장 루트를 변경한다. 기본 경로·override 경로·저장 실패·기존 업로드 회귀 테스트가 통과했다(`2745a89`). |
-| [0012](0012-preserve-policy-change-history-for-operations.md) | 미구현 | append-only 이력 엔티티·저장소·정책 변경과 같은 트랜잭션의 이력 저장이 없다. |
+| [0012](0012-preserve-policy-change-history-for-operations.md) | 결정 완료·구현 대기 | action·actor·requestId·정책 식별자·동일 상태 PATCH 처리 의미를 확정했으며, append-only 이력 엔티티·저장소·트랜잭션 저장은 아직 없다. |
 | [0013](0013-use-request-id-and-frontend-owned-upload-messages.md) | 구현 완료 | UUID v4 `Idempotency-Key`를 requestId로 검증·응답·오류·로그에 연결하고 안전한 context를 반환한다. |
 | [0014](0014-persist-upload-state-before-file-and-finalize-atomically.md) | 구현 완료 | `UploadFile` 상태·임시 경로·atomic move·30분 stale 기준·1분 정리 주기를 구현하고 상태·파일 조합을 복구한다. |
 | [0015](0015-separate-upload-retry-idempotency-and-state.md) | 구현 완료 | 동일 requestId 결과 재사용, 처리 중 `409 + Retry-After`, 지문 미사용, BE backoff/jitter와 FE 재시도 상한을 구현했다. 키 보존 기간은 미결정이다. |
@@ -45,7 +45,7 @@ implementation_baseline: main@0f6b53c + feat/upload-policy-reliability@2745a89 +
 
 현재 구현 대상이 아닌 `proposed` ADR을 포함해, 아직 완료되지 않은 ADR은 다음과 같다.
 
-- 미구현: 0012
+- 결정 완료·구현 대기: 0012
 - 구현 완료: 0006, 0013, 0014, 0015
 - 부분 구현·보류: 0010
 - 의도적 보류: 0016
@@ -84,9 +84,9 @@ Tika 콘텐츠 감지와 애플리케이션 소유 실행 MIME denylist를 분�
 
 전체 기능 커밋 `164a8e0`에서 위 정책을 구현했고, 전체 `./gradlew test`와 JavaScript 문법 검증을 통과했다. 브라우저 smoke와 키 보존 기간 결정은 남은 후속 작업이다.
 
-### 설계 보강 후 착수 — ADR 0012, 0013
+### 구현 예정 — ADR 0012
 
-0012의 이력 이벤트에는 변경 경로·요청 식별자·actor가 필요하고, 0013은 그 `requestId`의 생성·오류 응답·로그 필드를 정의한다. 두 ADR은 독립적으로도 구현할 수 있지만, 먼저 0013의 오류 응답 호환 기간과 로그 형식을 정하고 0012의 이벤트 action 목록·변경 전후 스냅샷 표현을 정하면 누락 없는 같은 트랜잭션 기록으로 구현할 수 있다.
+0012의 이력 이벤트 action은 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정한다. actor는 현재 `SYSTEM`만 기록하고 변경 경로 필드는 두지 않는다. 정책 API에는 requestId를 추가하지 않아 이력의 requestId는 nullable이며, 정책 ID와 확장자를 함께 보존한다. 동일한 blocked 상태를 다시 요청한 PATCH는 실제 변경이 없으므로 이력을 남기지 않는다. 감사 조회 API와 관리자 화면은 범위에서 제외한다.
 
 ### 현재 구현하지 않음 — ADR 0016
 

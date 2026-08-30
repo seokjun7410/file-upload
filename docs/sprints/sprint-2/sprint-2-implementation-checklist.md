@@ -123,11 +123,13 @@
 
 시작 전 질문:
 
-- 감사 action의 정확한 목록과 명명 규칙은 무엇인가? 최소 후보는 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`다.
-- 인증이 없는 현재 단계에서 actor는 모든 요청에 `SYSTEM`으로 기록할 것인가, 별도 변경 경로 값을 함께 둘 것인가?
-- 감사 이력의 조회 API·관리자 화면은 이번 스프린트의 완료 범위에 포함하지 않는다는 ADR의 범위 제외를 유지할 것인가?
+- [x] 감사 action은 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정한다.
+- [x] 인증이 없는 현재 단계에서는 actor를 `SYSTEM`으로 기록하고 변경 경로 필드는 두지 않는다.
+- [x] 정책 API에는 requestId 헤더를 추가하지 않으며 정책 감사 이력의 requestId는 nullable로 둔다.
+- [x] 감사 이력의 조회 API·관리자 화면은 이번 스프린트 범위에서 제외한다.
+- [x] 정책 ID와 확장자를 함께 저장하고, 동일 상태 PATCH에는 이력을 남기지 않는다.
 
-중단 규칙: action·actor·변경 경로의 저장 의미가 정해지기 전에는 이력 스키마를 만들지 않는다.
+중단 규칙: 없음. action·actor·requestId·정책 식별자·동일 상태 PATCH 처리 의미가 확정되었다.
 
 완료 기준: 정책의 현재 상태와 감사 이력이 원자적으로 남고, 물리 삭제된 커스텀 정책도 삭제 사실을 추적할 수 있다.
 

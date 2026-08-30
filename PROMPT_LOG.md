@@ -1499,3 +1499,22 @@
 - 검증 근거: 전체 `./gradlew test` 99개 성공, `node --check src/main/resources/static/js/extension-policy.js` 성공, controller·integration·domain·recovery 테스트 추가. 브라우저 smoke는 아직 실행하지 않았다.
 - 결과와 연결 문서: `docs` 브랜치에서 체크리스트·ADR 구현 상태·PRD·API 계약·PROMPT_LOG를 갱신한다. `origin/docs` push는 GitHub HTTP 403으로 미완료다.
 - 회고와 후속 조치: 키 보존 기간과 브라우저 접근성·반응형 smoke는 별도 운영·UX 검증으로 남긴다. 기존 미추적 `uploads/` 파일은 보존했다.
+
+## 2026-08-31T00:44:25+09:00 — 정책 감사 이력 구현 계약 확정
+
+- 상태: 채택
+- 시간 근거: 현재 대화에서 정책 감사 이력 구현 계획의 세부 선택을 확정한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `ExtensionPolicyService`, `ExtensionPolicyInitializer`
+- 요청·질문 요약: 정책 생성·초기화·고정 상태 변경·커스텀 삭제를 동일 트랜잭션의 감사 이력으로 보존하는 구현 계약을 확정한다.
+- 배경과 제약: 커스텀 정책은 물리 삭제되므로 정책 ID와 확장자를 함께 보존해야 한다. 현재 정책 API에는 requestId가 없고 인증도 도입되지 않았다. 감사 조회 API와 관리자 화면은 범위에서 제외한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`, `tdd`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: action을 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정하고, actor는 `SYSTEM`, 정책 requestId는 nullable로 기록하며, 동일 blocked 상태 PATCH는 이력을 남기지 않는다.
+- 사람의 판단과 이유: 채택. 도메인 사건을 운영자가 구분할 수 있고, 현재 인증·요청 추적 계약을 무리하게 확장하지 않으면서 삭제 후 재등록을 정책 ID로 구분할 수 있다.
+- 코드·사용자 경험 영향: 기존 정책 REST API 응답은 변경하지 않는다. 이후 정책 변경마다 현재 상태와 감사 이력이 함께 커밋되며, 동일 상태 PATCH는 감사 기록을 추가하지 않는다.
+- 검증 근거: 현재 정책 서비스·초기화 트랜잭션과 관련 테스트를 확인했고, 기존 `./gradlew test`가 성공했다. 감사 이력 코드는 아직 구현 전이다.
+- 결과와 연결 문서: ADR 0012, 스프린트 2 구현 체크리스트, ADR 구현 상태 점검 문서에 확정된 계약을 반영했다.
+- 회고와 후속 조치: 문서 커밋 후 기능 브랜치에서 Red 테스트를 시작한다. 구현 완료 후 실제 테스트 결과와 패키지 인덱스를 별도 문서 커밋으로 갱신한다.
