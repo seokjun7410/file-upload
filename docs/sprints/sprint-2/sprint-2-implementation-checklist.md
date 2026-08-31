@@ -88,7 +88,7 @@
 시작 전 질문:
 
 - 실행 가능한 바이너리 MIME만 차단하고, `text/plain`과 미확인 MIME는 허용한다.
-- MIME 감지 실패는 경고 로그만 남기고 업로드를 계속한다.
+- `application/octet-stream` 등 `UNKNOWN` MIME은 경고 후 업로드를 계속하고, `IOException`으로 분석 자체가 실패한 `FAILED` 결과는 `FILE_TYPE_DETECTION_FAILED`로 거부한다.
 - 실행 MIME 차단 오류 코드는 `BLOCKED_EXECUTABLE_MIME`으로 확정한다.
 
 중단 규칙: 실행 MIME 카탈로그와 미확인 MIME 처리 의미가 확정되기 전에는 Tika 의존성이나 차단 로직을 추가하지 않는다. 위 항목은 ADR 0005와 API 계약에 반영했다.
@@ -97,13 +97,13 @@
 
 ## 5. ADR 0005 — 콘텐츠 기반 MIME 검증 구현
 
-- [x] 실행 MIME 차단, `.txt` 허용, 미확인 MIME·감지 실패 경고·허용의 Red 테스트를 작성한다.
+- [x] 실행 MIME 차단, `.txt` 허용, `UNKNOWN` MIME 경고·허용, `FAILED` MIME 감지 실패 거부의 Red 테스트를 작성한다.
 - [x] Tika 콘텐츠 감지와 애플리케이션 소유 실행 MIME denylist를 분리한 검증 모듈을 구현한다.
 - [x] MIME 검증이 확장자 정책 판정과 파일 저장보다 먼저 실패하고, 내부 감지 정보가 외부 오류에 노출되지 않는지 확인한다.
 
 시작 전 질문: 작업 4의 실행 MIME 카탈로그, 미확인 MIME 처리, 오류 코드가 문서로 확정되었는지 확인한다. 확정된 문서는 ADR 0005와 스프린트 1 API 계약이다.
 
-완료 기준: 실행 MIME 파일은 `BLOCKED_EXECUTABLE_MIME`으로 저장 전에 거부되고, `.txt`·`text/plain`과 미확인 MIME·감지 실패 파일은 기존 확장자 정책을 통과하면 저장된다. 구현 완료(commit `b171051`).
+완료 기준: 실행 MIME 파일은 `BLOCKED_EXECUTABLE_MIME`으로 저장 전에 거부되고, `.txt`·`text/plain`과 `UNKNOWN` MIME은 기존 확장자 정책을 통과하면 저장된다. `FAILED` MIME 감지는 `FILE_TYPE_DETECTION_FAILED`로 저장 전에 거부된다.
 
 ## 6. ADR 0013 — 업로드 오류 requestId·context·FE 메시지
 

@@ -14,7 +14,7 @@ status: accepted
 - 초기 실행 MIME 카탈로그는 `application/x-dosexec`, `application/x-msdownload`, `application/x-executable`, `application/x-elf`, `application/x-mach-binary`, `application/x-sharedlib`, `application/java-archive`, `application/x-java-archive`다.
 - `.txt` 파일이 `text/plain`으로 감지되면 확장자 차단 정책을 통과하는 조건에서 업로드를 허용한다.
 - `application/octet-stream` 등 미확인 MIME은 경고 로그만 남기고 업로드를 허용한다.
-- Tika가 MIME을 감지하지 못하거나 감지 중 예외가 발생해도 경고 로그만 남기고 기존 확장자 정책과 저장 흐름을 계속 수행한다.
+- Tika가 형식을 특정하지 못한 `UNKNOWN` MIME은 경고 로그만 남기고 기존 확장자 정책과 저장 흐름을 계속 수행한다. 입력 스트림 획득·읽기·닫기 중 `IOException`으로 분석 자체가 실패한 `FAILED` 결과는 [ADR 0018](0018-fail-closed-on-mime-detection-failure.md)에 따라 업로드를 거부한다.
 - 확장자와 MIME이 서로 다르다는 사실만으로는 차단하지 않는다.
 - 기존 확장자 denylist는 유지한다. 예를 들어 `.exe` 확장자는 콘텐츠가 텍스트여도 기존 정책에 따라 차단될 수 있다.
 - `text/javascript`, `text/x-shellscript` 등 텍스트로 표현되는 스크립트의 의미 분석은 수행하지 않는다. 텍스트 안의 명령어나 HTML 문자열도 MIME 차단 사유로 사용하지 않는다.
@@ -28,7 +28,8 @@ status: accepted
 파일 입력·최종 확장자 추출
 → 콘텐츠 기반 MIME 감지
 → 실행 MIME이면 BLOCKED_EXECUTABLE_MIME
-→ 미확인 MIME·감지 실패면 경고 후 계속
+→ UNKNOWN MIME이면 경고 후 계속
+→ FAILED 감지면 FILE_TYPE_DETECTION_FAILED
 → 기존 확장자 차단 정책 판정
 → 서버 생성 파일명으로 저장
 ```

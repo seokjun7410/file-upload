@@ -135,7 +135,7 @@
 
 차단 여부는 basename의 첫 번째 점 이후에 있는 모든 확장자 구간을 파일명 순서대로 검사한다. 예를 들어 `test.exe.pdf`는 `exe`가 차단 정책에 등록되어 있으면 `pdf`가 허용 확장자여도 차단한다. `test.exefoo.pdf`처럼 확장자 구간이 정확히 일치하지 않는 경우에는 `exe` 정책으로 차단하지 않는다. 여러 구간이 차단되면 가장 왼쪽의 차단 확장자 하나를 `context.extension`에 반환한다.
 
-업로드 MIME은 multipart 요청의 `Content-Type`이나 원본 파일명이 아니라 파일 콘텐츠에서 감지한다. 실행 가능한 MIME으로 판정되지 않은 파일은 기존 확장자 차단 정책을 통과하면 허용한다. `.txt`·`text/plain`은 허용하고, MIME을 확인할 수 없는 파일은 경고 로그를 남기고 업로드를 계속한다.
+업로드 MIME은 multipart 요청의 `Content-Type`이나 원본 파일명이 아니라 파일 콘텐츠에서 감지한다. 실행 가능한 MIME으로 판정되지 않은 파일은 기존 확장자 차단 정책을 통과하면 허용한다. `.txt`·`text/plain`은 허용하고, Tika가 분석을 완료했지만 형식을 특정하지 못한 `application/octet-stream` 등 `UNKNOWN` MIME은 경고 로그 후 업로드를 계속한다. Tika 분석 중 `IOException`이 발생한 `FAILED` 결과는 `FILE_TYPE_DETECTION_FAILED`로 거부한다.
 
 ### 차단 Response `422 Unprocessable Entity`
 
@@ -164,6 +164,7 @@
 - `409 Conflict`, `IDEMPOTENCY_IN_PROGRESS`: 같은 `requestId`의 업로드가 처리 중이며 `Retry-After` 헤더를 함께 반환
 - `422 Unprocessable Entity`, `BLOCKED_EXTENSION`: 파일명의 확장자 구간 중 하나 이상이 차단 정책에 포함됨. `context.extension`에는 가장 왼쪽의 차단 확장자 하나를 포함한다.
 - `422 Unprocessable Entity`, `BLOCKED_EXECUTABLE_MIME`: 실행 가능한 MIME으로 감지된 파일
+- `500 Internal Server Error`, `FILE_TYPE_DETECTION_FAILED`: 콘텐츠 MIME 분석 자체에 실패한 파일
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
 
 파일 용량 제한은 multipart 파싱 단계에서 적용되므로 확장자 정책·MIME·파일 저장 로직을 실행하지 않고 거부한다.
@@ -196,6 +197,7 @@
 | 같은 requestId 처리 중 재요청 | `409 Conflict` | `IDEMPOTENCY_IN_PROGRESS` |
 | 차단된 확장자 파일 업로드 | `422 Unprocessable Entity` | `BLOCKED_EXTENSION` |
 | 실행 가능한 MIME 파일 업로드 | `422 Unprocessable Entity` | `BLOCKED_EXECUTABLE_MIME` |
+| 콘텐츠 MIME 감지 실패 | `500 Internal Server Error` | `FILE_TYPE_DETECTION_FAILED` |
 | 파일 저장 실패 | `500 Internal Server Error` | `FILE_UPLOAD_FAILED` |
 
 ## 구현 시 확인할 최소 규칙

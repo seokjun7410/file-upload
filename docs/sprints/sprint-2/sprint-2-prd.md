@@ -47,7 +47,7 @@ Issue tracker: local Markdown
 - 요청 크기는 multipart 파싱 단계에서 파일 10MB, 전체 요청 12MB로 제한한다. 초과 요청은 정책·MIME·저장 로직을 실행하지 않고 413 의미의 안전한 오류로 변환한다.
 - 저장 루트는 운영자 설정으로 주입하며 기본값은 기존 `./uploads`다. HTTP 입력과 원본 파일명은 저장 경로를 결정하지 않는다.
 - MIME 검증은 Apache Tika의 콘텐츠 감지와 애플리케이션 소유의 실행 MIME denylist로 분리한다. `.txt`·`text/plain`은 허용하며, 확장자와 MIME이 다르다는 사실만으로는 차단하지 않는다. Parser·악성코드 검사·외부 바이러스 스캔은 도입하지 않는다.
-- 실행 가능한 바이너리 MIME는 `application/x-dosexec`, `application/x-msdownload`, `application/x-executable`, `application/x-elf`, `application/x-mach-binary`, `application/x-sharedlib`, `application/java-archive`, `application/x-java-archive`로 확정한다. `application/octet-stream` 등 미확인 MIME와 MIME 감지 실패는 경고 로그 후 허용한다.
+- 실행 가능한 바이너리 MIME는 `application/x-dosexec`, `application/x-msdownload`, `application/x-executable`, `application/x-elf`, `application/x-mach-binary`, `application/x-sharedlib`, `application/java-archive`, `application/x-java-archive`로 확정한다. `application/octet-stream` 등 분석이 완료된 `UNKNOWN` MIME은 경고 로그 후 허용한다. Tika 분석 자체가 `IOException`으로 실패한 `FAILED` 결과는 `FILE_TYPE_DETECTION_FAILED`로 거부한다. 상세 결정은 ADR 0018을 따른다.
 - 업로드 메타데이터는 원본 파일명, 서버 저장 파일명, 처리 상태를 보존한다. 원본 파일명은 표시용이고 저장 경로·파일 시스템 식별자·공개 인증 정보로 사용하지 않는다.
 - 원본 파일명은 basename만 보존하며 빈 값·NUL·제어문자를 거부하고, 최대 255 Unicode code point를 허용한다. 서버 저장 파일명은 UUID와 검증된 최종 확장자로 계속 생성한다.
 - 업로드 상태는 `RECEIVING`, `COMPLETED`, `FAILED`로 관리한다. 검증이 통과한 뒤 `RECEIVING`을 먼저 커밋하고, 같은 파일시스템의 임시 경로에 저장한 후 atomic move로 최종 파일을 확정한다. `COMPLETED` 커밋 후에만 201을 반환한다.
@@ -66,7 +66,7 @@ Issue tracker: local Markdown
 
 - 테스트는 private 구현이 아니라 외부에서 관찰 가능한 정책 판정, HTTP 상태·응답, DB 상태, 파일 시스템 결과, 재시도 결과를 검증한다.
 - 확장자 값 객체는 기존 정규화, 빈 값, 20자 경계, 점 거부 동작을 회귀 테스트한다. ADR 0010의 허용 문자 확대·축소 테스트는 보류한다.
-- MIME 검증 모듈은 실행 MIME 차단, `.txt`·`text/plain` 허용, 실행 파일 위장, 미확인 MIME 경고·허용, 감지 실패 경고·허용을 단위 테스트한다. 실제 Tika 입력 fixture는 작은 고정 파일을 사용한다.
+- MIME 검증 모듈은 실행 MIME 차단, `.txt`·`text/plain` 허용, 실행 파일 위장, `UNKNOWN` MIME 경고·허용, `FAILED` MIME 감지 실패 거부를 단위 테스트한다. 실제 Tika 입력 fixture는 작은 고정 파일을 사용한다.
 - multipart 제한은 10MB 경계와 12MB 요청 경계에서 서비스·저장소가 호출되지 않고 413 오류 계약이 반환되는지 통합 테스트한다.
 - 저장 루트는 기본 경로와 설정 override를 통합 테스트하고, 원본 파일명이 경로 조작에 사용되지 않는지 확인한다.
 - 업로드 메타데이터와 상태 전이는 receiving 선저장, 임시 파일 쓰기, atomic move, completed 전환, 저장 실패 시 failed 전환을 통합 테스트한다. 프로세스 중단을 직접 재현하지 못하는 경우에는 복구 서비스가 stale 상태·파일 조합별로 수행하는 외부 결과를 단위 테스트한다.
