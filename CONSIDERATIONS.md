@@ -176,7 +176,6 @@ Tika MIME 감지는 악성코드 검사나 스크립트 의미 분석이 아니�
 - 설정: [`application.yml`](src/main/resources/application.yml)
 - 예외 계약: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java)
 - 검증: [`DemoApplicationTests`](src/test/java/com/example/demo/DemoApplicationTests.java),
-  [`MultipartPartLimitIntegrationTests`](src/test/java/com/example/demo/controller/MultipartPartLimitIntegrationTests.java),
   [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java)
 - 수동 확인: 11MiB 파일의 413 거부와 오류 응답의 내부 경로·stack trace 비노출
 
