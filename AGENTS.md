@@ -127,6 +127,7 @@
 | [`docs/adr/adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md) | 기준 브랜치 코드와 병합 이력을 기준으로 ADR별 구현 상태와 선결 조건을 점검 | review |
 | [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md) | 코드 가독성·책임 분리·도메인 모델링·Lombok·예외·트랜잭션·테스트 작성 규칙 | 세션 리팩터링 기준으로 정리한 코드 작성 기준 |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
+| [`CONSIDERATIONS.md`](CONSIDERATIONS.md) | 파일 업로드 확장자 차단 정책의 보안·데이터·UX·운영 Top 10 판단과 구현 근거 | 과제 고려사항 제출 문서 |
 | [`docs/agents/`](docs/agents/) | 로컬 Markdown 이슈 추적기, triage 라벨, 도메인 문서 탐색 규칙 | 에이전트 작업 설정 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 
