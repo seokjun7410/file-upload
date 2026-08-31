@@ -1,7 +1,7 @@
 ---
 status: review
 reviewed_at: 2026-08-31
-implementation_baseline: feat/upload-policy-reliability@7c69a29
+implementation_baseline: feat/upload-policy-reliability@7944a30
 ---
 
 # ADR 구현 상태 점검과 다음 작업
@@ -10,7 +10,7 @@ implementation_baseline: feat/upload-policy-reliability@7c69a29
 
 ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현재 기준 브랜치의 Java 코드·설정·프런트 JavaScript·테스트에서 확인되는 경우에만 표시한다.
 
-이번 점검의 기준 코드는 `feat/upload-policy-reliability@c94f50a`이다. 문서 전용 `docs` 브랜치의 `src`는 구현 근거로 사용하지 않는다. 이 기준 브랜치에는 MIME 검증·multipart 제한·저장 루트 외부화·requestId 멱등 업로드·업로드 상태 전이·정책 감사 이력·다중 확장자 구간 차단이 병합되어 있다.
+이번 점검의 기준 코드는 `feat/upload-policy-reliability@7944a30`이다. 문서 전용 `docs` 브랜치의 `src`는 구현 근거로 사용하지 않는다. 이 기준 브랜치에는 MIME 검증·multipart 제한·파일 하나 검증·저장 루트 외부화·requestId 멱등 업로드·업로드 상태 전이·정책 감사 이력·다중 확장자 구간 차단이 병합되어 있다.
 
 상태의 의미는 다음과 같다.
 
@@ -32,7 +32,7 @@ ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현�
 | [0007](0007-use-final-file-extension-for-upload-blocking.md) | 대체됨 | 최종 확장자만 검사하던 정책을 ADR 0017이 대체한다. |
 | [0017](0017-scan-all-extension-segments-for-upload-blocking.md) | 구현 완료 | `FileExtensionExtractor`가 모든 확장자 구간을 추출하고, 차단 구간을 왼쪽부터 검사하는 서비스·API 테스트가 존재한다. |
 | [0018](0018-fail-closed-on-mime-detection-failure.md) | 구현 완료 | `FAILED` MIME 결과를 `FILE_TYPE_DETECTION_FAILED` 500 오류로 변환하고, 정책 조회·예약·저장 전에 거부하는 서비스·REST 테스트가 존재한다. |
-| [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑이 존재한다. |
+| [0009](0009-limit-multipart-upload-size.md) | 구현 완료 | multipart 파일 10MB·전체 요청 12MB 설정과 `FILE_SIZE_EXCEEDED` 413 매핑이 존재한다. `file` part가 두 개 이상인 요청은 별도 `400 MULTIPLE_FILES_NOT_ALLOWED`로 저장 전에 거부한다. |
 | [0010](0010-limit-extension-name-characters.md) | 부분 구현·보류 | 기존 정규화·20자·점 거부는 유지하고 허용 문자 강화는 보류한다. |
 | [0011](0011-externalize-upload-storage-path.md) | 구현 완료 | `file.upload.storage-path` 설정을 `LocalFileStorage`에 주입하고 기본값 `./uploads`를 유지한다. |
 | [0012](0012-preserve-policy-change-history-for-operations.md) | 구현 완료 | 정책 초기화·생성·상태 변경·삭제 이력과 원자성 테스트가 존재한다. 이벤트 후 상태는 `state` 하나로 저장한다. |
@@ -49,7 +49,7 @@ ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현�
 
 ## 다음 작업과 선결 조건
 
-1. IAB에서 재현이 어려운 `409` 화면 재시도 분기를 별도 수동 또는 결정적 주입 환경에서 확인한다.
+1. IAB에서 재현이 어려운 `409` 화면 재시도 분기를 별도 수동 또는 결정적 주입 환경에서 확인한다. 현재 FE 분기와 API 계약은 존재하지만 실제 화면 확인 근거는 없다.
 2. VoiceOver와 실제 브라우저 200% 확대 검증을 수행한다.
 3. 브랜치 직접 커밋 경로와 최종 회귀 결과를 감사한다.
 4. ADR 0016은 제품·운영 결정이 끝날 때까지 보류한다.

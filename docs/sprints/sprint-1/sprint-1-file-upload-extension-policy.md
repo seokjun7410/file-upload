@@ -8,7 +8,7 @@
 
 현재 프로젝트는 Spring Boot 3.5, Spring Data JPA, H2 파일 DB, Thymeleaf를 사용한다. 확장자 정책의 도메인·JPA·초기화·정책 REST API와 Axios 정책 관리 화면, multipart 파일 저장·업로드 API가 구현되어 있다.
 
-구현 시 준수할 API 계약은 [스프린트 1 API 문서](sprint-1-file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md)를 기준으로 한다.
+구현 시 준수할 API 계약은 [파일 업로드 API 명세](../../file-upload-api.md), 구현 완료 판정은 [스프린트 1 FE/BE 구현 완료 체크리스트](sprint-1-file-upload-checklist.md)를 기준으로 한다.
 
 ## 왜 하는가
 

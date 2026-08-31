@@ -85,7 +85,7 @@
 - 상태: 채택
 - 시간 근거: 커밋 `65d292f` 작성 시각
 - 스프린트/범위: 저장소 공통 AI 작업 지침과 파일 업로드 확장자 정책 문서 탐색
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/sprints/sprint-1/sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/file-upload-api.md`](docs/file-upload-api.md)
 - 요청·질문 요약: 모든 AI가 읽을 수 있는 에이전트 지침에 가독성, 범위 준수, 의사결정 기록, TDD와 문서·패키지 인덱스를 포함한다.
 - 배경과 제약: 기존 저장소에는 Spring Boot 예제 코드와 파일 업로드 설계 문서가 있었지만 공통 에이전트 지침은 없었다.
 - AI 활용 정보:
@@ -123,7 +123,7 @@
 - 상태: 채택
 - 시간 근거: 문서 커밋 `389e7fd` 작성 시각 및 현재 채팅 기록
 - 스프린트/범위: 파일 업로드 확장자 정책 스프린트 문서와 API 명세
-- 관련 문서·코드: [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/sprints/sprint-1/sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/file-upload-api.md`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
 - 요청·질문 요약: 스프린트·API 문서가 `docs` 브랜치에 커밋되지 않아 기능 작업이 어려운 문제를 해결하고, 같은 누락이 재발하지 않게 지침을 보완한다.
 - 배경과 제약: 문서 파일이 기능 브랜치 작업 트리에만 미추적 상태로 남으면 `docs` 병합 결과로 확인할 수 없다.
 - AI 활용 정보:
@@ -237,7 +237,7 @@
 - 상태: 수정 채택
 - 시간 근거: 4단계 진행 문서 커밋 `ce5115d`의 작성 시각과 같은 작업 흐름의 대화·테스트 결과
 - 스프린트/범위: 파일 저장을 제외한 확장자 정책 REST API와 공통 오류 응답
-- 관련 문서·코드: [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler`, REST DTO, MockMvc 테스트
+- 관련 문서·코드: [`파일 업로드 API 명세`](docs/file-upload-api.md), `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler`, REST DTO, MockMvc 테스트
 - 요청·질문 요약: 정책 조회·고정 상태 변경·커스텀 추가·삭제 API를 구현하되 파일 업로드는 5단계로 남기고, 기존 코드와 신규 코드의 불필요한 `final`을 제거하며 생성자 주입은 Lombok을 사용한다.
 - 배경과 제약: API 계층은 `@RestController`와 record DTO만 사용하고 Thymeleaf `Model`, view, redirect를 사용하지 않는다. 오류는 상황별 semantic code와 `{code, message}` 형식으로 반환해야 했다.
 - AI 활용 정보:
@@ -536,7 +536,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 프로젝트 고정 `./uploads`, UUID 기반 파일명 응답, 무확장 파일 거부, 저장 장애 `500 FILE_UPLOAD_FAILED`를 선택했다.
 - 코드·사용자 경험 영향: 파일 선택·업로드 폼이 추가되고, 성공 시 서버 생성 파일명과 완료 메시지를 표시한다. 차단·입력·저장 오류는 서버 공통 오류 메시지를 업로드 상태 영역에 표시한다.
 - 검증 근거: `compileTestJava`의 테스트 헬퍼 타입 오류와 임시 디렉터리 단언 오류를 수정했다. 대상 테스트와 전체 `./gradlew test`가 성공했고, `node --check src/main/resources/static/js/extension-policy.js`, `git diff --check`도 성공했다. 인메모리 H2 통합 테스트로 fixed 차단·해제, custom 등록·삭제 후 업로드, 저장 파일 미생성을 확인했다. 인앱 브라우저에서 허용 파일의 UUID 저장명·성공 메시지, custom 차단의 `BLOCKED_EXTENSION`, 무확장 파일의 `INVALID_FILE` 메시지를 확인했다.
-- 결과와 연결 문서: `sprint-1-file-upload-api.md`, `sprint-1-file-upload-checklist.md` (docs/sprints/sprint-1/), `sprint-1-file-upload-storage-and-error-options.md`, ADR 0003
+- 결과와 연결 문서: `file-upload-api.md` (docs/), `sprint-1-file-upload-checklist.md` (docs/sprints/sprint-1/), `sprint-1-file-upload-storage-and-error-options.md`, ADR 0003
 - 실패·미완료: `.git` 메타데이터 쓰기 권한으로 stale docs worktree 정리·생성이 실패해 docs 브랜치 별도 커밋은 수행하지 못했다. 5번 삭제와 6번 업로드의 인앱 브라우저 smoke는 브라우저 데이터 삭제 확인 절차가 남아 있다.
 - 회고와 후속 조치: 브라우저 smoke에서 테스트용 파일 업로드·정책 변경·삭제를 확인하고, 가능해지면 문서 변경을 docs 브랜치에서 별도 커밋한 뒤 기능 브랜치에 병합한다.
 
@@ -545,7 +545,7 @@
 - 상태: 수정 채택
 - 시간 근거: 인앱 브라우저에서 fixed/custom 정책 변경과 파일 업로드 흐름을 재검증하고 최종 회귀 테스트를 완료한 시스템 시각
 - 스프린트/범위: 스프린트 1 잔여 검증 1~8번, 체크리스트 완료 상태 갱신
-- 관련 문서·코드: `sprint-1-file-upload-checklist.md`, `sprint-1-file-upload-api.md` (docs/sprints/sprint-1/), `ExtensionPolicyApiIntegrationTests`, `FileUploadRestController`, `extension-policy.js`
+- 관련 문서·코드: `sprint-1-file-upload-checklist.md` (docs/sprints/sprint-1/), `file-upload-api.md` (docs/), `ExtensionPolicyApiIntegrationTests`, `FileUploadRestController`, `extension-policy.js`
 - 요청·질문 요약: 고정·커스텀 정책 변경 직후 실제 업로드 차단·허용, 커스텀 삭제 후 화면·DB 동기화, 브라우저 요청 계약, 페이지 기동과 최종 문서·테스트 검증을 완료한다.
 - 배경과 제약: 기존 구현과 자동화 테스트는 이미 존재했으므로 검증 범위를 넘어 기능을 확장하지 않는다. 테스트용 파일과 업로드 산출물은 검증 후 제거한다.
 - AI 활용 정보:
@@ -849,7 +849,7 @@
 - 상태: 채택
 - 시간 근거: 사용자 결정 직후 문서 변경을 수행한 시스템 시각과 현재 대화 순서
 - 스프린트/범위: 확장자 이름 값 객체의 허용 문자 검증 정책
-- 관련 문서·코드: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 관련 문서·코드: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
 - 요청·질문 요약: 특수문자를 제외하고 한글·영문·숫자만 허용하는 확장자 검증 규칙을 ADR에 반영한다.
 - 배경과 제약: 기존 문서는 점 제외와 정규화·길이만 정의하고 허용 문자 범위는 명시하지 않았다. 숫자를 허용하면 `mp3`, `7z`와 같은 일반적인 확장자를 표현할 수 있다.
 - AI 활용 정보:
@@ -860,7 +860,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 숫자가 포함된 정상 확장자도 허용할 수 있도록 한글·영문·숫자 범위를 확정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 향후 구현 시 커스텀 확장자 입력과 업로드 확장자 검증에서 허용 문자 범위를 동일하게 적용해야 한다.
 - 검증 근거: ADR, API 계약, 완료 체크리스트의 허용 문자 문구를 대조하고 문서 링크·Markdown 형식을 확인한다. 코드와 테스트는 아직 변경하지 않았다.
-- 결과와 연결 문서: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 결과와 연결 문서: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
 - 회고와 후속 조치: 다음 구현에서는 허용·거부 경계값을 한글 테스트명으로 먼저 고정하고, 기존 코드가 점만 검사하는지 확인한 뒤 검증 로직을 적용한다.
 
 ## 2026-08-30T17:28:45+09:00 — 허용 문자 정책 ADR 분리
@@ -879,7 +879,7 @@
 - 사람의 판단과 이유: 수정 채택. 사용자는 구현이 완료된 ADR의 의미를 보존하고, 이후 추가된 허용 문자 정책을 독립적인 변경으로 추적하기 위해 분리를 선택했다.
 - 코드·사용자 경험 영향: 문서상 정책은 한글·영문·숫자만 허용하고 공백·점·특수문자를 거부한다. 이번 작업에서는 제품 코드와 테스트를 변경하지 않는다.
 - 검증 근거: `ADR 0004`에서 허용 문자 정책 문구를 제거하고 `ADR 0010` 및 API 계약·체크리스트에 정책을 반영했다. 문서 인덱스 링크와 `git diff --check`를 확인한다.
-- 결과와 연결 문서: [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 결과와 연결 문서: [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
 - 회고와 후속 조치: 새 정책을 구현할 때 `ExtensionName`의 기존 생성 경계를 유지하고, 허용·거부 입력 테스트를 먼저 추가한다. 기존 `ADR 0004`의 결정 문구를 다시 수정하지 않는다.
 
 ## 2026-08-30T17:27:09+09:00 — 최종 확장자 기준 업로드 차단 ADR 생성
@@ -963,7 +963,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 서버 로그 연결을 위한 `requestId` 포함, 재시도 정책 제외, 사용자 메시지의 FE 관리 결정을 확정한 현재 대화 시각.
 - 스프린트/범위: 파일 업로드 오류 응답의 추적 식별자와 사용자 메시지 책임
-- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [차단 메시지 분석](.internal-docs/file-upload-risk-analysis/13-block-message.md)
+- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [차단 메시지 분석](.internal-docs/file-upload-risk-analysis/13-block-message.md)
 - 요청·질문 요약: 업로드 오류 응답에 재시도 가능 여부와 `requestId`를 포함할지, 서버 메시지와 FE 메시지 중 어느 쪽이 책임을 가질지 검토한 뒤 ADR을 생성한다.
 - 배경과 제약: `requestId`는 사용자 문의를 서버 로그와 연결해야 한다. 과제 단순화를 위해 FE 구현은 이번 범위에서 제외하고, `retryable`은 멱등성·중복 업로드 정책과 얽히므로 다루지 않는다.
 - AI 활용 정보:
@@ -974,7 +974,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 서버 로그 연결을 위해 `requestId`를 포함하고, 과제 단순화를 위해 FE 구현은 제외하며, 재시도 가능 여부는 ADR 범위에서 다루지 않기로 결정했다. 서버 문구는 번역·표현 변경에 결합되므로 FE가 메시지를 관리하도록 확정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 목표 업로드 오류 응답은 `code`, `requestId`, 안전한 `context`를 중심으로 하며, FE는 오류 코드별 메시지를 조립한다. 실제 서버 응답·로그·FE 전환 구현은 후속 작업이다.
 - 검증 근거: `main`의 현재 `FileUploadExceptionHandler`, `FileUploadServiceImpl`, FE 오류 표시, 업로드 오류 테스트와 기존 ADR 0003·API 계약을 대조했다. `retryable`을 새 계약에 넣지 않았고, 문서 링크·Markdown·공백 검증은 변경 후 수행한다.
-- 결과와 연결 문서: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
 - 회고와 후속 조치: 구현 시 `requestId` 생성·전파·로그 필드의 경계를 정하고, 기존 `message` 의존 FE와의 호환 전환을 검토한다. 재시도와 멱등성은 별도 요구가 생길 때 독립적으로 결정한다.
 
 ## 2026-08-30T17:58:49+09:00 — 파일 업로드 네트워크 재시도와 멱등성 검토 시작
@@ -982,7 +982,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 파일 업로드의 네트워크 오류 시 FE 자동 재시도와 `Idempotency-Key` 도입 의견을 제시한 현재 대화 시각
 - 스프린트/범위: 로컬 파일시스템 기반 동기 파일 업로드의 응답 유실·중복 저장 대응
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [로딩·오류·네트워크 실패 상태 설계](.internal-docs/file-upload-risk-analysis/14-loading-error-network.md)
+- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [로딩·오류·네트워크 실패 상태 설계](.internal-docs/file-upload-risk-analysis/14-loading-error-network.md)
 - 요청·질문 요약: 네트워크 오류 시 FE가 자동 재시도하고 멱등성 키 하나를 유지하는 방안이 적절한지 검토한다.
 - 배경과 제약: 현재 업로드 API는 서버 생성 UUID 파일명만 사용하고 업로드 작업 ID·결과 조회·멱등성 기록이 없다. 같은 키를 재전송하는 것만으로는 서버가 키를 기억하지 않으므로 중복 저장 방지가 보장되지 않는다.
 - AI 활용 정보:
@@ -1001,7 +1001,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 파일 업로드 멱등키의 구체적인 구성 방식을 질문한 현재 대화 시각
 - 스프린트/범위: FE 자동 재시도와 서버 멱등성 기록의 키 생성·수명·요청 지문
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
+- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
 - 요청·질문 요약: 업로드 멱등키를 어떤 값으로 구성하고 재시도 동안 어떻게 유지할지 검토한다.
 - 배경과 제약: 파일명·사용자 ID·시각·파일 해시 조합은 개인정보, 의도적 중복 업로드 구분, 정규화와 충돌 문제를 만들 수 있다. 현재 API에는 인증·업로드 메타데이터·멱등성 기록이 없다.
 - AI 활용 정보:
@@ -1020,7 +1020,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 클라이언트 UUID만으로 업로드 멱등성이 충분한지 추가 질문한 현재 대화 시각
 - 스프린트/범위: 멱등키 형식과 서버 측 보장 조건
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
+- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
 - 요청·질문 요약: FE가 생성한 UUID를 멱등키로 사용하는 것만으로 충분한지 검토한다.
 - 배경과 제약: 현재 파일명은 서버 UUID로 생성되며, 업로드 요청의 멱등키와 처리 결과를 서버가 저장하는 구조는 없다. 클라이언트 키 형식과 서버 멱등성 보장 장치를 구분해야 한다.
 - AI 활용 정보:
@@ -1039,7 +1039,7 @@
 - 상태: 요구사항 정의·브라우저 검증 대기
 - 시간 근거: 사용자가 스프린트 2 개요 문서에 20자·200개 한도의 실제 UI/UX 검증 요구사항을 기록해 달라고 요청한 현재 대화 시각
 - 스프린트/범위: 20자 입력, 200개 전체 목록, 201번째 등록 실패의 브라우저 UX 검증
-- 관련 문서·코드: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [제한값 근거와 UX 분석](.internal-docs/file-upload-risk-analysis/11-limit-rationale-and-ux.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [제한값 근거와 UX 분석](.internal-docs/file-upload-risk-analysis/11-limit-rationale-and-ux.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
 - 요청·질문 요약: 20자·200개 한도를 UI/UX와 일반 확장자 길이 관점에서 검증하고, 결과에 따라 UX 구현 또는 ADR 필요 여부를 결정하는 내용을 스프린트 2 요구사항으로 남긴다.
 - 배경과 제약: 현재 값은 API 계약과 구현에 존재하지만, 실제 경계값의 화면 사용성은 확인되지 않았다. 200개는 DB 성능의 절대 한계로 단정하지 않고 전체 목록 관리성·응답·렌더링 부담을 함께 확인해야 한다.
 - AI 활용 정보:
@@ -1058,7 +1058,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 동일 멱등키 요청이 `PROCESSING`일 때 영구 대기 또는 중복 파일 생성이 될 수 있는 문제를 제기한 현재 대화 흐름의 시각
 - 스프린트/범위: 동일 키 동시 요청, 처리 중 응답, stale 복구와 FE 재시도 종료 조건
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md)
 - 요청·질문 요약: 동일 키의 업로드가 진행 중일 때 예외 응답은 고착을 만들고, 무시하면 중복 파일이 생길 수 있으므로 안전한 처리 방법을 검토한다.
 - 배경과 제약: 동기 파일 업로드는 파일시스템과 멱등성 기록이 한 트랜잭션이 아니다. 첫 처리의 응답 유실·프로세스 종료·대용량 처리 지연을 구분해야 한다.
 - AI 활용 정보:
@@ -1096,7 +1096,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 넉넉한 파일 저장 타임아웃과 `Retry-After`를 맞추고 시간이 지나면 실패 처리하는 방식이 베스트 프랙티스인지 질문한 현재 대화 시각
 - 스프린트/범위: 파일 저장 최대 실행 시간, FE 재시도 간격, 서버 실패 판정과 비동기 정리
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1-file-upload-api.md), [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3)
+- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3)
 - 요청·질문 요약: 파일 저장 타임아웃을 넉넉하게 설정하고 그 시간에 맞춰 `Retry-After`를 정한 뒤, 시간이 지나면 업로드를 실패로 처리할지 검토한다.
 - 배경과 제약: 저장 deadline, 후속 요청 대기 간격, FE 전체 대기 시간은 서로 다른 의미다. FE의 재시도 한도만으로 서버 저장 성공 여부나 최종 파일 삭제를 판단하면 응답 유실 성공을 잃을 수 있다.
 - AI 활용 정보:
@@ -1317,7 +1317,7 @@
   - skill: `tdd`
   - 도구: `apply_patch`, `./gradlew test`
 - 검증 근거: 설정값 단위 검증, 413 handler MockMvc 테스트, 실제 내장 Tomcat에서 파일 초과·전체 요청 초과 통합 테스트, 전체 `./gradlew test` 성공.
-- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
+- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
 - 회고와 후속 조치: 프록시·로드밸런서의 업로드 제한도 10MB/12MB와 일치하는지 운영 환경에서 확인하고, 다음 작업은 ADR 0011 저장 경로 외부화다.
 
 ## 2026-08-30T20:30:40+09:00 — multipart 구현 설명 범위 단순화
@@ -1353,7 +1353,7 @@
 - 상태: 사용자 결정 반영·기능 구현 준비
 - 시간 근거: 현재 대화에서 사용자가 MIME 검증 범위를 실행 MIME 차단으로 확정한 시각
 - 스프린트/범위: 스프린트 2 ADR 0005 콘텐츠 기반 MIME 검증
-- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `FileUploadServiceImpl`
+- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `FileUploadServiceImpl`
 - 요청·질문 요약: 확장자와 MIME이 일치하지 않는 모든 파일을 차단하지 않고, 실제 실행 가능한 MIME만 차단하며 일반 텍스트 파일을 허용한다.
 - 배경과 제약: 확장자는 사용자가 바꿀 수 있지만 `.txt` 콘텐츠를 악성코드 검사 수준으로 분석할 수는 없다. 업로드·저장 단계에서 텍스트를 차단하면 정상 사용성이 낮아지므로 MIME 감지는 실행 바이너리 위장 방어에 한정한다.
 - AI 활용 정보:
@@ -1364,7 +1364,7 @@
 - 사람의 판단과 이유: 채택. 현재 요구의 핵심은 확장자 위장 실행 파일을 줄이는 것이며, 모든 비실행 형식 allowlist나 텍스트 의미 분석은 범위와 사용성 부담이 크다.
 - 코드·사용자 경험 영향: `.txt`·`text/plain` 업로드가 허용되고, 실행 MIME 파일만 저장 전에 거부된다. 확장자와 MIME 불일치 자체는 오류가 되지 않는다.
 - 검증 근거: 현재 업로드 흐름과 기존 테스트·ADR 0005를 대조했다. 구현 전 문서만 갱신했으며 MIME 기능 테스트는 후속 기능 브랜치에서 작성한다.
-- 결과와 연결 문서: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
+- 결과와 연결 문서: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
 - 회고와 후속 조치: 텍스트 안의 스크립트·HTML 의미 분석은 하지 않으며, 다운로드·미리보기·파싱 기능이 추가될 때 실행·렌더링 경계를 별도 검토한다. 다음 단계는 기능 브랜치에서 Tika 감지기와 실행 MIME 차단 테스트를 구현하는 것이다.
 
 ## 2026-08-30T21:23:09+09:00 — docs 원격 push 권한 실패
@@ -1391,7 +1391,7 @@
 - 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
 - 시간 근거: 기능 커밋 `b171051`과 전체 `./gradlew test` 성공 시각
 - 스프린트/범위: 스프린트 2 ADR 0005 실행 MIME denylist 기반 업로드 검증
-- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md), `ExecutableMimeCatalog`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`
+- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), `ExecutableMimeCatalog`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`
 - 요청·질문 요약: 확장자와 MIME 불일치를 일괄 차단하지 않고 실행 가능한 MIME만 차단하며, `.txt`·`text/plain`과 미확인 MIME·감지 실패는 허용한다.
 - 배경과 제약: 파일 확장자와 multipart `Content-Type`은 신뢰할 수 없지만 MIME 감지만으로 악성코드나 텍스트 스크립트 의미를 완전히 판정할 수 없다. 기존 확장자 denylist와 서버 생성 파일명 저장은 유지한다.
 - AI 활용 정보:
@@ -1448,7 +1448,7 @@
 - 상태: 수정 채택
 - 시간 근거: 현재 대화에서 사용자가 requestId 통합 방향과 BE Retry-After 계산 방식을 확정한 시각
 - 스프린트/범위: 스프린트 2 ADR 0006·0013·0014·0015 업로드 신뢰성
-- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`파일 업로드 API 명세`](docs/file-upload-api.md)
 - 요청·질문 요약: 업로드 멱등키를 별도 식별자로 두지 않고 `Idempotency-Key` UUID v4를 논리적 업로드 `requestId`로 사용하며, 처리 중 재시도 대기값을 백엔드가 계산하도록 작업계획을 확정한다.
 - 배경과 제약: 응답 유실 뒤 중복 파일을 만들지 않아야 하며, 현재 동기 multipart API와 별도 상태 조회 API를 유지한다. SHA-256 지문과 별도 attemptId는 범위에서 제외한다.
 - AI 활용 정보:
@@ -1538,25 +1538,6 @@
 - 결과와 연결 문서: 기능 커밋 `38e1277`; docs 후속 커밋에서 ADR 0012 구현 상태, 스프린트 체크리스트, 패키지 인덱스를 갱신한다.
 - 회고와 후속 조치: 정책 API requestId와 감사 조회 기능은 별도 결정 없이는 추가하지 않는다. 기존 미추적 `uploads/` 디렉터리는 커밋하지 않고 보존했다.
 
-## 2026-08-31T01:15:16+09:00 — ADR 0016 allowlist 전환 결정 전 검토 원문 작성
-
-- 상태: 검토 중
-- 시간 근거: 다른 에이전트의 정책 감사 이력 리팩터링·문서 병합 완료 후 다음 스프린트 작업으로 착수한 시각
-- 스프린트/범위: 스프린트 2 ADR 0016 정책 집합·allowlist 전환 결정 게이트
-- 관련 문서·코드: [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md), [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md)
-- 요청·질문 요약: 다른 에이전트 작업 완료 후 스프린트 2의 다음 실제 작업을 진행한다. 코드 구현에 앞서 ADR 0016의 결정 선택지를 정리한다.
-- 배경과 제약: 현재 구현은 전역 denylist이며 사용자·조직 인증과 policy-set은 범위 밖이다. `proposed` ADR의 결정 게이트가 닫히기 전에는 스키마·API·실제 allowlist 차단을 구현하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `adr-predecision-review`
-  - plugin/도구: `apply_patch`, Git, 로컬 문서·코드 검색
-- AI 제안: 전역 denylist 유지, scope별 정책 집합의 구체 범위 우선, 전역 강제 차단 guardrail을 포함한 정책 집합의 세 가지 선택지를 비교하고, 실제 allowlist 요구와 보안 불변식에 따라 조건부 추천을 제공한다.
-- 사람의 판단과 이유: 검토 중. 최종 선택은 미등록 확장자의 기본 의미, GLOBAL 강제 차단의 override 가능 여부, 기본 mode, 소유자·승인자, shadow 기간·거부율, 복귀 기준에 대한 사용자 결정 후 확정한다.
-- 코드·사용자 경험 영향: 현재 코드와 API는 변경하지 않는다. 결정 전까지 기존 denylist 동작과 신규 업로드 경계를 유지한다.
-- 검증 근거: ADR 0016, 미래 정책 모델 문서, 현재 ExtensionPolicy·정책 판정 코드와 테스트 구조를 대조했다. Markdown 링크와 `git diff --check`는 문서 커밋 전에 확인한다.
-- 결과와 연결 문서: 결정 전 검토 원문을 추가하고 문서 인덱스와 스프린트 체크리스트의 질문 문서 작성 항목을 갱신한다.
-- 회고와 후속 조치: 사용자의 답변을 받은 뒤 ADR 0016과 API·데이터 모델 방향을 별도 문서 커밋으로 확정한다. 답변 전에는 policy-set 구현을 시작하지 않는다.
-
 ## 2026-08-31T01:11:47+09:00 — 정책 감사 이력 requestId 제거와 상태 enum 전환
 
 - 상태: 수정 채택
@@ -1575,6 +1556,25 @@
 - 검증 근거: Boolean getter 기반 테스트를 enum 상태 검증으로 먼저 전환해 Red를 확인했고, enum 매핑·서비스 변환 구현 후 관련 테스트와 전체 `./gradlew test`가 성공했다.
 - 결과와 연결 문서: 기능 커밋 후속 refactor `145a830`; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태·패키지 인덱스를 동기화한다.
 - 회고와 후속 조치: 기존 requestId 관련 기록은 당시 업로드·정책 계약 결정의 역사로 보존한다. 정책 감사 요청 추적이 필요해지면 별도 운영 결정으로 다룬다.
+
+## 2026-08-31T01:15:16+09:00 — ADR 0016 allowlist 전환 결정 전 검토 원문 작성
+
+- 상태: 검토 중
+- 시간 근거: 다른 에이전트의 정책 감사 이력 리팩터링·문서 병합 완료 후 다음 스프린트 작업으로 착수한 시각
+- 스프린트/범위: 스프린트 2 ADR 0016 정책 집합·allowlist 전환 결정 게이트
+- 관련 문서·코드: [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md), [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md)
+- 요청·질문 요약: 다른 에이전트 작업 완료 후 스프린트 2의 다음 실제 작업을 진행한다. 코드 구현에 앞서 ADR 0016의 결정 선택지를 정리한다.
+- 배경과 제약: 현재 구현은 전역 denylist이며 사용자·조직 인증과 policy-set은 범위 밖이다. `proposed` ADR의 결정 게이트가 닫히기 전에는 스키마·API·실제 allowlist 차단을 구현하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `adr-predecision-review`
+  - plugin/도구: `apply_patch`, Git, 로컬 문서·코드 검색
+- AI 제안: 전역 denylist 유지, scope별 정책 집합의 구체 범위 우선, 전역 강제 차단 guardrail을 포함한 정책 집합의 세 가지 선택지를 비교하고, 실제 allowlist 요구와 보안 불변식에 따라 조건부 추천을 제공한다.
+- 사람의 판단과 이유: 검토 중. 최종 선택은 미등록 확장자의 기본 의미, GLOBAL 강제 차단의 override 가능 여부, 기본 mode, 소유자·승인자, shadow 기간·거부율, 복귀 기준에 대한 사용자 결정 후 확정한다.
+- 코드·사용자 경험 영향: 현재 코드와 API는 변경하지 않는다. 결정 전까지 기존 denylist 동작과 신규 업로드 경계를 유지한다.
+- 검증 근거: ADR 0016, 미래 정책 모델 문서, 현재 ExtensionPolicy·정책 판정 코드와 테스트 구조를 대조했다. Markdown 링크와 `git diff --check`는 문서 커밋 전에 확인한다.
+- 결과와 연결 문서: 결정 전 검토 원문을 추가하고 문서 인덱스와 스프린트 체크리스트의 질문 문서 작성 항목을 갱신한다.
+- 회고와 후속 조치: 사용자의 답변을 받은 뒤 ADR 0016과 API·데이터 모델 방향을 별도 문서 커밋으로 확정한다. 답변 전에는 policy-set 구현을 시작하지 않는다.
 
 ## 2026-08-31T01:18:30+09:00 — 정책 감사 이력 상태를 단일 값으로 단순화
 
@@ -1600,7 +1600,7 @@
 - 상태: 수정 채택
 - 시간 근거: 현재 기준 브랜치 `feat/extension-policy-audit-history@ddb5698`의 코드·설정·테스트와 기존 문서 대조를 완료한 시각
 - 스프린트/범위: 스프린트 2 구현 상태 문서·스프린트 1 API 계약·ADR 0012 연계 문서
-- 관련 문서·코드: `docs/adr/adr-implementation-status-review-2026-08-30.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/sprints/sprint-1/sprint-1-file-upload-api.md`, `docs/sprints/sprint-2/sprint-2-prd.md`, `AGENTS.md`, `ExtensionPolicyAuditHistory`
+- 관련 문서·코드: `docs/adr/adr-implementation-status-review-2026-08-30.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/file-upload-api.md`, `docs/sprints/sprint-2/sprint-2-prd.md`, `AGENTS.md`, `ExtensionPolicyAuditHistory`
 - 요청·질문 요약: ADR과 체크리스트의 구현 완료 표시가 실제 현재 코드와 일치하는지 판단하고 문서를 코드 기준으로 갱신한다.
 - 배경과 제약: 업로드 신뢰성 구현 커밋 `164a8e0`과 MIME·용량·저장 루트 구현 커밋은 별도 기능 브랜치에만 있으며 현재 기준 브랜치에 병합되지 않았다. ADR의 정책 결정과 구현 완료 상태를 혼동하지 않는다.
 - AI 활용 정보:
@@ -1714,7 +1714,7 @@
 - 상태: 채택
 - 시간 근거: 사용자 답변으로 확장자 경계 전체 검사와 기존 API 계약 유지가 확정된 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
 - 스프린트/범위: 파일 업로드 denylist의 다중 확장자 우회 방지
-- 관련 문서·코드: [`ADR 0017`](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md), [`ADR 0007`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [`파일 업로드 API`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 관련 문서·코드: [`ADR 0017`](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md), [`ADR 0007`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [`파일 업로드 API`](docs/file-upload-api.md)
 - 요청·질문 요약: `test.exe.pdf`, `test.jsp.png`처럼 중간 확장자에 차단 확장자가 있는 파일도 차단한다.
 - 배경과 제약: 현재 구현은 최종 확장자만 검사한다. Tika·UUID 파일명·저장 경로 격리는 유지하고 새 오류 코드나 전체 확장자 목록 응답은 추가하지 않는다.
 - AI 활용 정보:
@@ -1752,7 +1752,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 `application/octet-stream`과 Tika 분석 `IOException`을 구분하고, 감지 실패는 `FILE_TYPE_DETECTION_FAILED`로 거부하자는 구현 방향을 확정한 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
 - 스프린트/범위: MIME 콘텐츠 감지 결과의 unknown·failed 처리와 업로드 보안 게이트
-- 관련 문서·코드: [`ADR 0005`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md), [`파일 업로드 API`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 관련 문서·코드: [`ADR 0005`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md), [`파일 업로드 API`](docs/file-upload-api.md)
 - 요청·질문 요약: 분석 성공 후 형식을 특정하지 못한 `UNKNOWN` MIME은 기존 확장자 정책으로 처리하되, 분석 자체가 `IOException`으로 실패하면 업로드를 중단한다.
 - 배경과 제약: 기존 구현은 `MimeTypeDetectionResult`의 `FAILED`를 `UNKNOWN`과 함께 fallback 처리했다. 실행 MIME denylist, `application/octet-stream` 허용, 서버 생성 파일명, 저장 위치 격리, allowlist·바이러스 검사 범위 제외는 유지한다.
 - AI 활용 정보:
@@ -1765,6 +1765,25 @@
 - 검증 근거: 기존 코드에서 `isUnknown()`이 `FAILED`를 포함하고, 서비스가 실패 결과를 경고 후 계속 처리하는 것을 확인했다. OWASP 공식 파일 업로드 문서에서 확장자·콘텐츠 타입·signature·저장 위치 등 다중 방어 계층 권고를 확인했다. 구현 테스트와 전체 `./gradlew test`는 기능 브랜치에서 수행한다.
 - 결과와 연결 문서: ADR 0018을 추가하고 ADR 0005, 스프린트 1 API, 스프린트 2 PRD·체크리스트, `AGENTS.md` 문서 인덱스를 갱신한다.
 - 회고와 후속 조치: 구현 시 `UNKNOWN`과 `FAILED`의 테스트를 분리하고, 새 REST 오류가 기존 `FILE_UPLOAD_FAILED`와 혼동되지 않는지 확인한다. MIME allowlist와 악성코드 검사는 별도 결정으로 유지한다.
+
+## 2026-08-31T17:10:50+09:00 — MultipartException 내부 메시지 외부 노출 제거
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 `MultipartException`의 `exception.getMessage()`를 외부 응답에서 제거하고 내부 로그와 분리하도록 요청한 시각
+- 스프린트/범위: 파일 업로드 API 오류 응답의 내부 정보 비노출
+- 관련 문서·코드: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java), [`ADR 0013`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
+- 요청·질문 요약: multipart 예외 메시지에 Spring/Tomcat 구현 세부사항이나 임시 파일 경로가 포함될 수 있으므로, 외부에는 고정된 `INVALID_FILE` 응답을 반환하고 내부 로그에만 예외와 `requestId`를 남긴다.
+- 배경과 제약: 업로드 오류 응답은 `code`·`requestId`·안전한 `context`를 중심으로 하며, `InvalidFileException`의 기존 메시지 동작과 다른 업로드 오류 계약은 이번 범위에서 변경하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `diagnose`
+  - plugin/도구: `apply_patch`, Gradle Wrapper, Git, MockMvc
+- AI 제안: 내부 경로를 포함한 `MultipartException`을 서비스 경계에서 재현하고, 응답 메시지를 `잘못된 파일 요청입니다.`로 고정하며 예외 객체는 `requestId`와 함께 `warn` 로그 원인으로 전달한다.
+- 사람의 판단과 이유: 채택. `MultipartException`의 구현 메시지는 외부 계약에 필요한 정보가 아니므로 제거하고, 운영 추적에 필요한 원인과 `requestId`는 서버 로그에 보존한다. 변경 범위를 해당 예외 유형으로 제한해 기존 기능별 오류 메시지 계약을 불필요하게 바꾸지 않는다.
+- 코드·사용자 경험 영향: `MultipartException` 응답은 `INVALID_FILE`, `잘못된 파일 요청입니다.`로 고정되고 내부 multipart 파싱 메시지·경로는 응답에서 사라진다.
+- 검증 근거: 수정 전 내부 경로가 포함된 예외 메시지 테스트가 실패하는 Red 상태를 확인했다. 수정 후 대상 MockMvc 테스트와 관련 컨트롤러 테스트, `MultipartFileCountIntegrationTests`, 전체 `./gradlew test --rerun-tasks`가 성공했다. 중간의 전체 테스트 실패는 겹쳐 실행한 Gradle 작업이 동일한 XML 결과 파일을 동시에 쓰며 발생한 실행 환경 충돌이었고, 단일 재실행으로 재현되지 않았다. `git diff --check`도 통과했다.
+- 결과와 연결 문서: 파일 업로드 예외 handler와 회귀 테스트를 갱신했다. ADR 0013의 내부 예외 메시지·stack trace 비노출 결정과 일치하므로 별도 ADR 변경은 없다.
+- 회고와 후속 조치: 기본 Spring 오류 처리 설정에도 `server.error.include-message`·`include-stacktrace`를 명시적으로 두는 운영 설정 검토는 별도 범위로 남긴다.
 
 ## 2026-08-31T17:20:50+09:00 — MIME 감지 fail-close 구현 및 회귀 검증
 
@@ -1784,3 +1803,280 @@
 - 검증 근거: Red 단계에서 새 예외 클래스 부재로 테스트 컴파일 실패를 확인한 뒤 Green 구현을 적용했다. MIME 서비스·Tika detector·REST 테스트와 전체 `./gradlew test`가 성공했고 `node --check src/main/resources/static/js/extension-policy.js`, `git diff --check`도 통과했다.
 - 결과와 연결 문서: 기능 커밋 `7c69a29`; docs 커밋 `f602502` 및 후속 구현 상태·검증 기록 문서 커밋으로 반영한다.
 - 회고와 후속 조치: Tika IOException의 원인은 내부 로그에만 남기고 외부 응답에는 노출하지 않는다. MIME allowlist·악성코드 검사·Retry-After는 별도 범위로 유지한다.
+
+## 2026-08-31T20:09:22+09:00 — 파일 업로드 API 명세 경로 정리
+
+- 상태: 채택
+- 시간 근거: 사용자가 API 명세를 `docs` 하위로 옮기도록 요청한 작업 시각
+- 스프린트/범위: 제출 문서 경로와 내부 링크 정리
+- 관련 문서·코드: [`파일 업로드 API 명세`](docs/file-upload-api.md), [`README.md`](README.md), [`AGENTS.md`](AGENTS.md)
+- 요청·질문 요약: 스프린트 1 하위에 있던 API 명세를 `docs` 하위의 독립 문서로 이동한다.
+- 사람의 판단과 이유: 채택. API 계약은 스프린트 구현 절차 문서와 분리해 최상위 `docs`에서 직접 참조할 수 있도록 한다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README·ADR·질문·스프린트 문서의 내부 링크를 새 경로로 갱신한다.
+- 검증 근거: 저장소 내 Markdown 링크에서 이전 경로가 남지 않았는지 검색하고 `git diff --check`로 문서 형식을 확인한다.
+- 결과와 연결 문서: 이전 `docs/sprints/sprint-1/sprint-1-file-upload-api.md`를 `docs/file-upload-api.md`로 이동했다.
+
+## 2026-08-31T20:14:55+09:00 — 핵심 업로드 판단 다이어그램 간소화
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 README의 질문형 핵심 판단 제목과 긴 다이어그램을 간소화하도록 요청한 작업 시각
+- 스프린트/범위: README 핵심 업로드 흐름 시각화
+- 관련 문서·코드: [`README.md`](README.md), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`UploadFileRecoveryService`](src/main/java/com/example/demo/file/service/impl/UploadFileRecoveryService.java)
+- 요청·질문 요약: 네 개의 질문형 제목을 정책·흐름 중심 제목으로 바꾸고, 확장자·MIME 판정과 멱등·저장·복구 흐름을 짧고 시각적으로 표현한다.
+- 배경과 제약: 다이어그램의 텍스트가 많아 전체 흐름을 빠르게 읽기 어려웠다. 상태·오류 결과·처리 순서는 현재 구현과 일치해야 한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 검색, `apply_patch`
+- AI 제안: 조건 분기는 흐름도, `RECEIVING`·`COMPLETED`·`FAILED` 변화는 상태도로 분리한다.
+- 사람의 판단과 이유: 수정 채택. 파일 검증·멱등·복구의 분기는 흐름도로, 저장 결과는 상태도로 표현해 각 그림의 책임을 줄인다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README의 네 제목을 `확장자·MIME 차단 흐름`, `동일 요청 멱등 키 정책`, `업로드 저장 상태 전이`, `저장 실패·중단 복구`로 바꾼다.
+- 검증 근거: 업로드 서비스의 확장자 추출→Tika MIME 감지→정책 검사 순서와 상태 서비스·복구 서비스의 상태 전이를 대조했다. `git diff --check`를 통과했다.
+- 결과와 연결 문서: [`README.md`](README.md)에 네 개의 간소화된 Mermaid 다이어그램을 반영했다.
+- 회고와 후속 조치: 렌더링 환경에서 Mermaid 상태도의 화살표 표기가 호환되지 않으면 라벨을 ASCII 표기로 대체한다.
+
+## 2026-08-31T20:22:01+09:00 — 핵심 판단의 행위 중심 표현과 범위 확장
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 저장 상태 전이의 기술 용어를 쉬운 행위로 바꾸고, 추가 핵심 판단 두 개를 README에 넣도록 요청한 작업 시각
+- 스프린트/범위: README 핵심 판단 시각화
+- 관련 문서·코드: [`README.md`](README.md), [`application.yml`](src/main/resources/application.yml), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java)
+- 요청·질문 요약: `.part → atomic move`를 `임시 파일 저장 → 저장 경로 이동`으로 바꾸고, 업로드 제한과 커스텀 확장자 등록 정합성 흐름을 추가한다.
+- 배경과 제약: README는 구현 세부 명칭보다 사용자가 이해할 수 있는 행위 중심 흐름을 우선하되, 실제 제한·동시성 규칙은 빠뜨리지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 검색, `apply_patch`
+- AI 제안: 상태도는 자연어 상태명과 내부 상태명을 함께 보여주고, 요청 제한·정책 등록은 각각 한 개의 짧은 흐름도로 추가한다.
+- 사람의 판단과 이유: 수정 채택. HTTP 상태 코드와 내부 저장 구현 세부를 그림의 중심에서 빼고, 제한·중복·한도 판단이 한눈에 보이게 한다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README 핵심 판단에 `업로드 요청 크기·개수 제한`, `커스텀 확장자 등록 정합성`을 추가하고 기존 네 그림의 용어를 단순화한다.
+- 검증 근거: multipart의 part 1개·파일 10MB·요청 12MB 설정과 커스텀 등록의 잠금·중복·200개 검사 코드를 대조했다. `git diff --check`를 통과했다.
+- 결과와 연결 문서: [`README.md`](README.md)에 여섯 개의 핵심 판단을 반영했다.
+- 회고와 후속 조치: Mermaid 렌더링에서 상태 별칭과 한글 라벨을 확인하고, 호환 문제가 있으면 상태도 라벨만 짧게 조정한다.
+
+## 2026-08-31T20:22:54+09:00 — 핵심 업로드 흐름을 시퀀스 다이어그램으로 전환
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 핵심 업로드 흐름을 메서드 단위가 아닌 큰 처리 단계의 Mermaid 시퀀스 다이어그램으로 바꾸도록 요청한 작업 시각
+- 스프린트/범위: README 핵심 업로드 흐름
+- 관련 문서·코드: [`README.md`](README.md), [`FileUploadRestController`](src/main/java/com/example/demo/file/controller/FileUploadRestController.java), [`application.yml`](src/main/resources/application.yml)
+- 요청·질문 요약: multipart 제한, 컨트롤러 이후 입력 확인·기존 요청 확인·확장자·MIME·정책 검사·저장 순서를 간략한 시퀀스로 표현한다.
+- 배경과 제약: 이전 흐름도는 업로드 요청의 전달 순서를 보여주기 어렵고, 문서에는 메서드 수준 구현 세부를 넣지 않는다. 사용자가 언급한 80MB가 아니라 실제 설정값 10MB·12MB를 사용한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 검색, `apply_patch`
+- AI 제안: 사용자·Tomcat/Servlet·업로드 API·업로드 처리·DB/파일 저장의 다섯 참여자를 두고, 제한 초과·기존 요청·새 요청만 `alt` 분기로 표시한다.
+- 사람의 판단과 이유: 수정 채택. HTTP 요청부터 결과까지의 책임 전달과 세 가지 큰 분기가 한 그림에서 보이도록 한다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README에 part 1개·파일 10MB·요청 12MB 제한과 기존 결과 재사용·재시도 안내 흐름을 표시한다.
+- 검증 근거: multipart 설정과 컨트롤러의 `/api/v1/files`·`file` part·`Idempotency-Key` 계약을 대조했다. `git diff --check`를 통과했다.
+- 결과와 연결 문서: [`README.md`](README.md)의 핵심 업로드 흐름을 Mermaid 시퀀스 다이어그램으로 교체했다.
+- 회고와 후속 조치: Mermaid 렌더링에서 `alt` 분기와 한글 참여자 표시를 확인한다.
+
+## 2026-08-31T20:23:59+09:00 — 테이블 스키마를 ERD로 전환
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 테이블별 설명 대신 관계를 직관적으로 보여주는 Mermaid ERD를 요청한 작업 시각
+- 스프린트/범위: README 데이터 구조 표현
+- 관련 문서·코드: [`README.md`](README.md), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java), [`ExtensionPolicyAuditHistory`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicyAuditHistory.java), [`UploadFile`](src/main/java/com/example/demo/file/domain/entity/UploadFile.java)
+- 요청·질문 요약: JPA 매핑과 개별 테이블 설명을 제거하고 ERD로 바꾼다.
+- 배경과 제약: 정책·감사 이력의 논리적 연결은 보여 주되, 실제 DB에 없는 외래 키 관계를 사실처럼 표현하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 검색, `apply_patch`
+- AI 제안: 핵심 키·상태 필드만 남긴 ERD를 사용하고, 정책과 감사 이력의 연결은 별도 문장으로 DB 외래 키가 아님을 설명한다.
+- 사람의 판단과 이유: 수정 채택. 네 테이블의 역할과 정책 변경 이력의 연결을 한 화면에서 읽을 수 있게 한다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README의 Table Schema 표를 Mermaid ERD로 교체한다.
+- 검증 근거: 네 엔티티의 테이블명·키·유니크 제약을 코드와 대조했고, 감사 이력에 JPA 연관관계·외래 키 정의가 없음을 확인했다. `git diff --check`를 통과했다.
+- 결과와 연결 문서: [`README.md`](README.md)의 `ERD` 섹션에 반영했다.
+- 회고와 후속 조치: Mermaid 렌더링에서 ERD의 한글 관계 라벨이 읽기 어려우면 관계 라벨만 짧게 조정한다.
+
+## 2026-08-31T20:42:28+09:00 — 구버전 Mermaid 호환 ERD 단순화
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 IntelliJ 구버전에서도 ERD가 렌더링되도록 요청한 작업 시각
+- 스프린트/범위: README Mermaid ERD 호환성
+- 관련 문서·코드: [`README.md`](README.md), [IntelliJ Markdown 문서](https://www.jetbrains.com/help/idea/markdown.html), [Mermaid ERD 문법](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
+- 요청·질문 요약: IntelliJ에서 깨지는 ERD를 구버전 Mermaid 문법에 가깝게 바꾼다.
+- 배경과 제약: Mermaid 플러그인이 설치·활성화되지 않은 환경은 문법 변경만으로 지원할 수 없다. ERD의 데이터 의미는 유지한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: JetBrains·Mermaid 공식 문서 검색, `apply_patch`
+- AI 제안: 기본 엔터티·관계·속성 문법만 남기고, 구버전 파서에서 차이가 날 수 있는 `UK` 키 표기와 한글 관계 라벨을 제거한다.
+- 사람의 판단과 이유: 수정 채택. PK와 핵심 속성·정책-감사 이력 관계는 유지하면서 파서 의존적인 표현을 줄인다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README ERD의 고유 제약 표시는 제거되지만, 실제 DB 제약은 코드와 데이터베이스에 그대로 유지된다.
+- 검증 근거: Mermaid 공식 ERD 문법과 IntelliJ의 Mermaid 플러그인 요구사항을 확인했고, `git diff --check`를 통과했다.
+- 결과와 연결 문서: [`README.md`](README.md)의 ERD를 기본 문법으로 단순화했다.
+- 회고와 후속 조치: 구버전 IntelliJ에서 계속 깨지면 Mermaid 플러그인 설치·활성화 또는 IDE 업데이트가 필요하다.
+
+## 2026-08-31T20:48:13+09:00 — AI 프롬프트 기록의 사람 판단 중심 재구성
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 대표 AI 활용 문서의 제목·파일명·열 가지 사례 제목을 바꾸도록 요청한 작업 시각
+- 스프린트/범위: 필수 제출용 AI 활용 및 프롬프트 기록
+- 관련 문서·코드: [`docs/ai-prompt.md`](docs/ai-prompt.md), [`README.md`](README.md), [`AGENTS.md`](AGENTS.md)
+- 요청·질문 요약: “AI와 함께 해결한 문제”라는 표현 대신, AI의 제안을 어떻게 다시 질문하고 검증해 보완·선택했는지를 보여 주도록 전면 재구성한다.
+- 배경과 제약: 제출 평가는 결과물보다 AI를 사용하며 문제를 쪼개고 판단한 과정을 본다. 기존 사례의 사실관계와 시간순 원문 기록은 바꾸지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: 없음
+  - plugin/도구: 저장소 검색, `apply_patch`, Git diff 검사
+- AI 제안: 문서명을 `AI 프롬프트`로 바꾸고, 각 사례 제목을 ‘AI 제안의 한계 → 사람이 적용한 보완 기준’으로 다시 쓴다. 본문은 AI 답변과 사용자의 추가 질문·채택·거부 근거를 계속 분리한다.
+- 사람의 판단과 이유: 수정 채택. 단순히 AI가 문제를 해결한 것처럼 보이는 제목은 제출 목적과 맞지 않는다. UUID 기반 멱등성, MIME 감지 실패, 커밋 복구, 자동 테스트, 데이터 모델처럼 사람이 AI 답변을 제한·수정·재검증한 지점을 제목에서 먼저 보여 준다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. `docs/ai-usage-top-10-qa.md`를 `docs/ai-prompt.md`로 이름을 바꾸고 README·문서 인덱스 링크를 갱신한다.
+- 검증 근거: 이전 파일명·제목·존재하지 않는 스토리 아카이브 링크가 남지 않았는지 검색하고, `git diff --check`로 Markdown 공백 오류를 검사한다.
+- 결과와 연결 문서: [`docs/ai-prompt.md`](docs/ai-prompt.md)의 열 가지 제목과 도입 문구를 갱신했다. 원문에 가까운 시간순 입력 기록은 [`PROMPT_LOG.md`](PROMPT_LOG.md)에 그대로 유지한다.
+- 회고와 후속 조치: 사례 본문을 더 줄여야 하는 제출 형식이 생기면 AI 답변의 상세 나열보다 사람이 던진 후속 질문, 거부한 제안, 검증 근거를 우선 남긴다.
+
+## 2026-08-31T20:52:16+09:00 — AI 협업 방식 소개 문서를 프로젝트 작업공간으로 이동
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 별도 임시 worktree의 문서를 현재 프로젝트에서 직접 볼 수 있도록 이동해 달라고 요청한 시각
+- 스프린트/범위: README 연결용 AI 협업 방식 소개 문서의 저장 위치
+- 관련 문서·코드: [`AI와 함께 개발한 방식`](docs/ai-assisted-development-workflow.md), [`AGENTS.md`](AGENTS.md)
+- 요청·질문 요약: `/private/tmp`의 문서 전용 worktree에 있던 소개 문서를 현재 프로젝트의 `docs/`로 옮긴다.
+- 배경과 제약: 임시 worktree 경로는 현재 프로젝트 파일 트리에서 보이지 않고 정리될 가능성도 있다. 사용자가 직접 확인할 수 있는 위치가 우선이다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: 없음
+  - plugin/도구: `apply_patch`, 파일 동일성 검사
+- AI 제안: 최종 문서를 현재 작업공간에 복사한 뒤 내용이 같은지 확인하고, 임시 worktree의 원본과 해당 인덱스·기록을 제거한다.
+- 사람의 판단과 이유: 채택. 문서 브랜치의 형식적 분리보다 현재 프로젝트에서 문서를 직접 확인할 수 있어야 한다는 요청을 우선한다.
+- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서는 현재 프로젝트 파일 트리에서 확인할 수 있다.
+- 검증 근거: 이동 전후 파일을 바이트 단위로 비교한 뒤 임시 원본을 제거하고 `git diff --check`를 확인한다.
+- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 현재 프로젝트 작업공간에 추가했다.
+- 회고와 후속 조치: README에는 이 문서 링크만 짧게 연결한다.
+
+## 2026-08-31T20:55:56+09:00 — 대표 AI 프롬프트 사례를 여덟 개로 압축
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 제출용 사례에서 강조도가 낮은 항목을 제외하고 3번을 압축하도록 요청한 작업 시각
+- 스프린트/범위: 필수 제출용 AI 프롬프트 기록의 사례 선정과 서술 밀도
+- 관련 문서·코드: [`docs/ai-prompt.md`](docs/ai-prompt.md)
+- 요청·질문 요약: 문서 완료 표시 점검과 Lombok 축약 사례를 제거하고, 기존 9·10번을 7·8번으로 재번호화한다. 커밋 복구 사례는 짧게 정리한다.
+- 배경과 제약: 제출 문서는 AI가 만든 결과보다 사람이 부족한 답변을 어떻게 검증·보완했는지를 빠르게 보여야 한다. 기존 사실관계는 유지하되 중복되거나 제품 영향이 작은 사례는 대표 목록에서 제외한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 검색, `apply_patch`, Git diff 검사
+- AI 제안: 8번과 7번은 대표 사례의 밀도를 낮추므로 제외하고, 3번은 복구 과정의 세부 순서 대신 파일 목록·삭제 상태·독립 테스트라는 검수 기준을 남긴다.
+- 사람의 판단과 이유: 채택. 코드 스타일 중심 Lombok 사례와 문서 상태 점검 사례는 다른 사례에 비해 제품·보안·사용자 경험 영향이 작거나 커밋 복구 사례와 겹친다. 반면 3번은 AI 결과를 그대로 믿지 않고 검증 기준을 세운 점만 남긴다.
+- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. AI 프롬프트 문서는 10개에서 8개 사례로 줄고, 이후 테스트 설계·데이터 모델 사례의 번호가 7·8번이 된다.
+- 검증 근거: 제목 번호가 1부터 8까지 연속되는지 확인하고 `git diff --check`로 Markdown 공백 오류를 검사한다.
+- 결과와 연결 문서: [`docs/ai-prompt.md`](docs/ai-prompt.md)의 7·8번 사례를 제거하고 3번을 압축했다.
+- 회고와 후속 조치: 사례가 더 늘어나면 구현의 세부 작업보다 사용자 판단, AI 제안의 한계, 검증 가능한 최종 선택이 모두 있는지로 대표 여부를 판단한다.
+
+## 2026-08-31T20:57:39+09:00 — 프로젝트 AI 워크플로우 제목과 흐름도 정리
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 문서 제목·소개 문단·전체 흐름도의 배치를 조정하도록 요청한 시각
+- 스프린트/범위: 프로젝트 AI 작업 방식 소개 문서의 첫 화면 구성
+- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md)
+- 요청·질문 요약: 제목을 `프로젝트 AI 워크플로우`로 바꾸고 제목 아래 소개글을 삭제하며, 스프린트 1이 위에 있고 스프린트 2가 아래에 보이도록 전체 흐름도를 세로로 배치한다.
+- 배경과 제약: 가로로 긴 흐름도는 렌더링 시 글씨가 작아지므로 상급자가 읽기 어려울 수 있다. 본문 내용은 변경하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: `apply_patch`, Mermaid
+- AI 제안: 전역 방향과 각 스프린트 subgraph의 방향을 모두 위에서 아래로 고정하고, 두 스프린트 사이에 공통 기준 노드를 둔다.
+- 사람의 판단과 이유: 채택. 문서 첫 화면에서 스프린트의 시간 순서와 피드백 연결을 읽기 쉽게 보여 주기 위해 세로 구성을 사용한다.
+- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서의 제목과 Mermaid 배치만 변경된다.
+- 검증 근거: 제목과 도입부 삭제 여부, Mermaid의 `flowchart TB`·`direction TB` 설정과 `git diff --check`를 확인한다.
+- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`의 첫 화면 구성을 수정했다.
+- 회고와 후속 조치: 이후 README에는 이 문서 링크만 연결한다.
+
+## 2026-08-31T21:03:29+09:00 — 프로젝트 AI 워크플로우의 스프린트 목적과 단계별 이유 재구성
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 스프린트 구분 의도와 각 단계의 필요 이유가 명확히 보이도록 문서를 다시 구성해 달라고 요청한 시각
+- 스프린트/범위: 프로젝트 AI 워크플로우 소개 문서의 전체 서술 구조
+- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md), `README.md`, `CONSIDERATIONS.md`, `docs/ai-prompt.md`
+- 요청·질문 요약: 전체 흐름은 스프린트 1 위·스프린트 2 아래로 유지하되 각 스프린트 내부 요소는 가로로 배치한다. 스프린트 1은 최소 기능을 빠르게 만든 뒤 개발자의 스타일을 AI에 반영한 과정, 스프린트 2는 안전성과 안정성을 ADR 관계 기반으로 확장한 과정으로 설명한다.
+- 배경과 제약: 기존 문서는 회고형 문장이 많아 실제 워크플로우와 각 단계의 선택 이유가 한눈에 보이지 않았다. README·고려사항·AI 프롬프트처럼 문제, 판단과 적용 결과가 구분되는 서술 방식이 필요했다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 저장소 문서 비교, `apply_patch`, Mermaid
+- AI 제안: 스프린트를 나눈 이유를 먼저 비교하고, 각 스프린트를 목표·단계별 필요 이유·적용 방식·결과로 구분한다. 전체 흐름도는 상위 스프린트는 세로, 내부 작업은 가로로 구성한다.
+- 사람의 판단과 이유: 수정 채택. 문서의 중심은 일반적인 AI 협업 장점이 아니라 이 프로젝트가 왜 MVP 캘리브레이션 이후 ADR 기반 확장으로 진행됐는지를 설명하는 데 둔다.
+- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 프로젝트의 AI 작업 흐름과 스프린트 구분 이유를 상급자가 빠르게 파악할 수 있도록 문서 구조가 변경된다.
+- 검증 근거: README·CONSIDERATIONS·AI 프롬프트의 문단 구조와 표현을 비교하고, 요청한 스프린트 방향·목표·단계별 이유가 모두 포함됐는지 확인한다. `git diff --check`로 Markdown 공백 오류를 검사한다.
+- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 스프린트 목적과 단계별 인과 중심으로 다시 작성했다.
+- 회고와 후속 조치: README에는 이 문서를 작업 방식 상세 설명으로만 연결하고 본문을 중복하지 않는다.
+
+## 2026-08-31T21:10:00+09:00 — 프로젝트 AI 워크플로우의 핵심 루프 중심 재구성
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 모든 작업 단계를 나열하기보다 각 스프린트에서 강조해야 할 핵심 루프를 중심으로 문서를 다시 구성해 달라고 요청한 시각
+- 스프린트/범위: 프로젝트 AI 워크플로우 소개 문서의 강조점과 서술 밀도
+- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md)
+- 요청·질문 요약: 스프린트 1은 체크리스트, MVP 이후 전수 조사·리팩터링·회고 피드백을 강조하고, 스프린트 2는 ADR로 전체를 이해한 뒤 작은 구현과 재확인을 반복한 점을 강조한다.
+- 배경과 제약: 이전 문서는 단계와 이유를 모두 표로 나열해 핵심 메시지가 분산됐다. 소개 문서는 모든 흐름의 기록이 아니라 스프린트별 학습·피드백 구조를 설명해야 한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 사용자 피드백, 저장소 문서 비교, `apply_patch`, Mermaid
+- AI 제안: 스프린트 구분 이유를 짧게 제시하고, 각 스프린트는 핵심 목적과 한 개의 피드백 루프 중심으로 서술한다. 세부 단계 표와 반복적인 검증 설명은 제거한다.
+- 사람의 판단과 이유: 수정 채택. 상급자에게 작업 방식의 핵심 의도와 인과를 빠르게 전달하는 것을 우선한다.
+- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 문서는 핵심 루프가 먼저 보이고 상세 구현 문서에 덜 의존하도록 축약된다.
+- 검증 근거: 전체 방향도는 스프린트 영역을 세로로 두고 내부 요소는 가로로 배치했다. 스프린트 1·2의 강조점과 필요 이유가 본문에 포함됐는지 확인하고 `git diff --check`를 실행한다.
+- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 핵심 루프 중심으로 전면 재구성했다.
+- 회고와 후속 조치: README에는 이 문서 링크만 연결하고, 세부 단계와 증빙은 해당 문서에 추가하지 않는다.
+
+## 2026-08-31T21:12:43+09:00 — 프로젝트 AI 워크플로우의 강조점 재압축
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 모든 단계를 나열하기보다 스프린트별 핵심 루프가 드러나도록 문서를 더 간결하게 정리해 달라고 요청한 시각
+- 스프린트/범위: `docs/ai-assisted-development-workflow.md`의 소개 서술과 Mermaid 흐름도
+- 요청·질문 요약: 스프린트 1은 체크리스트와 MVP 이후의 전수 조사·리팩터링·회고를, 스프린트 2는 ADR 관계 이해와 작은 단위 구현 후 재확인을 중심으로 표현한다.
+- 배경과 제약: 단계별 설명이 많아질수록 소개 문서에서 무엇을 강조하는지 흐려지므로, 작업 기록이 아닌 핵심 의도와 피드백 루프만 남긴다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `backend-documentation`
+  - plugin/도구: 사용자 피드백, `apply_patch`, Mermaid, `git diff --check`
+- AI 제안: 각 스프린트를 하나의 짧은 서술과 핵심 루프 하나로 축약하고, 세부 단계·검증 항목 나열은 제거한다.
+- 사람의 판단과 이유: 수정 채택. 상급자가 스프린트 분리 이유와 학습·피드백 구조를 빠르게 이해하는 것을 우선한다.
+- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서의 문장과 흐름도만 간결하게 조정한다.
+- 검증 근거: 스프린트 1·2의 핵심 문장과 루프가 남아 있는지 확인하고 `git diff --check`를 실행한다.
+- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 핵심 루프 중심으로 재작성했다.
+- 회고와 후속 조치: README에는 이 문서 링크만 연결하고, 상세 작업 기록은 각 스프린트 문서에서 관리한다.
+
+## 2026-08-31T21:20:12+09:00 — 스프린트 2 체크리스트와 병합 전 상태 감사
+
+- 상태: 수정 채택
+- 시간 근거: 현재 대화에서 체크리스트·코드·실행 중인 로컬 HTTP 응답을 대조한 시각
+- 스프린트/범위: 스프린트 2 완료 상태, ADR 0016 결정 게이트, multipart 입력 제한
+- 관련 문서·코드: [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md), `application.yml`, `FileUploadExceptionHandler`, `MultipartFileCountIntegrationTests`
+- 요청·질문 요약: 체크되지 않은 스프린트 2 항목이 코드 문제인지 문서 문제인지 판단하고, 문서는 고치며 병합 직전 커밋 상태를 준비한다.
+- 배경과 제약: ADR 0016은 제품·운영 선택이 없어서 allowlist 구현을 시작할 수 없다. 409 화면 재시도 분기는 API·FE 코드가 존재하지만 결정적 화면 주입 환경이 없어 실제 화면 확인 근거가 없다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `browser:control-in-app-browser`
+  - plugin/도구: `apply_patch`, Gradle Wrapper, Git, curl, Codex In-app Browser
+- AI 제안: 결정 게이트를 코드 미완료로 오인하지 않고 문서 상태를 실제 기준 커밋과 맞춘다. 하나의 업로드만 허용하는 multipart part 제한은 API 오류 의미를 별도로 검증한다.
+- 사람의 판단과 이유: 수정 채택. PRD 상태, ADR 0016 질문 문구, 확장자 검사 범위, 구현 상태 점검 기준 커밋, AI 로그 시간 순서를 실제 상태와 맞춘다. allowlist 결정과 수동 접근성 검증은 완료로 표시하지 않는다.
+- 코드·사용자 경험 영향: 문서만 수정한다. 두 개의 `file` part 요청이 `413 FILE_SIZE_EXCEEDED`와 용량 초과 메시지로 응답하는 코드 결함은 병합하지 않고 별도 수정 대상으로 남긴다.
+- 검증 근거: 대상 Gradle 테스트가 통과했고, 실행 중인 로컬 서버에 두 개의 파일 part를 전송해 `413`과 `FILE_SIZE_EXCEEDED` 응답을 재현했다. `git diff --check`를 통과했다.
+- 결과와 연결 문서: 스프린트 2 PRD·체크리스트·ADR 구현 상태 점검·README와 이 로그를 갱신한다.
+- 회고와 후속 조치: part 개수 제한을 유지하려면 파일 수 초과용 오류 코드·HTTP 계약을 먼저 확정하고, 그렇지 않으면 해당 제한 변경을 제거한다. 이 결정 전에는 코드를 커밋하지 않는다.
+
+## 2026-08-31T21:39:30+09:00 — 파일 하나 업로드 계약과 오류 코드 분리
+
+- 상태: 채택
+- 시간 근거: 현재 대화에서 파일 두 개 요청의 HTTP 의미를 확정하고 Red·Green 테스트를 실행한 시각
+- 스프린트/범위: `POST /api/v1/files`의 multipart 파일 개수 검증과 오류 응답
+- 관련 문서·코드: [`FileUploadRestController`](src/main/java/com/example/demo/file/controller/FileUploadRestController.java), [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java), [`MultipartFileCountIntegrationTests`](src/test/java/com/example/demo/controller/MultipartFileCountIntegrationTests.java), [`파일 업로드 API 명세`](docs/file-upload-api.md)
+- 요청·질문 요약: 파일 part가 두 개 이상인 요청을 한 개만 받도록 바꾸고, 새 오류 코드로 반환한다.
+- 배경과 제약: 컨테이너의 `max-part-count: 1`은 파일 수와 요청 크기를 구분하지 못해 두 파일 요청을 `413 FILE_SIZE_EXCEEDED`로 오표기했다. `Idempotency-Key`는 multipart part가 아닌 헤더이며, 향후 비파일 part 추가도 고려해야 한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`
+  - plugin/도구: `apply_patch`, Gradle Wrapper, MockMvc, TestRestTemplate, Node syntax check
+- AI 제안: 컨테이너 전체 part 제한을 제거하고 컨트롤러에서 `file` 목록이 두 개 이상인지 판정한 뒤, 별도 기능 예외·FE 오류 code로 변환한다.
+- 사람의 판단과 이유: 채택. 파일 개수 위반은 크기 제한이 아니라 잘못된 요청이므로 `400 MULTIPLE_FILES_NOT_ALLOWED`로 분리한다. 서비스·저장소 호출 전 거부해 저장 상태와 파일을 만들지 않는다.
+- 코드·사용자 경험 영향: 업로드 API는 정확히 하나의 `file` part만 허용한다. 두 개 이상이면 requestId를 포함한 새 오류 코드가 반환되고, 화면은 `한 번에 파일 1개만 업로드할 수 있습니다.`를 표시한다.
+- 검증 근거: 두 파일 MockMvc 테스트를 먼저 추가해 기존 코드의 `NullPointerException` Red 상태를 확인했다. 컨트롤러·예외 handler 구현 후 해당 테스트와 실제 HTTP 통합 테스트가 통과했고, JavaScript 문법 검사를 실행했다.
+- 결과와 연결 문서: 기능 커밋 `7944a30`; API 명세, 스프린트 2 PRD·체크리스트, README를 새 오류 계약으로 갱신했다.
+- 회고와 후속 조치: HTTP multipart part 전체 상한은 파일 수 정책과 다르다. 대량 field part에 대한 별도 자원 보호가 필요해지면 오류 의미와 허용 필드 계약을 먼저 결정한다.
