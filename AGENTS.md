@@ -97,9 +97,9 @@
 | 문서 | 역할 | 현재 상태 |
 |---|---|---|
 | [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md) | 스프린트 목표, 기대 결과, 구현 순서, 테스트 목록, 완료 조건, 범위 제외 사항 | 정책 관리·파일 업로드 구현 완료 기준 |
-| [`docs/sprints/sprint-1/sprint-1-file-upload-api.md`](docs/sprints/sprint-1/sprint-1-file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 정책·파일 업로드 API 계약 |
+| [`docs/file-upload-api.md`](docs/file-upload-api.md) | 확장자 정책 조회·변경, 커스텀 확장자, 파일 업로드 API 계약과 오류 형식 | 정책·파일 업로드 API 계약 |
 | [`docs/sprints/sprint-1/sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md) | API 계약 기준 FE·BE 구현과 테스트·수동 검증의 완료 조건 | 스프린트 1 정책 관리·파일 업로드 구현 및 검증 완료 |
-| [`docs/sprints/sprint-2/sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md) | 업로드 정책 신뢰성·보안·운영 완성을 위한 스프린트 목표·범위·결정 게이트 | ready-for-agent |
+| [`docs/sprints/sprint-2/sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md) | 업로드 정책 신뢰성·보안·운영 완성을 위한 스프린트 목표·범위·결정 게이트 | 구현 완료·결정 대기 |
 | [`docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md) | 20자·200개 정책 한도의 브라우저 UX 검증 요구사항과 후속 결정 기준 | 스프린트 2 검증 요구사항 |
 | [`docs/sprints/sprint-2/sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md) | 스프린트 2 미완료 ADR의 구현 순서, 작업별 시작 전 질문·중단 규칙·검증 기준 | 기준 브랜치 코드에 따른 구현 대기·완료 상태 |
 | [`docs/questions/sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md) | fixed/custom 엔티티 모델과 검증 책임 컨벤션의 ADR 전 선택지·장단점·추천 의견 | ADR 결정 배경 원문 |
@@ -128,7 +128,8 @@
 | [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md) | 코드 가독성·책임 분리·도메인 모델링·Lombok·예외·트랜잭션·테스트 작성 규칙 | 세션 리팩터링 기준으로 정리한 코드 작성 기준 |
 | [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md) | AI 프롬프트·스킬·플러그인·검증·회고를 누적 기록하는 방법과 필수 항목 | AI 기록 작성 기준 |
 | [`CONSIDERATIONS.md`](CONSIDERATIONS.md) | 파일 업로드 확장자 차단 정책의 보안·데이터·UX·운영 Top 10 판단과 구현 근거 | 과제 고려사항 제출 문서 |
-| [`docs/ai-usage-top-10-qa.md`](docs/ai-usage-top-10-qa.md) | 대표 AI 활용 10개를 상황·질문·AI 답변·사용자 행동이 이어지는 대화 흐름으로 재구성 | 필수 제출용 후보 |
+| [`docs/ai-prompt.md`](docs/ai-prompt.md) | AI 제안을 검증하고 부족한 조건을 보완·선택한 대표 프롬프트 기록 | 필수 제출용 후보 |
+| [`docs/ai-assisted-development-workflow.md`](docs/ai-assisted-development-workflow.md) | MVP 구현에서 ADR 관계 기반 개발과 회고로 이어지는 AI 협업 방식 | README 연결용 작업 방식 소개 |
 | [`docs/agents/`](docs/agents/) | 로컬 Markdown 이슈 추적기, triage 라벨, 도메인 문서 탐색 규칙 | 에이전트 작업 설정 |
 | [`PROMPT_LOG.md`](PROMPT_LOG.md) | 실제 AI 활용 과정에서 식별된 요구사항, 판단, 검증 결과와 회고의 누적 기록 | 제출용 누적 기록 |
 

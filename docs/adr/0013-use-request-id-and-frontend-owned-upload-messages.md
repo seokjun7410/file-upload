@@ -82,5 +82,5 @@ FE는 위 응답을 바탕으로 다음과 같은 화면 문장을 선택할 수
 ## 관련 문서
 
 - [ADR 0003: 서버 생성 파일명과 로컬 업로드 저장 정책](0003-server-generated-file-storage-policy.md)
-- [스프린트 1 파일 업로드 API 계약](../sprints/sprint-1/sprint-1-file-upload-api.md)
+- [파일 업로드 API 명세](../file-upload-api.md)
 - [차단 메시지와 오류 계약 분석](../../.internal-docs/file-upload-risk-analysis/13-block-message.md)

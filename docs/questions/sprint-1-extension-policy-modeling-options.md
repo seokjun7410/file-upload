@@ -4,7 +4,7 @@
 >
 > 결정 상태: [ADR 0001](../adr/0001-unify-extension-policies.md)로 결정 완료
 >
-> 관련 문서: [스프린트 1 API 계약](../sprints/sprint-1/sprint-1-file-upload-api.md), [스프린트 1 구현 완료 체크리스트](../sprints/sprint-1/sprint-1-file-upload-checklist.md)
+> 관련 문서: [파일 업로드 API 명세](../file-upload-api.md), [스프린트 1 구현 완료 체크리스트](../sprints/sprint-1/sprint-1-file-upload-checklist.md)
 
 ## 1. 이 문서에서 결정해야 하는 것
 

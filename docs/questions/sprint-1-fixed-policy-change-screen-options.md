@@ -4,7 +4,7 @@
 >
 > 결정 상태: 상태 일관성 정책은 [ADR 0002](../adr/0002-use-server-policy-state-as-source-of-truth.md)로 결정 완료
 >
-> 관련 문서: [스프린트 1 API 계약](../sprints/sprint-1/sprint-1-file-upload-api.md), [스프린트 1 구현 완료 체크리스트](../sprints/sprint-1/sprint-1-file-upload-checklist.md)
+> 관련 문서: [파일 업로드 API 명세](../file-upload-api.md), [스프린트 1 구현 완료 체크리스트](../sprints/sprint-1/sprint-1-file-upload-checklist.md)
 
 ## 1. 왜 추가 결정이 필요한가
 

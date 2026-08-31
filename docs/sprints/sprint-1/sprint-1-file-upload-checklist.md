@@ -2,13 +2,13 @@
 
 > 상태: 스프린트 1 정책 관리·파일 업로드 구현 및 브라우저 검증 완료
 >
-> 기준 문서: [스프린트 1 확장자 차단 정책](sprint-1-file-upload-extension-policy.md), [스프린트 1 API 계약](sprint-1-file-upload-api.md)
+> 기준 문서: [스프린트 1 확장자 차단 정책](sprint-1-file-upload-extension-policy.md), [파일 업로드 API 명세](../../file-upload-api.md)
 
 현재 완료 범위는 `ExtensionPolicy` 단일 엔티티, fixed/custom 카탈로그 불변식, DB 제약, quota 기반 커스텀 최대 200개 등록, 고정 정책 초기화, 정책 REST API와 공통 오류 응답, Axios 기반 정책 관리·커스텀 삭제 화면, multipart 파일 저장과 업로드 통합이다.
 
 ## 1. 완료 판정 원칙
 
-- [x] 각 API의 URL, HTTP 메서드, 요청 형식, 응답 형식, 상태 코드를 [API 계약 문서](sprint-1-file-upload-api.md)와 일치시킨다.
+- [x] 각 API의 URL, HTTP 메서드, 요청 형식, 응답 형식, 상태 코드를 [API 명세](../../file-upload-api.md)와 일치시킨다.
 - [x] 각 체크박스는 코드와 자동화 테스트 또는 실제 화면 확인으로 근거를 남긴다.
 - [x] FE와 BE가 동일한 정규화·오류 해석·상태 표시 규칙을 사용한다.
 - [x] 아래 필수 항목을 모두 충족하고 `./gradlew test`와 `git diff --check`가 성공해야 스프린트 완료로 판정한다.

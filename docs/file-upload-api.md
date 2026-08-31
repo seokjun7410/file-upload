@@ -118,7 +118,7 @@
 
 | 이름 | 타입 | 필수 | 설명 |
 |---|---|---:|---|
-| `file` | MultipartFile | 예 | 업로드할 파일 1개 |
+| `file` | MultipartFile | 예 | 업로드할 파일 정확히 1개 |
 | `Idempotency-Key` 헤더 | UUID v4 | 예 | 재시도 동안 유지할 논리적 업로드 ID |
 
 ### 허용 Response `201 Created`
@@ -159,6 +159,7 @@
 ### 오류
 
 - `400 Bad Request`, `INVALID_FILE`: 파일이 없거나 비어 있거나 확장자를 추출할 수 없는 요청
+- `400 Bad Request`, `MULTIPLE_FILES_NOT_ALLOWED`: `file` part가 두 개 이상인 요청
 - `400 Bad Request`, `INVALID_REQUEST_ID`: `Idempotency-Key`가 없거나 UUID v4 형식이 아님
 - `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
 - `409 Conflict`, `IDEMPOTENCY_IN_PROGRESS`: 같은 `requestId`의 업로드가 처리 중이며 `Retry-After` 헤더를 함께 반환
@@ -192,6 +193,7 @@
 | 커스텀 200개 초과 | `409 Conflict` | `CUSTOM_LIMIT_EXCEEDED` |
 | 정책 엔티티를 찾을 수 없음 | `404 Not Found` | `ENTITY_NOT_FOUND` |
 | 업로드 파일 누락·빈 파일·무확장 파일 | `400 Bad Request` | `INVALID_FILE` |
+| 업로드 파일 두 개 이상 | `400 Bad Request` | `MULTIPLE_FILES_NOT_ALLOWED` |
 | Idempotency-Key 누락·UUID v4 형식 오류 | `400 Bad Request` | `INVALID_REQUEST_ID` |
 | 파일 10MB 초과 또는 전체 요청 12MB 초과 | `413 Payload Too Large` | `FILE_SIZE_EXCEEDED` |
 | 같은 requestId 처리 중 재요청 | `409 Conflict` | `IDEMPOTENCY_IN_PROGRESS` |
@@ -209,5 +211,6 @@
 - 파일 업로드는 원본 파일명을 저장 경로에 사용하지 않고 서버 생성 파일명을 사용한다.
 - MIME 검증은 파일 콘텐츠를 기준으로 수행하고 실행 MIME만 차단한다.
 - multipart 파일 10MB·전체 요청 12MB 제한은 파싱 단계에서 적용한다.
+- 파일 업로드 API는 `file` part를 정확히 하나만 허용하며, 두 개 이상이면 저장 전에 거부한다.
 - 같은 논리적 업로드의 재시도는 동일한 `Idempotency-Key`를 사용하고 서버는 결과를 재사용한다.
 - 업로드 상태는 `RECEIVING`·`COMPLETED`·`FAILED`로 영속화하며 최종 파일은 atomic move로 확정한다.

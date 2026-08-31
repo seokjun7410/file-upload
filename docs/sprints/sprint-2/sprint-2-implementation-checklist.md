@@ -1,6 +1,6 @@
 # 스프린트 2 구현 순서·결정 게이트 체크리스트
 
-> 상태: `feat/upload-policy-reliability@a840db2` 기준 ADR 0005·0006·0009·0011·0012·0013·0014·0015 구현 완료·브라우저 smoke 주요 시나리오 통과·VoiceOver/실제 200% 확대·409 화면 분기 확인 대기
+> 상태: `feat/upload-policy-reliability@7944a30` 기준 ADR 0005·0006·0009·0011·0012·0013·0014·0015 구현 완료·브라우저 smoke 주요 시나리오 통과·VoiceOver/실제 200% 확대·409 화면 분기 확인 대기·ADR 0016 결정 대기
 >
 > 기준 문서: [스프린트 2 PRD](sprint-2-prd.md), [ADR 구현 상태 점검](../../adr/adr-implementation-status-review-2026-08-30.md)
 
@@ -108,6 +108,7 @@
 ## 6. ADR 0013 — 업로드 오류 requestId·context·FE 메시지
 
 - [x] 업로드 오류에 requestId와 최소 context가 포함되고, 내부 경로·원본 파일명·stack trace가 노출되지 않는 controller 테스트를 작성한다.
+- [x] `file` part가 두 개 이상인 요청은 `400 MULTIPLE_FILES_NOT_ALLOWED`로 저장 전에 거부하고, FE가 파일 하나 업로드 안내를 표시하도록 구현한다. (commit `7944a30`)
 - [x] requestId 생성·로그 상관관계·오류 응답 조립을 공통 경계로 구현한다.
 - [x] FE가 서버 `message`가 아닌 오류 코드와 context로 업로드 안내를 표시하도록 구현한다. (commit `a89a5ef`)
 - [x] 정상 `.txt` 업로드와 차단 `env` 업로드에서 FE 안내 문구를 확인한다.
@@ -178,7 +179,7 @@
 
 ## 11. ADR 0016 — 정책 집합·allowlist 전환 결정
 
-- [x] `proposed` ADR 0016의 결정 전 질문을 사용자 답변으로 닫는 질문 문서를 작성한다. (`docs/questions/sprint-2-allowlist-transition-options.md`)
+- [x] `proposed` ADR 0016의 결정 전 질문과 선택지를 담은 질문 문서를 작성한다. (`docs/questions/sprint-2-allowlist-transition-options.md`)
 - [ ] 답변을 ADR·API 계약·데이터 모델 방향에 반영한다.
 - [ ] shadow 평가의 측정 항목·기록 방식·복귀 기준을 문서로 확정한다.
 

@@ -431,7 +431,7 @@ FE는 네트워크 오류를 `업로드 결과 확인 불가`로 표시하고 �
 
 ## 관련 문서
 
-- [스프린트 1 파일 업로드 API 계약](../sprints/sprint-1-file-upload-api.md)
+- [파일 업로드 API 명세](../file-upload-api.md)
 - [ADR 0003: 서버 생성 파일명과 로컬 업로드 저장 정책](../adr/0003-server-generated-file-storage-policy.md)
 - [ADR 0006: 원본 파일명과 서버 저장 파일명 매핑](../adr/0006-persist-upload-file-name-mapping.md)
 - [ADR 0013: 업로드 오류 requestId와 FE 메시지 책임](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
