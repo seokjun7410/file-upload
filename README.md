@@ -2,19 +2,15 @@
 
 고정·커스텀 확장자 차단 정책을 관리하고 안정적인 파일 업로드 기능을 구현한 Spring Boot 프로젝트입니다.
 
-| 바로가기 | 내용 |
-|---|---|
-| 배포 URL | [file-upload-production-4b7b.up.railway.app](https://file-upload-production-4b7b.up.railway.app) |
-| [API 명세](docs/file-upload-api.md) | 정책 관리·파일 업로드 요청·응답·오류 계약 |
-| [파일 업로드 고려사항 (CONSIDERATIONS.md)](CONSIDERATIONS.md) | 보안·데이터·UX·운영 관점의 핵심 판단 10개 |
-| [AI 프롬프트](docs/ai-prompt.md) | AI 제안을 검증하고 보완·선택한 대표 사례 |
-| [AI 협업 방식](docs/ai-assisted-development-workflow.md) | 요구사항 분해, ADR, TDD, 검증으로 이어진 개발 흐름 |
+- 배포 URL: [file-upload-production-4b7b.up.railway.app](https://file-upload-production-4b7b.up.railway.app)
+- [API 명세](docs/file-upload-api.md)
+- [파일 업로드 고려사항](CONSIDERATIONS.md)
+- [AI 프롬프트](docs/ai-prompt.md)
+- [AI 협업 방식](docs/ai-assisted-development-workflow.md)
 
 ## 기능 구현 현황
 
 상세한 판단과 근거는 [파일 업로드 고려사항](CONSIDERATIONS.md)에 정리했습니다.
-
-### 구현 및 고려사항
 
 #### A. 확장자 차단 정책 관리
 
@@ -73,22 +69,26 @@ sequenceDiagram
     participant D as DB·파일 저장
 
     U->>T: POST /api/v1/files
-    Note over T: 파일 10MB · 요청 12MB
-    alt 제한 초과
+    Note over T: 현재 설정값: 파일 10MB · 전체 요청 12MB
+    alt 파일 10MB 또는 전체 요청 12MB 초과
         T-->>U: 413 요청 거부
-    else 제한 통과
+    else 파일·요청 크기 제한 통과
         T->>C: multipart 요청 전달
-        C->>S: 업로드 요청
-        S->>S: 입력값 확인
-        S->>D: 같은 요청 존재 여부 확인
-        alt 기존 요청
-            D-->>S: 기존 상태
-            S-->>U: 기존 결과 또는 재시도 안내
-        else 새 요청
-            S->>S: 확장자 추출 · MIME · 차단 정책 확인
-            S->>D: 업로드 정보 기록 · 파일 저장
-            D-->>S: 저장 완료
-            S-->>U: 201 업로드 완료
+        C->>C: 파일 1개·멱등 키 확인
+        alt 파일이 두 개 이상
+            C-->>U: 400 요청 거부
+        else 파일·멱등 키 확인 통과
+            C->>S: 업로드 요청
+            S->>D: requestId로 기존 업로드 조회
+            alt 같은 requestId의 업로드가 이미 있음
+                D-->>S: COMPLETED · RECEIVING · FAILED
+                S-->>U: 기존 결과 · 재시도 안내 · 실패 결과
+            else 같은 requestId의 업로드가 없음
+                S->>S: 확장자 추출 · MIME · 차단 정책 확인
+                S->>D: 업로드 정보 기록 · 파일 저장
+                D-->>S: 저장 완료
+                S-->>U: 201 업로드 완료
+            end
         end
     end
 ```
@@ -101,29 +101,29 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    F[업로드 파일] --> E[확장자 조각 추출]
-    E --> M[파일 내용 확인<br/>Apache Tika]
-    M -->|분석 실패| D1[업로드 거부]
+    F[업로드 파일] --> E[원본 파일명에서<br/>모든 확장자 추출]
+    E --> M[파일 내용을 기반으로<br/>실행 파일 여부 확인<br/>Apache Tika]
+    M -->|Tika 분석 실패| D1[업로드 거부]
     M -->|실행 파일로 판단| D2[업로드 거부]
-    M -->|통과 또는 알 수 없음| P[차단 정책 확인]
+    M -->|비실행 또는 알 수 없음| P[차단 정책 확인]
     P -->|차단 목록에 있음| D3[업로드 거부]
     P -->|허용| S[저장]
 ```
 
-`report.exe.pdf`는 `exe`, `pdf`를 모두 검사합니다. 파일 형식을 알 수 없어도 확장자 정책은 계속 확인하고, 파일 내용을 읽지 못하면 저장 전에 거부합니다.
+`report.exe.pdf`는 `exe`, `pdf`를 모두 검사합니다. Tika가 파일 형식을 특정하지 못한 경우는 알 수 없음으로 처리하며, 텍스트처럼 안전한 파일까지 과도하게 막지 않기 위해 확장자 정책을 계속 확인합니다. 반면 파일 내용을 읽지 못한 Tika 분석 실패는 저장 전에 거부합니다.
 
-### 2. 동일 요청 멱등 키 정책
+### 2. 멱등 키 기반 파일 업로드 상태 조회
 
 ```mermaid
 flowchart LR
-    K[Idempotency-Key] --> Q{같은 요청의 상태}
-    Q -->|없음| N[새 업로드]
-    Q -->|이미 완료| C[기존 결과 반환]
-    Q -->|처리 중| R[잠시 뒤 다시 요청]
-    Q -->|이전에 실패| F[기존 실패 반환]
+    K[Idempotency-Key] --> Q{p_upload_file<br/>request_id 조회}
+    Q -->|없음| N[새 업로드 시작]
+    Q -->|COMPLETED| C[기존 결과 반환]
+    Q -->|RECEIVING| R[409 + Retry-After]
+    Q -->|FAILED| F[기존 실패 반환]
 ```
 
-UUID v4 키를 `requestId`로 저장합니다. 동시에 같은 요청이 와도 DB 중복 규칙과 잠금으로 하나의 업로드만 처리합니다.
+UUID v4 키를 `requestId`로 저장합니다. 같은 키를 다시 받으면 `p_upload_file`의 `request_id`로 기존 상태를 조회하고, 동시에 요청이 와도 DB 중복 규칙과 비관적 잠금으로 하나의 업로드만 처리합니다.
 
 ### 3. 업로드 저장 상태 전이
 
@@ -132,7 +132,7 @@ stateDiagram-v2
     state "업로드 중 (RECEIVING)" as RECEIVING
     state "저장 완료 (COMPLETED)" as COMPLETED
     state "저장 실패 (FAILED)" as FAILED
-    [*] --> RECEIVING: 업로드 정보 먼저 저장
+    [*] --> RECEIVING: UploadFile 정보 저장
     RECEIVING --> COMPLETED: 임시 파일 저장 → 저장 경로 이동
     RECEIVING --> FAILED: 저장 실패
     COMPLETED --> [*]
@@ -154,33 +154,35 @@ flowchart LR
     Q -->|없음| X[실패로 복구]
 ```
 
-1분마다 30분 이상 멈춘 업로드를 점검합니다. 파일 정리 실패는 원래 저장 오류를 대신해 외부로 노출하지 않습니다.
+현재 임시 설정값으로 1분마다 30분 이상 갱신되지 않은 업로드를 점검합니다. 정상 업로드를 너무 빨리 중단으로 오인하지 않으면서, 멈춘 기록은 정리하기 위한 기준입니다. 파일 정리 실패는 원래 저장 오류를 대신해 외부로 노출하지 않습니다.
 
 ### 5. 업로드 요청 크기·개수 제한
 
 ```mermaid
 flowchart LR
     U[사용자] --> M[파일 업로드 요청]
-    M --> G{업로드 제한 확인}
-    G -->|파일 1개·10MB 이하<br/>요청 12MB 이하| V[파일 검사]
+    M --> G{Tomcat multipart<br/>크기 제한}
+    G -->|파일 10MB 이하<br/>전체 요청 12MB 이하| C{파일 1개?}
     G -->|제한 초과| R[413 요청 거부]
+    C -->|아니오| X[400 요청 거부]
+    C -->|예| V[파일 검사]
 ```
 
-파일을 받는 단계에서 개수와 크기를 먼저 제한합니다. 통과한 요청만 확장자·파일 내용 검사로 전달합니다.
+Tomcat multipart 처리 단계에서 크기를 선제적으로 제한합니다. 현재 임시 설정값은 파일 10MB·전체 요청 12MB이며, 전체 요청에는 multipart 경계와 부가 정보 여유를 포함합니다. 크기 제한을 통과한 뒤 업로드 API가 파일 1개인지 확인하고, 통과한 요청만 확장자·파일 내용 검사로 전달합니다.
 
 ### 6. 커스텀 확장자 등록 정합성
 
 ```mermaid
 flowchart LR
     I[확장자 입력] --> N[공백 제거·소문자 통일]
-    N --> D{이미 등록됨?}
+    N --> D{이미 등록됨?<br/>DB UNIQUE 제약}
     D -->|예| E[중복 안내]
-    D -->|아니오| Q{200개 미만?}
+    D -->|아니오| Q{quota 행 비관적 잠금 후<br/>200개 미만?}
     Q -->|아니오| L[한도 안내]
     Q -->|예| S[정책·변경 이력 저장]
 ```
 
-동시에 등록 요청이 와도 등록 가능 개수를 잠그고 DB 중복 규칙을 함께 적용해, 중복과 200개 초과를 막습니다.
+동시에 등록 요청이 와도 DB `UNIQUE` 제약으로 중복을 막고, quota 행을 비관적으로 잠근 뒤 개수를 확인해 200개 초과를 막습니다.
 
 판단의 대안, trade-off, 남은 한계는 [CONSIDERATIONS.md](CONSIDERATIONS.md)에 정리했습니다.
 

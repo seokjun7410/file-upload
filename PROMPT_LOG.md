@@ -7,7 +7,7 @@
 ## 2026-08-28T14:45:00+09:00 — Spring Boot 최소 프로젝트 구성 확정
 
 - 상태: 수정 채택
-- 시간 근거: Gradle Wrapper 생성과 애플리케이션 기동 로그의 실행 시각 및 대화 순서. 사용자 메시지의 정확한 시각 메타데이터는 확인할 수 없어 정렬용 시각으로 기록한다.
+- 시간 근거: Gradle Wrapper 생성과 애플리케이션 기동 로그의 실행 시각.
 - 스프린트/범위: 빈 저장소에 Java 21 기반 Spring Boot JPA 시작 프로젝트 구성
 - 관련 문서·코드: [`build.gradle`](build.gradle), [`application.yml`](src/main/resources/application.yml), [`DemoApplication`](src/main/java/com/example/demo/DemoApplication.java), [`ExampleEntity`](src/main/java/com/example/demo/domain/ExampleEntity.java), [`ExampleRepository`](src/main/java/com/example/demo/domain/ExampleRepository.java)
 - 요청·질문 요약: Gradle Groovy DSL, Java 21, JPA를 사용하는 최소 Spring Boot 프로젝트를 생성한다.
@@ -26,7 +26,7 @@
 ## 2026-08-28T14:52:00+09:00 — 루트 테스트 페이지 추가
 
 - 상태: 수정 채택
-- 시간 근거: Thymeleaf 페이지 추가 직후 실행한 Gradle 테스트·bootRun 로그의 실행 시각 및 대화 순서. 정확한 사용자 메시지 시각은 확인할 수 없어 정렬용 시각으로 기록한다.
+- 시간 근거: Thymeleaf 페이지 추가 직후 실행한 Gradle 테스트·bootRun 로그의 실행 시각.
 - 스프린트/범위: JPA 저장·조회 결과를 브라우저에서 확인하는 최소 Thymeleaf 화면
 - 관련 문서·코드: [`ExamplePageController`](src/main/java/com/example/demo/web/ExamplePageController.java), [`index.html`](src/main/resources/templates/index.html), [`ExamplePageControllerTests`](src/test/java/com/example/demo/web/ExamplePageControllerTests.java)
 - 요청·질문 요약: `localhost/` 기준으로 DB 조회를 확인할 수 있는 테스트 페이지를 추가한다.
@@ -41,101 +41,6 @@
 - 검증 근거: `./gradlew clean test` 성공. 애플리케이션을 18080 포트에서 기동한 뒤 `curl http://localhost:18080/`로 Thymeleaf HTML 렌더링을 확인했다.
 - 결과와 연결 커밋: 초기 구현은 `65d1ee9 init`에 포함됐다.
 - 회고와 후속 조치: 테스트 페이지는 개발 보조 화면으로 유지하고, 실제 파일 업로드 화면은 확정된 스프린트 API 계약에 맞춰 별도 구현한다.
-
-## 2026-08-28T15:00:00+09:00 — IntelliJ 프로젝트 열기
-
-- 상태: 채택
-- 시간 근거: 앞선 페이지 구현과 Git 초기 커밋 사이의 대화 순서. 사용자 메시지의 정확한 시각 메타데이터가 없어 정렬용 시각으로 기록한다.
-- 스프린트/범위: 로컬 개발 환경 연결
-- 관련 문서·코드: 프로젝트 경로 `/Users/hong/Documents/ChatGPT/파일업로드`
-- 요청·질문 요약: 생성한 프로젝트 경로를 IntelliJ IDEA에서 연다.
-- 배경과 제약: IntelliJ IDEA Ultimate가 설치되어 있었고 기존 프로젝트 창이 열려 있었다. 작업 폴더의 코드나 설정을 변경하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `computer-use`
-  - plugin/도구: IntelliJ IDEA UI 상태 확인, macOS 앱 열기
-- AI 제안: IntelliJ의 프로젝트 열기 동작으로 현재 폴더를 새 프로젝트로 연결한다.
-- 사람의 판단과 이유: 채택. UI 접근성 상태에서 기존 프로젝트 검색 패널이 먼저 잡혀 앱 경로로 직접 폴더를 전달하는 방식으로 보완했다.
-- 코드·사용자 경험 영향: IntelliJ 창 제목이 `파일업로드`로 표시되며 해당 프로젝트를 바로 개발할 수 있다. 코드 동작에는 영향이 없다.
-- 검증 근거: IntelliJ IDEA 상태에서 프로젝트 창 제목 `파일업로드`를 확인했다.
-- 결과와 연결 커밋: 코드·문서 커밋 없음.
-- 회고와 후속 조치: IDE 연결은 로컬 환경 작업이므로 저장소 변경과 별도로 관리한다.
-
-## 2026-08-28T15:11:48+09:00 — Git main 브랜치와 init 커밋
-
-- 상태: 수정 채택
-- 시간 근거: 실제 초기 커밋 `65d1ee9`의 커미터 시각. 원격 push 시도는 같은 작업 흐름으로 기록한다.
-- 스프린트/범위: 로컬 Git 초기화와 GitHub 원격 반영 준비
-- 관련 문서·코드: Git 저장소 메타데이터, 초기 커밋 `65d1ee9`
-- 요청·질문 요약: `file-upload` 저장소에 `main` 브랜치와 `init` 커밋으로 올린다.
-- 배경과 제약: 기존 `.git` 디렉터리는 있었지만 커밋이 없었다. 원격 주소는 없었고 GitHub CLI 인증 상태도 유효하지 않았다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git 브랜치·커밋, GitHub CLI 상태 확인
-- AI 제안: 로컬 브랜치를 `main`으로 정리하고 `init` 커밋을 만든 뒤 GitHub 원격 저장소를 생성·push한다.
-- 사람의 판단과 이유: 수정 채택. 로컬 `main` 브랜치와 `init` 커밋은 완료했지만, 인증 실패 상태에서 원격 생성이나 push를 성공으로 기록하지 않았다.
-- 코드·사용자 경험 영향: 프로젝트 파일이 로컬 Git으로 추적되기 시작했다. GitHub에는 당시 반영되지 않았다.
-- 검증 근거: `git status`에서 `main`과 clean 상태, `git log -1`에서 `65d1ee9 init`을 확인했다. `gh auth status`는 유효하지 않은 인증 상태를 반환했고 원격은 없었다.
-- 결과와 연결 커밋: `65d1ee9 init`; GitHub push는 미완료.
-- 회고와 후속 조치: 인증·원격 저장소 생성 여부는 로컬 커밋과 분리해 확인한다. 토큰이나 인증값은 기록하지 않는다.
-
-## 2026-08-28T16:10:48+09:00 — 에이전트 지침과 문서·패키지 인덱스 생성
-
-- 상태: 채택
-- 시간 근거: 커밋 `65d292f` 작성 시각
-- 스프린트/범위: 저장소 공통 AI 작업 지침과 파일 업로드 확장자 정책 문서 탐색
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/file-upload-api.md`](docs/file-upload-api.md)
-- 요청·질문 요약: 모든 AI가 읽을 수 있는 에이전트 지침에 가독성, 범위 준수, 의사결정 기록, TDD와 문서·패키지 인덱스를 포함한다.
-- 배경과 제약: 기존 저장소에는 Spring Boot 예제 코드와 파일 업로드 설계 문서가 있었지만 공통 에이전트 지침은 없었다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 저장소 파일 검색·편집, Git 상태 확인, Gradle 테스트
-- AI 제안: 루트 `AGENTS.md`를 만들고 현재 문서·Java 패키지·테스트 패키지를 인덱싱한다.
-- 사람의 판단과 이유: 채택. 에이전트가 기능 구현 전에 프로젝트 맥락과 작업 규칙을 확인할 수 있어야 하며, 현재 저장소 구조에 맞춘 인덱스가 필요하다.
-- 코드·사용자 경험 영향: 제품 기능에는 영향이 없고, 이후 개발·문서화 작업의 일관성과 탐색성이 높아진다.
-- 검증 근거: 문서와 패키지 경로를 확인하고 `./gradlew test`를 실행해 성공을 확인했다.
-- 결과와 연결 커밋: `65d292f docs: add agent guidelines`
-- 회고와 후속 조치: 문서 수명주기와 기능 브랜치의 동기화 순서를 실제 작업에서 검증하고 지침에 보완한다.
-
-## 2026-08-28T16:11:34+09:00 — 문서 브랜치와 기능 브랜치 초기 동기화
-
-- 상태: 채택
-- 시간 근거: 병합 커밋 `642c23f` 작성 시각 및 현재 채팅 기록
-- 스프린트/범위: 문서 전용 `docs` 브랜치와 스프린트 기능 브랜치 운영
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: `docs` 브랜치를 만들고 에이전트 지침을 Conventional Commit으로 커밋한 뒤, `main`에서 스프린트용 `feat/file-upload-extension-policy`를 분기해 문서 브랜치를 병합한다.
-- 배경과 제약: 문서와 기능 코드를 별도 라이프사이클로 관리하되 기능 작업자는 최신 문서 지침을 받아야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git 브랜치·커밋·push·병합
-- AI 제안: `docs`에서 문서를 커밋하고 기능 브랜치에 병합한다. 원격 push 결과는 로컬 병합과 별도로 확인한다.
-- 사람의 판단과 이유: 채택. 기능 브랜치에 문서 기준을 명시적으로 포함하면 구현 범위와 작업 규칙을 재현할 수 있다.
-- 코드·사용자 경험 영향: 제품 기능에는 영향이 없고, 기능 구현의 기준 문서가 명확해진다.
-- 검증 근거: `docs` 커밋 후 `feat/file-upload-extension-policy`를 생성하고 병합했다. `origin/docs` push는 GitHub 403 권한 오류로 완료되지 않았다.
-- 결과와 연결 커밋: `65d292f docs: add agent guidelines`, `642c23f merge: integrate docs guidelines into sprint branch`
-- 회고와 후속 조치: 원격 push 성공 여부를 “문서 반영 완료”와 동일하게 취급하지 않는다.
-
-## 2026-08-28T16:15:19+09:00 — 누락된 스프린트·API 문서 보완과 절차 명시
-
-- 상태: 채택
-- 시간 근거: 문서 커밋 `389e7fd` 작성 시각 및 현재 채팅 기록
-- 스프린트/범위: 파일 업로드 확장자 정책 스프린트 문서와 API 명세
-- 관련 문서·코드: [`docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`docs/file-upload-api.md`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 스프린트·API 문서가 `docs` 브랜치에 커밋되지 않아 기능 작업이 어려운 문제를 해결하고, 같은 누락이 재발하지 않게 지침을 보완한다.
-- 배경과 제약: 문서 파일이 기능 브랜치 작업 트리에만 미추적 상태로 남으면 `docs` 병합 결과로 확인할 수 없다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git 상태·커밋·push·병합, 문서 편집, Gradle 테스트
-- AI 제안: 스프린트·API 문서를 `docs`에서 커밋하고, `AGENTS.md`에 문서 갱신·커밋·push·기능 브랜치 병합 순서를 명시한다.
-- 사람의 판단과 이유: 채택. 문서가 커밋된 뒤에만 기능 브랜치로 병합하도록 강제해야 문서 기준 누락을 막을 수 있다.
-- 코드·사용자 경험 영향: 제품 기능에는 직접 영향이 없고, 구현자가 확정된 API 계약과 완료 조건을 기준으로 작업할 수 있다.
-- 검증 근거: 문서 인덱스와 문서 브랜치 상태를 확인하고 기능 브랜치에 병합했다. `./gradlew test`는 성공했다. `origin/docs` push는 403으로 실패했다.
-- 결과와 연결 커밋: `389e7fd docs: add sprint and api specifications`, `dbd1cce merge: synchronize sprint documentation`
-- 회고와 후속 조치: 문서 파일의 미추적 상태와 브랜치별 포함 여부를 커밋 전후 `git status`로 확인한다.
 
 ## 2026-08-28T17:03:53+09:00 — 확장자 정책 모델링 선택지와 ADR 전 검토 문서화
 
@@ -155,44 +60,6 @@
 - 검증 근거: 검토 문서가 최종 결정을 포함하지 않는지, 구현 현황을 선택 근거로 사용하지 않는지 diff로 확인했다.
 - 결과와 연결 커밋: `33c3012 docs: record extension policy modeling options`, `5e62b98 docs: remove implementation bias from design review`
 - 회고와 후속 조치: 추천안과 확정 결정을 구분하고, 사용자 결정이 내려진 뒤에만 ADR과 코드를 갱신한다.
-
-## 2026-08-28T17:17:09+09:00 — AI 활용 기록 지침과 로그 생성
-
-- 상태: 채택
-- 시간 근거: 문서 커밋 `cf1e9f0` 작성 시각 및 현재 채팅 기록
-- 스프린트/범위: 제출 항목의 AI 활용 기록과 문서화 체계
-- 관련 문서·코드: [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md), [`PROMPT_LOG.md`](PROMPT_LOG.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: AI가 식별한 요구사항·예외·위험·대안·검증·회고를 별도 문서에 꾸준히 기록할 수 있는 지침을 생성한다.
-- 배경과 제약: 제출 항목은 프롬프트, skill/plugin 사용 내역, 사람의 판단과 회고를 요구하며, 제품 코드와 별도로 기록해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 문서 편집, Git worktree·커밋·push·병합, Gradle 테스트
-- AI 제안: 기록 시점, 필수 항목, 검증 근거, 보안상 기록하지 않을 정보, 재사용 템플릿을 지침으로 만들고 `PROMPT_LOG.md`에 초기 기록을 남긴다.
-- 사람의 판단과 이유: 채택. AI의 제안과 사람의 최종 판단을 분리해야 무검증 코드 복사가 아니라 비판적 활용 과정을 제출할 수 있다.
-- 코드·사용자 경험 영향: 제품 기능에는 직접 영향이 없고, 설계·검증·결정의 추적성이 높아진다.
-- 검증 근거: 문서 인덱스에 두 파일을 추가하고 기능 브랜치에 병합했다. `./gradlew test`는 성공했다. `origin/docs` push는 403으로 실패했다.
-- 결과와 연결 커밋: `cf1e9f0 docs: add AI usage recording guidance`, `25966c0 merge: add AI usage documentation`
-- 회고와 후속 조치: 이후 새로운 판단·예외·검증 결과가 생길 때마다 로그를 갱신한다.
-
-## 2026-08-28T17:24:53+09:00 — 기존 채팅 기록 검토와 시간순 정렬 보완
-
-- 상태: 채택
-- 시간 근거: 현재 작업을 시작할 때 확인한 시스템 시각
-- 스프린트/범위: `PROMPT_LOG.md`의 제출용 기록 품질과 시간순 정렬
-- 관련 문서·코드: [`PROMPT_LOG.md`](PROMPT_LOG.md), [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 로그 문서가 생성된 이후의 현재 채팅 기록을 다시 검토해 누락된 기록 대상을 추가하고, 시간순으로 정렬 가능하게 만든다.
-- 배경과 제약: 기존 로그는 여러 작업을 하나의 날짜 제목으로 묶었고, 시간 정보가 없어 사건 순서를 문자열로 정렬할 수 없었다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git 커밋 시각 조회, 문서 검토·편집
-- AI 제안: 커밋 시각을 검증 가능한 시간 근거로 사용해 과거 항목을 작업별로 분리하고, ISO-8601 제목·시간 근거 필드·지연 발견 시 삽입 규칙을 추가한다.
-- 사람의 판단과 이유: 채택. 기록의 사건 순서와 기록 작성 시점을 구분해야 제출자가 AI 활용 과정을 시간순으로 재현할 수 있다.
-- 코드·사용자 경험 영향: 제품 기능에는 영향이 없으며, 제출 문서의 추적성과 검토 가능성이 향상된다.
-- 검증 근거: 기존 채팅에서 확인 가능한 브랜치·문서·커밋·테스트 작업을 분리해 기록하고, 모든 제목을 동일한 ISO-8601 접두사로 정렬했다.
-- 결과와 연결 커밋: 이 기록을 포함한 문서 커밋으로 연결한다.
-- 회고와 후속 조치: 새 사건은 맨 아래에 추가하고, 과거 사건을 늦게 발견하면 시간 근거를 남긴 뒤 적절한 위치에 삽입한다.
 
 ## 2026-08-28T17:27:04+09:00 — fixed/custom 단일 정책 엔티티 ADR 확정
 
@@ -232,157 +99,24 @@
 - 결과와 연결 커밋: 최종 기능 커밋 `ad915e6 feat: implement extension policy domain`; ADR 보완 `b12de60 docs: record extension policy database invariants`
 - 회고와 후속 조치: 구현 직후에는 도메인 테스트뿐 아니라 DB 직접 삽입과 동시성 경계까지 별도 리뷰 체크리스트로 확인한다.
 
-## 2026-08-28T19:50:49+09:00 — 4단계 정책 REST API 구현과 커밋 보류
-
-- 상태: 수정 채택
-- 시간 근거: 4단계 진행 문서 커밋 `ce5115d`의 작성 시각과 같은 작업 흐름의 대화·테스트 결과
-- 스프린트/범위: 파일 저장을 제외한 확장자 정책 REST API와 공통 오류 응답
-- 관련 문서·코드: [`파일 업로드 API 명세`](docs/file-upload-api.md), `ExtensionPolicyRestController`, `ExtensionPolicyRestExceptionHandler`, REST DTO, MockMvc 테스트
-- 요청·질문 요약: 정책 조회·고정 상태 변경·커스텀 추가·삭제 API를 구현하되 파일 업로드는 5단계로 남기고, 기존 코드와 신규 코드의 불필요한 `final`을 제거하며 생성자 주입은 Lombok을 사용한다.
-- 배경과 제약: API 계층은 `@RestController`와 record DTO만 사용하고 Thymeleaf `Model`, view, redirect를 사용하지 않는다. 오류는 상황별 semantic code와 `{code, message}` 형식으로 반환해야 했다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 명시적 사용 기록 없음
-  - plugin/도구: MockMvc, Gradle 테스트, Git diff
-- AI 제안: 네 정책 엔드포인트, 공통 advice, API·도메인 공유 validator, 서비스 조회·변경·삭제 기능과 오류별 예외 타입을 추가하도록 제안했다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 기능 구현은 진행하되 4단계 변경은 아직 커밋하지 않고, 1~3단계에 속하는 스타일 리팩터링은 이전 기능 커밋에 포함해야 한다고 확정했다.
-- 코드·사용자 경험 영향: 정책 API와 오류 응답은 구현됐지만 파일 저장과 Axios 화면은 여전히 미구현이다. 4단계 코드는 기능 브랜치 작업 트리에 미커밋 상태로 유지한다.
-- 검증 근거: 네 엔드포인트의 정상·오류 MockMvc 테스트, 서비스 테스트와 전체 `./gradlew test`, `git diff --check`가 성공했다.
-- 결과와 연결 커밋: 진행 문서 `ce5115d docs: update sprint 1 rest api progress`; 4단계 코드는 사용자 요청에 따라 미커밋
-- 회고와 후속 조치: 기능 완료 여부와 커밋 여부를 구분하고, 다음 단계에서는 multipart 저장과 `BLOCKED_EXTENSION`만 추가한다.
-
-## 2026-08-28T20:01:24+09:00 — 코드·문서·스타일 커밋 경계 오류 복구
-
-- 상태: 수정 채택
-- 시간 근거: 최종 기능 커밋 `ad915e6`의 커미터 시각과 문서 병합 커밋 `c5e77fb`의 작성 시각
-- 스프린트/범위: 1~3단계 기능 커밋, docs 브랜치, 4단계 미커밋 작업의 이력 분리
-- 관련 문서·코드: Git 커밋 `ad915e6`, `b12de60`, `c5e77fb`, 기능 브랜치 작업 트리
-- 요청·질문 요약: docs 브랜치에는 코드 변경이 들어가면 안 되고, 1~3단계 기능은 하나의 코드 전용 커밋으로 유지하며, `final` 제거와 Lombok 생성자 주입도 그 기능 커밋에 포함한다. 4단계 REST 변경은 커밋하지 않는다.
-- 배경과 제약: 최초 기능 커밋 `c5e2df1`에는 코드와 문서가 섞였고, 첫 이력 재작성에서는 원본에서 삭제된 Example 파일을 복원 명령이 삭제하지 못했다. 다음 재작성에서는 스타일 변경이 4단계 작업 트리에 남아 기능 커밋의 최종 상태와 어긋났다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `korean-domain-test-policy`
-  - plugin/도구: Git stash·reset·restore·amend·merge, Gradle 테스트, `git diff-tree`, `git grep`
-- AI 제안: 미커밋 코드를 stash로 보존하고 기능 커밋을 파일 경계에 맞춰 재구성한 뒤 docs를 병합하고 4단계 파일만 복원하도록 제안했다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 AI가 만든 혼합 커밋과 잘못된 귀속을 거부하고, 코드 전용 기능 커밋·문서 전용 docs 커밋·미커밋 4단계라는 세 경계를 명확히 요구했다.
-- 코드·사용자 경험 영향: `ad915e6`에는 `build.gradle`, `src/**`와 Example 삭제만 포함되고, 매개변수·지역변수 `final` 제거와 `@RequiredArgsConstructor`가 반영됐다. docs 조상 커밋은 `AGENTS.md`, `PROMPT_LOG.md`, `docs/**`만 변경하며 4단계 REST 코드는 작업 트리에 남았다.
-- 검증 근거: `git show --name-only ad915e6`, `git log --name-only main..docs`, `git grep '\bfinal\b' ad915e6`, 전체 `./gradlew test`, `git diff --check`를 확인했다.
-- 결과와 연결 커밋: `ad915e6 feat: implement extension policy domain`, `b12de60 docs: record extension policy database invariants`, `c5e77fb merge: synchronize sprint 1 docs`
-- 회고와 후속 조치: 이력 재작성 전 변경 파일 allowlist와 삭제 파일 목록을 만든다. 재작성 후에는 커밋별 경로, 삭제 상태, 컨벤션 grep, 작업 트리 잔여 변경을 모두 확인한 뒤에만 병합한다.
-
-## 2026-08-28T20:08:29+09:00 — AI 활용 기록 누락 감사와 완료 게이트 강화
-
-- 상태: 수정 채택
-- 시간 근거: 사용자의 누락 여부 확인 요청 직후 확인한 시스템 시각
-- 스프린트/범위: `PROMPT_LOG.md` 운영과 AI 작업 절차의 재발 방지
-- 관련 문서·코드: [`PROMPT_LOG.md`](PROMPT_LOG.md), [`ai-usage-guidelines.md`](docs/ai-usage-guidelines.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 이번 대화에서 기록할 내용이 없었던 것인지 AI가 누락한 것인지 판단하고, AI 실수라면 누락 기록과 재발 방지 대책을 추가한다.
-- 배경과 제약: 기록 지침은 중요한 판단·실패·수정·검증을 즉시 남기도록 했지만 기존 로그는 17:24에서 끝나 이후 모델링 결정, 구현, 독립 리뷰, REST API, 커밋 이력 복구를 기록하지 않았다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git 커밋 시각·경로 감사, 문서 검색·편집
-- AI 제안: 누락을 AI의 절차 위반으로 명시하고 과거 사건을 커밋 시각 기준으로 보충하며, 커밋·브랜치 전환·최종 보고 전 로그 대조를 완료 게이트로 강제하도록 제안했다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 누락 원인을 판단한 뒤 실수라면 실제 문서 수정과 재발 방지 대책까지 요구했다.
-- 코드·사용자 경험 영향: 제품 코드에는 영향이 없다. 이후 AI 작업은 로그 추가 항목 또는 미추가 사유를 최종 보고에 반드시 포함해야 한다.
-- 검증 근거: 기존 마지막 기록 시각과 이후 Git 커밋·대화 사건을 대조하고, 추가 항목이 사건 시각 오름차순인지 확인한다. 문서 커밋 전 문서 경로 allowlist와 `git diff --check`를 검증했다. `git push origin docs`는 AI 활용 로그의 외부 전송 대상 신뢰가 확인되지 않아 실행 환경 정책에서 거부됐다.
-- 결과와 연결 커밋: 이 기록과 누락 방지 게이트를 포함하는 로컬 docs 문서 커밋. `origin/docs` 반영은 미완료다.
-- 회고와 후속 조치: “즉시 기록”이라는 선언만으로는 누락을 막지 못했다. 앞으로는 커밋·브랜치 전환·최종 보고 세 지점에서 기록 여부를 명시적으로 판정하고 보고한다.
-
-## 2026-08-28T20:16:16+09:00 — 미커밋 정책 API 코드 리뷰 지적사항 수정
+## 2026-08-28T20:16:16+09:00 — 정책 API 요청 검증 보완
 
 - 상태: 수정 채택
 - 시간 근거: 코드 리뷰 수정 작업 직전 확인한 시스템 시각과 테스트 실행 순서
-- 스프린트/범위: 정책 REST API 요청 검증과 에이전트 저장소 상태 문서
-- 관련 문서·코드: [`CustomExtensionPolicyRequest`](src/main/java/com/example/demo/web/dto/CustomExtensionPolicyRequest.java), [`ExtensionPolicyRestControllerTests`](src/test/java/com/example/demo/web/ExtensionPolicyRestControllerTests.java), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 미커밋 코드 리뷰에서 발견된 두 지적사항을 모두 해결한다.
-- 배경과 제약: 커스텀 정책 등록 요청에서 필수 필드 누락은 `INVALID_REQUEST`여야 하며, 저장소 개요는 이미 구현된 정책 REST API를 반영해야 한다. 공백 문자열은 기존 계약대로 `INVALID_EXTENSION`으로 유지한다.
+- 스프린트/범위: 정책 REST API 요청 검증
+- 관련 문서·코드: [`CustomExtensionPolicyRequest`](src/main/java/com/example/demo/web/dto/CustomExtensionPolicyRequest.java), [`ExtensionPolicyRestControllerTests`](src/test/java/com/example/demo/web/ExtensionPolicyRestControllerTests.java)
+- 요청·질문 요약: 커스텀 정책 등록 요청의 필수 필드 검증을 보완한다.
+- 배경과 제약: 필수 필드 누락은 `INVALID_REQUEST`여야 하며, 공백 문자열은 기존 계약대로 `INVALID_EXTENSION`으로 유지한다.
 - AI 활용 정보:
   - 모델/실행 환경: Codex 데스크톱 작업 환경
   - skill: `tdd`
   - plugin/도구: 적용 패치, Gradle 테스트, Git diff 검사
-- AI 제안: 누락 필드 행동을 MockMvc 테스트로 먼저 고정한 뒤 DTO에 `@NotNull`을 추가하고, `AGENTS.md`의 현재 상태를 정책 REST API 구현 완료로 갱신한다.
-- 사람의 판단과 이유: 수정 채택. 필드 누락과 값 형식 오류를 구분해야 API 클라이언트가 오류를 일관되게 해석할 수 있고, 작업 지침의 저장소 상태도 실제 코드와 일치해야 한다.
-- 코드·사용자 경험 영향: `{}` 커스텀 등록 요청은 `400 INVALID_REQUEST`와 공통 오류 JSON을 반환하며, 저장소 개요가 정책 REST API 구현 상태를 정확히 설명한다.
+- AI 제안: 누락 필드 행동을 MockMvc 테스트로 먼저 고정한 뒤 DTO에 `@NotNull`을 추가한다.
+- 사람의 판단과 이유: 수정 채택. 필드 누락과 값 형식 오류를 구분해야 API 클라이언트가 오류를 일관되게 해석할 수 있다.
+- 코드·사용자 경험 영향: `{}` 커스텀 등록 요청은 `400 INVALID_REQUEST`와 공통 오류 JSON을 반환한다.
 - 검증 근거: 새 테스트는 수정 전 `NullPointerException`으로 실패했고, `@NotNull` 적용 후 대상 테스트와 전체 `./gradlew test --rerun-tasks`가 성공했다. `git diff --check HEAD`와 변경 파일의 trailing whitespace 검사도 성공했다.
-- 결과와 연결 커밋: 커밋하지 않은 작업 트리에 반영했다.
+- 결과와 연결 커밋: 정책 REST API 구현에 반영했다.
 - 회고와 후속 조치: DTO에 제약이 없는 요청 record를 추가할 때는 누락·null·공백을 각각 계약에 맞게 구분하는 테스트를 함께 작성한다.
-
-## 2026-08-28T20:28:30+09:00 — 패키지 구조 재정비와 커밋 경계 확정
-
-- 상태: 채택
-- 시간 근거: 패키지 구조 작업 직전 확인한 시스템 시각
-- 스프린트/범위: 기존 확장자 정책 기능의 구조 리팩터링과 미커밋 정책 REST API 기능
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), `BaseEntity`, `ExtensionPolicyService`, `ExtensionPolicyServiceImpl`, 정책 컨트롤러·DTO·예외
-- 요청·질문 요약: `web`을 `controller`로 바꾸고, 커스텀 예외를 별도 패키지로 분리하며, 서비스 인터페이스와 `impl` 구현체를 도입하고, 엔티티 응답 변환은 DTO 메서드로 옮기며, 초기화 코드와 공통 식별자를 `common`에 둔다. 기존 작업물의 구조 변경은 `refactor`, 현재 미커밋 REST 기능은 `feat` 커밋으로 분리한다.
-- 배경과 제약: 현재 `ExtensionPolicy`와 서비스 테스트에는 이전 작업물 변경과 신규 API 기능이 섞여 있어 파일 단위 커밋만으로는 경계가 보장되지 않는다. ADR 0001의 물리 삭제 결정 때문에 공통 엔티티에 soft delete 상태를 추가할 수 없다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경과 읽기 전용 구조 탐색 에이전트
-  - skill: `setup-matt-pocock-skills`, `improve-codebase-architecture`
-  - plugin/도구: Git 변경 분류, 적용 패치, Gradle 전체 테스트
-- AI 제안: `BaseEntity`에는 자동 생성 식별자만 두고, 기존 서비스의 등록 동작만 먼저 인터페이스·구현체로 분리해 독립적인 refactor 상태를 만든 뒤 신규 REST 기능을 새 패키지에 적용한다. 실제 엔티티 응답 조립은 DTO 정적 팩토리로 이동하고 요청 DTO는 도메인 생성 규칙을 침범하지 않도록 값 전달 책임을 유지한다.
-- 사람의 판단과 이유: 채택. 사용자가 지정한 패키지 방향과 커밋 경계를 따르되, 도메인 불변식과 quota 조정은 서비스·엔티티에 유지한다.
-- 코드·사용자 경험 영향: HTTP 계약과 정책 동작은 유지하면서 컨트롤러, 예외, 서비스 구현, 공통 엔티티 책임의 위치가 명확해진다.
-- 검증 근거: 변경 전, 기존 기능만 옮긴 refactor 중간 상태, 두 커밋 완료 후의 세 시점에서 전체 테스트가 성공했다. 최종 `./gradlew test --rerun-tasks`는 45개 테스트가 모두 통과했고, 이전 `web` 패키지와 서비스 패키지의 커스텀 예외 참조가 남지 않았으며 `git diff --check HEAD`와 깨끗한 작업 트리를 확인했다. 커밋별 `git show --name-status`로 구조 이동 9개 파일과 신규 기능 19개 파일의 경계도 확인했다.
-- 결과와 연결 커밋: `044b8f3 refactor: reorganize application package structure`, `e760e16 feat: implement extension policy REST API`, 문서 `1018c62 docs: update package structure index`
-- 회고와 후속 조치: 서로 다른 커밋 성격이 한 파일에 섞인 경우 최종 파일을 한 번에 stage하지 않고, 각 커밋이 독립적으로 컴파일되는 중간 상태를 먼저 검증한다.
-
-## 2026-08-28T20:36:47+09:00 — 공통 REST 오류 처리와 DTO 요청·응답 패키지 분리
-
-- 상태: 채택
-- 시간 근거: 사용자 후속 요청 직후 확인한 시스템 시각
-- 스프린트/범위: 정책 REST 오류 처리와 DTO 패키지 구조 리팩터링
-- 관련 문서·코드: `ExtensionPolicyRestExceptionHandler`, `ErrorResponse`, 정책 요청·응답 DTO, [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: REST 예외 핸들러는 컨트롤러가 아니라 공통 패키지 책임으로 이동하고 커밋한다.
-- 배경과 제약: 작업 트리에는 사용자가 준비한 핸들러·오류 응답의 `common` 이동과 요청·응답 DTO의 `req`/`res` 이동이 이미 stage되어 있었지만 package 선언과 import가 이전 위치를 가리키고 있었다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경과 읽기 전용 구조 탐색 에이전트
-  - skill: `improve-codebase-architecture`
-  - plugin/도구: Git staged/unstaged diff 검토, 적용 패치, Gradle 테스트
-- AI 제안: 사용자가 준비한 이동을 보존하면서 `common`에 핸들러와 오류 응답을 함께 두고, 정책 DTO는 `controller.dto.req`와 `controller.dto.res`로 package 선언과 import를 일치시킨다.
-- 사람의 판단과 이유: 채택. 공통 오류 변환 책임을 컨트롤러 모듈에서 분리하고 이미 stage된 요청·응답 DTO 구분도 같은 구조 변경으로 완성한다.
-- 코드·사용자 경험 영향: HTTP 상태·오류 JSON 계약은 바뀌지 않고 패키지 위치와 참조만 변경된다.
-- 검증 근거: package 선언과 import를 새 경로로 맞춘 뒤, 코드 커밋 전과 문서 병합 후 `./gradlew test --rerun-tasks`가 모두 성공했다. `git diff --check`와 커밋의 9개 변경 경로를 확인했다.
-- 결과와 연결 커밋: `813e54e refactor: move REST error handling to common`, 문서 `166e09e docs: refine common and DTO package index`
-- 회고와 후속 조치: stage된 rename만 보고 완료로 판단하지 않고 package 선언과 모든 import가 새 경로를 따르는지 함께 확인한다.
-
-## 2026-08-28T20:42:44+09:00 — 커밋 규칙을 AGENTS.md로 단일화
-
-- 상태: 채택
-- 시간 근거: 문서 전체의 커밋 규칙 검색 직후 확인한 시스템 시각
-- 스프린트/범위: 저장소의 커밋·브랜치·문서 동기화 작업 지침
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), 스프린트 문서, 모델링 질문 문서, 로컬 AI 활용 기록 지침
-- 요청·질문 요약: 문서 변경을 `docs` 브랜치에서 수행하고, 여러 문서에 흩어진 커밋 관련 실행 규칙을 제거해 `AGENTS.md`만 단일 기준으로 사용한다.
-- 배경과 제약: 단일 커밋 전용 문서와 스프린트·질문 문서의 참조, AI 활용 기록 지침의 Git 절차가 `AGENTS.md`의 브랜치·커밋 규칙과 중복됐다. 반면 AI 활용 기록의 커밋 해시는 실행 규칙이 아니라 결과 추적 근거다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: Markdown 전체 검색, Git docs worktree, 적용 패치
-- AI 제안: 전용 단일 커밋 문서를 삭제하고 참조를 제거하며, `AGENTS.md`에 `feat`·`refactor`·`docs` 분리, staged diff 검사, 독립 테스트 기준을 모은다. 로컬 AI 활용 지침에서는 Git 실행 절차만 제거하고 결과 커밋을 기록하는 감사 형식은 유지한다.
-- 사람의 판단과 이유: 채택. 실행 규칙의 출처가 하나여야 이후 작업자가 오래된 스프린트 규칙을 잘못 적용하지 않는다.
-- 코드·사용자 경험 영향: 제품 코드와 API 동작에는 영향이 없고 AI 에이전트의 커밋 분류와 문서 브랜치 사용 기준만 단일화된다.
-- 검증 근거: `AGENTS.md`와 `PROMPT_LOG.md`를 제외한 Markdown 전체에서 커밋·브랜치·병합·push 실행 규칙이 더 이상 검색되지 않았고, 삭제 문서 참조도 남지 않았다. `git diff --check`와 docs 브랜치 staged 경로를 확인했으며 기능 브랜치 병합 후 `./gradlew test`가 성공했다.
-- 결과와 연결 커밋: `5a42f20 docs: centralize commit rules in AGENTS`
-- 회고와 후속 조치: 검색 시 절차 문장과 역사적 커밋 근거를 구분해 감사 기록은 보존한다.
-
-## 2026-08-28T20:57:19+09:00 — 기능·문서 브랜치 직접 커밋 경로 감사와 이력 정리
-
-- 상태: 채택
-- 시간 근거: 브랜치 이력 재구성 후 전체 테스트를 완료한 시스템 시각
-- 스프린트/범위: `feat/file-upload-extension-policy`와 `docs` 브랜치의 커밋 경계
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), 기능 브랜치와 docs 브랜치 Git 이력
-- 요청·질문 요약: 기능 브랜치의 직접 문서 변경과 docs 브랜치의 직접 코드 변경을 모두 감지하고 잘못된 이력을 수정한다.
-- 배경과 제약: 기능 브랜치 직접 커밋 `e64329d`가 `AGENTS.md`를 변경했고, 최신 문서 병합 커밋의 첫 번째 부모에 포함돼 있었다. docs 브랜치 직접 커밋에는 애플리케이션 코드가 없었다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git first-parent 이력·경로 감사, 복구용 백업 브랜치, Gradle 전체 테스트
-- AI 제안: docs 브랜치에 직접 커밋 경로 감사 규칙을 추가하고, 마지막 코드 커밋 `a173dc1`에 최신 docs HEAD를 merge해 기능 브랜치를 재구성한다. 기존 HEAD는 `codex/backup-feat-file-upload-before-scope-cleanup`으로 보존한다.
-- 사람의 판단과 이유: 채택. 문서 내용은 유지하되 기능 브랜치의 직접 docs 커밋을 제거하고 docs merge로만 반영해야 브랜치 책임이 명확해진다.
-- 코드·사용자 경험 영향: 최종 코드와 문서 내용은 유지되고 Git 이력의 소유 브랜치만 바로잡혔다.
-- 검증 근거: 기능 브랜치 first-parent 비병합 커밋에서 `AGENTS.md`, `docs/**`가 검색되지 않았고 docs 브랜치 비병합 커밋에서 `src/**`, 빌드 파일, 애플리케이션 리소스·테스트 코드가 검색되지 않았다. 재구성된 HEAD에서 `./gradlew test --rerun-tasks`가 성공했다.
-- 결과와 연결 커밋: `f945afd docs: enforce branch path separation`, `4c5885c merge: synchronize audited docs branch`
-- 회고와 후속 조치: 최종 보고 전 커밋 메시지뿐 아니라 first-parent 기준 변경 경로를 함께 감사한다.
 
 ## 2026-08-28T21:36:53+09:00 — Axios 정책 조회 화면 구현 계획 승인
 
@@ -391,7 +125,7 @@
 - 스프린트/범위: `GET /api/v1/extension-policies` Axios 화면·최신 DB 상태 통합 검증·브라우저 확인
 - 관련 문서·코드: [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md), `index.html`, `extension-policy.js`, `FileUploadPageControllerTests`, `ExtensionPolicyApiIntegrationTests`
 - 요청·질문 요약: 이미 구현된 정책 조회 BE를 유지하고 Axios WebJar로 화면을 조립하며, 정책 변경·등록·삭제 후 GET의 최신 상태와 실제 브라우저 요청을 검증한다.
-- 배경과 제약: 이번 범위는 GET 화면으로 한정하고 PATCH·POST·DELETE 화면 조작과 파일 업로드는 추가하지 않는다. `PROMPT_LOG.md`는 기존 결정으로 Git 추적에서 제외되어 로컬 기록으로만 관리한다.
+- 배경과 제약: 이번 범위는 GET 화면으로 한정하고 PATCH·POST·DELETE 화면 조작과 파일 업로드는 추가하지 않는다.
 - AI 활용 정보:
   - 모델/실행 환경: Codex 데스크톱 작업 환경
   - skill: `next-work-briefing`, `tdd`, `korean-domain-test-policy`, `browser:control-in-app-browser`
@@ -400,8 +134,8 @@
 - 사람의 판단과 이유: 채택. 사용자가 제안된 계획 전체를 명시적으로 구현하도록 요청했다.
 - 코드·사용자 경험 영향: 루트 페이지가 서버 Model 데이터 대신 정책 REST API를 조회해 고정·커스텀 정책을 표시한다. GET 전용 단계의 체크박스는 비활성화한다.
 - 검증 근거: 페이지 테스트는 화면 영역 없음으로 Red를 확인한 뒤 Green으로 전환했다. 격리 H2를 사용한 API 통합 테스트로 초기 GET, PATCH·POST·DELETE 후 GET의 최신 상태를 확인했다. `./gradlew test --rerun-tasks`, `node --check`, `git diff --check`가 성공했다. 인앱 브라우저에서 고정 7개·빈 custom 목록, `exe` 변경·`sh` 등록·삭제 후 새로고침 결과를 확인했고 Tomcat access log에 `GET_/api/v1/extension-policies_200`이 남았다.
-- 결과와 연결 문서: 코드 커밋 `2f2bc22 feat: implement extension policy query screen`, 문서 커밋 `be4772e docs: record policy query screen completion`, 문서 병합 `aa98714 merge: synchronize policy query screen docs`, [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md). 병합 후 전체 테스트와 최종 브라우저 스모크 검증도 성공했다. `git push origin docs`는 GitHub `403 Permission denied`로 실패해 원격 반영은 미완료다.
-- 회고와 후속 조치: 브라우저 도구의 `networkidle`과 Performance Resource Timing 조회가 지원되지 않아, 화면 DOM 스냅샷과 격리 서버 access log를 결합해 URL·메서드·상태 코드를 검증했다. `PROMPT_LOG.md`는 이미 Git 추적 제외 상태이므로 로컬 기록을 유지하고, 추적 문서만 `docs` 브랜치에서 커밋한다. GitHub 권한이 복구되면 `be4772e`를 `origin/docs`에 다시 push한다.
+- 결과와 연결 문서: 코드 커밋 `2f2bc22 feat: implement extension policy query screen`, [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md).
+- 회고와 후속 조치: 브라우저 도구의 네트워크 상세 조회 한계를 화면 DOM과 서버 access log를 함께 확인해 보완했다.
 
 ## 2026-08-28T22:16:13+09:00 — 정책 조회 테스트 리뷰 의견 반영
 
@@ -421,26 +155,6 @@
 - 검증 근거: 수정 후 대상 테스트와 전체 `./gradlew test --rerun-tasks`, `git diff --check`, `node --check`를 실행해 모두 성공했다. 수정 전에도 기존 전체 테스트가 성공했고, 리뷰 수정 후 통합 테스트는 2개 테스트로 축소된 상태로 통과했다.
 - 결과와 연결 문서: `416da6e refactor: reduce policy query test coupling`, 기존 기능 커밋 `2f2bc22`, 문서 병합 `aa98714`.
 - 회고와 후속 조치: 정책 테스트에서 정책 카탈로그의 사업 규모를 확정하는 단언과 행동 계약을 구분하고, 실제 화면 검증으로 스크립트 동작을 보완한다.
-
-## 2026-08-28T22:26:06+09:00 — 정책 테스트 리뷰 재발 방지 기준 문서화
-
-- 상태: 채택
-- 시간 근거: 리뷰 대응 문서를 docs 브랜치에 커밋하고 기능 브랜치에 병합한 직후 시스템 시각
-- 스프린트/범위: 정책 조회 테스트의 목록 개수·순서 결합, 통합 테스트 기동 비용, 페이지 HTML 단언 범위에 대한 작업 기준
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`sprint-1-file-upload-extension-policy.md`](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
-- 요청·질문 요약: 같은 리뷰가 반복되지 않도록 테스트 작성자가 따라야 할 유지보수 기준을 적절한 문서에 반영한다.
-- 배경과 제약: 현재 fixed 카탈로그 7개는 제품 계약이지만 변경 가능성이 있으며, 통합 테스트와 페이지 테스트가 그 내부 표현까지 중복 검증하면 변경 비용과 실행 시간이 커진다. 문서 변경은 docs 브랜치에서만 수행한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: Markdown 문서 점검, Git docs worktree, Gradle 전체 테스트
-- AI 제안: `AGENTS.md`에 공통 테스트 유지보수 원칙을 두고, 스프린트 문서와 체크리스트에는 카탈로그 계약·통합 시나리오·브라우저 smoke의 적용 기준을 구체화한다.
-- 사람의 판단과 이유: 채택. 원천/계약 테스트만 정확한 카탈로그 불변식을 소유하고, 통합 테스트는 의미 기반 상태를 한 시나리오에서 검증하며, 페이지 테스트는 JavaScript 최소 DOM 계약만 확인하도록 역할을 분리한다.
-- 코드·사용자 경험 영향: 제품 코드는 변경하지 않는다. 이후 카탈로그 추가·삭제나 정적 리소스 교체가 통합·화면 테스트를 불필요하게 깨뜨리지 않고, 실제 사용자 흐름 검증은 브라우저 smoke에서 유지된다.
-- 검증 근거: docs 브랜치에서 `AGENTS.md`와 두 스프린트 문서만 staged 상태로 확인하고 `git diff --cached --check` 및 `git diff --check`를 통과시켰다. 문서 커밋 후 기능 브랜치에 병합했으며 `./gradlew test`와 `git diff --check`가 성공했다.
-- 결과와 연결 커밋: `a6a900d docs: codify maintainable test design rules`, `600be63 merge: synchronize test design guidance`.
-- 실패·미완료: `git push origin docs`는 GitHub `403 Permission denied`로 실패해 원격 docs 브랜치 반영은 미완료다.
-- 회고와 후속 조치: 새 테스트는 먼저 계약 소유 계층을 정하고, 목록이 계약이 아니면 의미 기반 선택자를 사용하며, 전체 애플리케이션 기동이 필요한지와 브라우저 smoke로 대체할 수 있는지를 검토한다. 원격 권한이 복구되면 docs 브랜치를 다시 push한다.
 
 ## 2026-08-28T22:57:34+09:00 — 고정 확장자 PATCH 화면 연동 결정
 
@@ -478,28 +192,7 @@
 - 코드·사용자 경험 영향: 고정 확장자 체크·해제가 DB에 저장되고 성공 메시지가 표시된다. 404는 공통 `message`를 표시한 뒤 전체 정책을 재조회하며, 재조회 실패는 클릭 전 상태와 입력 가능 상태를 복원하고 새로고침을 안내한다.
 - 검증 근거: 기존 PATCH 관련 테스트 기준선이 통과했다. 구현 후 `node --check`, 관련 MockMvc·통합·페이지 테스트, 전체 `./gradlew test --rerun-tasks`가 성공했다. 실제 브라우저에서 `PATCH /api/v1/extension-policies/fixed/exe`와 `{"blocked":true}`의 200 응답, 체크·해제 후 새로고침 유지, 404 뒤 GET 200 재동기화, PATCH 503과 GET 503 뒤 직전 상태 복원·전체 체크박스 재활성화를 확인했다.
 - 결과와 연결 커밋: 문서 결정 `8e7a899`, 결정 문서 병합 `437df36`, 기능 구현 `de14242`, 완료 문서 `c889fa1`, 완료 문서 병합 `bc9f9d2`.
-- 실패·미완료: 두 차례의 `git push origin docs`는 모두 GitHub 403 권한 오류로 실패했다. 임시 로컬 프록시는 최초 샌드박스 포트 바인딩 제한을 승인된 로컬 실행으로 전환해 검증했다. 파일 업로드 허용·거부는 구현하지 않았다.
-- 회고와 후속 조치: 브라우저 도구가 네트워크 본문을 직접 제공하지 않아 프로젝트 밖 임시 프록시로 메서드·경로·본문·상태를 기록했다. 다음 단계에서는 커스텀 POST·DELETE 화면 또는 파일 업로드 기능을 별도 범위로 진행한다.
-
-## 2026-08-29T00:36:35+09:00 — ADR 기록 대상 정책 정비
-
-- 상태: 채택
-- 시간 근거: 사용자 요청 직후 확인한 시스템 시각
-- 스프린트/범위: 저장소 공통 ADR 작성 정책과 ADR 0002 내용 정비
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md), [`sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md)
-- 요청·질문 요약: ADR에는 비즈니스·정책·아키텍처 결정만 기록하고 구현 범위 같은 실행 정보를 제거한다.
-- 배경과 제약: ADR 0002에 구현 범위, URL 처리, 테스트 도구, 검증 방식이 상태 일관성 결정과 함께 기록되어 있었다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: Markdown 근거 검색, Git docs worktree
-- AI 제안: ADR의 기록 대상을 저장소 공통 정책으로 명시하고, ADR 0002에는 서버 저장 상태를 단일 기준으로 사용하는 일관성 결정과 결과만 남긴다. 구현 범위와 테스트 선택은 질문·스프린트 문서에 유지한다.
-- 사람의 판단과 이유: 채택. 사용자는 ADR이 구현 절차 문서가 아니라 장기간 유지할 비즈니스·정책·아키텍처 결정 문서여야 한다고 확정했다.
-- 코드·사용자 경험 영향: 제품 코드와 동작은 변경하지 않는다. 이후 ADR은 구현 세부가 바뀌어도 유지할 결정만 포함한다.
-- 검증 근거: ADR 0002에서 스프린트 범위, 파일 업로드 후속 계획, URL 인코딩, JavaScript 테스트 도구, 브라우저 검증 문구를 제거하고 관련 기록이 질문 문서에 남아 있는지 확인한다.
-- 결과와 연결 문서: 문서 커밋 `b1e9df4`, 기능 브랜치 문서 병합 `a027a56`.
-- 실패·미완료: `git push origin docs`는 GitHub 403 권한 오류로 실패해 원격 반영은 미완료다.
-- 회고와 후속 조치: 합의가 끝났다는 이유만으로 모든 선택을 ADR로 승격하지 않고, 먼저 결정의 수명과 영향 범위를 분류한다.
+- 회고와 후속 조치: 브라우저 검증에서는 화면 상태와 HTTP 요청 결과를 함께 확인했다. 파일 업로드 허용·거부는 후속 범위로 분리했다.
 
 ## 2026-08-29T01:22:45+09:00 — 커스텀 확장자 POST 화면 구현
 
@@ -559,25 +252,6 @@
 - 결과와 연결 문서: 체크리스트 완료 상태 갱신, `AGENTS.md` 문서 인덱스 상태 갱신, 기존 API·스프린트 문서의 구현 상태 유지
 - 회고와 후속 조치: 브라우저에서 `localhost`가 다른 로컬 서비스로 연결되어 `127.0.0.1:8080`을 사용했다. 구 H2 스키마를 사용하는 환경에서는 향후 자동 마이그레이션 정책을 별도로 결정한다.
 
-## 2026-08-29T16:52:16+09:00 — 최종 브랜치 경로 감사의 역사적 예외 기록
-
-- 상태: 채택
-- 시간 근거: main 병합 후 feature·docs 브랜치의 first-parent 비병합 커밋 경로를 재감사한 시스템 시각
-- 스프린트/범위: 기능·문서 브랜치 직접 커밋 경계 최종 확인
-- 관련 문서·코드: `AGENTS.md`, feature/docs 브랜치 Git 이력
-- 요청·질문 요약: 기능 브랜치에는 문서 직접 커밋이 없고 docs 브랜치에는 코드 직접 커밋이 없는지 확인한다.
-- 배경과 제약: 현재 규칙은 docs 브랜치 직접 커밋을 `AGENTS.md`와 `docs/**`로 제한한다. 과거 `d87d996 docs: keep AI usage records local`은 AI 기록을 로컬 ignore 대상으로 지정하면서 `.gitignore`도 함께 변경했다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Git first-parent·경로 감사, `git status`, `git diff --check`
-- AI 제안: 현재 작업의 새 문서 변경은 `docs` 브랜치에 분리 커밋하고 기능 브랜치에는 docs merge로 반영한다. 과거 `.gitignore` 커밋은 이력 재작성 없이 역사적 예외로 기록한다.
-- 사람의 판단과 이유: 수정 채택. 과거 로컬 docs 브랜치의 이력을 강제 재작성하면 기존 merge 이력과 main 동기화 관계를 훼손할 수 있으므로, 이번 작업에서는 현재 변경 경계를 준수하고 예외를 투명하게 기록한다.
-- 코드·사용자 경험 영향: 현재 main의 코드·문서·업로드 기능에는 영향이 없다. `.gitignore`의 로컬 AI 기록 제외와 업로드 산출물 제외 설정은 유지된다.
-- 검증 근거: 기능 브랜치의 직접 커밋에서 `AGENTS.md`·`docs/**`가 검색되지 않았고, docs 브랜치의 최신 문서 커밋 `238e8a4`는 `AGENTS.md`와 `docs/**`만 변경했다. 과거 예외는 `d87d996`의 변경 경로로 확인했다. main에서 `./gradlew test --rerun-tasks`와 `git diff --check`가 성공했다.
-- 결과와 연결 문서: main 병합 커밋 `9258f44`, 기능 커밋 `a0dea08`, 문서 커밋 `238e8a4`, 문서 병합 커밋 `a188193`
-- 회고와 후속 조치: 이후 docs 브랜치 커밋은 `.gitignore`를 포함하지 않는다. 원격 `origin/main`·`origin/docs` push는 별도 요청과 권한 확인 후 수행한다.
-
 ## 2026-08-30T10:40:16+09:00 — ExtensionName 값 객체 전환 완성
 
 - 상태: 수정 채택
@@ -597,101 +271,6 @@
 - 결과와 연결 문서: [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java), [`ExtensionPolicyService`](src/main/java/com/example/demo/file/service/ExtensionPolicyService.java), [`ExtensionNameApiParser`](src/main/java/com/example/demo/file/controller/ExtensionNameApiParser.java)
 - 회고와 후속 조치: 값 객체를 저장 필드에만 도입하면 문자열 계약이 서비스 내부에 계속 남을 수 있으므로, 타입 전환 시 생성자·인터페이스·예외·테스트 호출부까지 함께 검색한다. JPA 기본 생성자는 프레임워크 요구로 남기고 도메인 생성 규칙은 명시적으로 유지한다.
 
-## 2026-08-30T10:44:07+09:00 — Lombok 활용 원칙 확대
-
-- 상태: 수정 채택
-- 시간 근거: Lombok 적용 후 실행한 `./gradlew test`의 성공 시각
-- 스프린트/범위: 반복 보일러플레이트 제거와 저장소 공통 에이전트 지침 보완
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java), [`ExtensionNormalizer`](src/main/java/com/example/demo/file/domain/normalizer/ExtensionNormalizer.java), [`ExtensionValidator`](src/main/java/com/example/demo/file/domain/validator/ExtensionValidator.java), [`FixedExtensionCatalog`](src/main/java/com/example/demo/file/domain/FixedExtensionCatalog.java), [`ExtensionNameApiParser`](src/main/java/com/example/demo/file/controller/ExtensionNameApiParser.java)
-- 요청·질문 요약: Lombok이 적용되지 않은 반복 코드가 있는지 점검하고, 적절한 부분에는 적극 활용하며 그 기준을 `AGENTS.md`에 추가한다.
-- 배경과 제약: 생성자 주입과 JPA 엔티티 일부에는 이미 Lombok이 사용되고 있었지만 값 객체의 수동 `equals/hashCode`와 유틸리티 클래스의 private 생성자가 남아 있었다. 도메인 불변식 생성자와 JPA 생명주기 콜백까지 Lombok으로 숨기면 코드의 책임이 흐려질 수 있다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Lombok 사용처 검색, `apply_patch`, Gradle 테스트, `git diff --check`
-- AI 제안: 값 객체에는 `@Getter`, fluent accessor, `@EqualsAndHashCode`를 적용해 기존 `value()` API를 유지하고, 인스턴스 생성이 의미 없는 유틸리티 모듈에는 `@UtilityClass`를 적용한다. JPA 기본 생성자와 도메인 검증 생성자는 명시적으로 유지한다.
-- 사람의 판단과 이유: 채택. 사용자는 Lombok을 적극 활용하되 가독성과 도메인 책임을 훼손하지 않기를 원했으므로, 보일러플레이트에만 적용하는 기준을 에이전트 지침으로 고정했다.
-- 코드·사용자 경험 영향: `ExtensionName`의 수동 값 비교 코드를 제거하고 `value()` 접근 형태는 유지했다. `ExtensionNormalizer`, `ExtensionValidator`, `FixedExtensionCatalog`, `ExtensionNameApiParser`의 수동 private 생성자를 제거했다. 이후 에이전트는 반복 코드에 Lombok을 우선 검토하되 의미 있는 생성자·행위는 명시적으로 작성한다.
-- 검증 근거: Lombok 적용 직후 `./gradlew test`가 성공했고 `git diff --check`도 통과했다. 기존 값 객체 equality, JPA round-trip, 정책 API, 파일 업로드 테스트가 모두 통과했다.
-- 결과와 연결 문서: [`AGENTS.md`](AGENTS.md), [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java)
-- 회고와 후속 조치: Lombok 적용 여부를 개수로 최적화하지 않고, 생성된 코드가 도메인 계약을 숨기는지 먼저 확인한다. 향후 새 보일러플레이트가 생기면 동일 기준으로 적용 여부를 판단한다.
-
-## 2026-08-30T10:51:11+09:00 — 과도한 구조 단순화 후보 점검
-
-- 상태: 검토 중
-- 시간 근거: 현재 코드와 관련 ADR을 검토한 시스템 시각
-- 스프린트/범위: `ExtensionName` 값 객체 전환 이후의 모듈·인터페이스·JPA 매핑 단순화 검토
-- 관련 문서·코드: [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java), [`ExtensionNameApiParser`](src/main/java/com/example/demo/file/controller/ExtensionNameApiParser.java), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 최근 리팩터링 결과에서 과하게 분리되거나 Lombok으로 복잡해진 부분을 점검하고, 단순화 가능한 후보를 식별한다.
-- 배경과 제약: 이번 요청은 코드 변경 승인이 아니라 리뷰다. 값 객체의 정규화·검증 분리, `extension` 컬럼 유지, 기능별 예외 변환, JPA 매핑과 기존 테스트 계약은 유지해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `improve-codebase-architecture`
-  - plugin/도구: 관련 ADR·지침 검토, 저장소 검색, 삭제 테스트 관점의 모듈 검토
-- AI 제안: API 문자열을 `ExtensionName`으로 바꾸는 얇은 `ExtensionNameApiParser`는 컨트롤러 내부 private 메서드로 합칠 수 있다. 단일 embedded 속성에 대한 `@AttributeOverrides`는 단일 `@AttributeOverride`로 줄일 수 있다. `saveAndFlush`는 트랜잭션 커밋으로 충분한지 별도 확인할 후보이며, `ExtensionNormalizer`·`ExtensionValidator` 분리는 이미 확정된 책임이므로 단순화 후보에서 제외한다.
-- 사람의 판단과 이유: 검토 중. 현재는 동작 변경 없이 후보만 제시하며, 파일 수가 적다는 이유로 값 객체·validator·repository seam을 즉시 합치지 않는다. 특히 `ExtensionNameApiParser`를 합칠지는 컨트롤러의 API 예외 변환 locality와 공개 모듈 제거 이득을 비교한 뒤 결정한다.
-- 코드·사용자 경험 영향: 이번 단계에서는 제품 코드와 API 동작을 변경하지 않는다. 후보를 채택하면 컨트롤러 탐색성이 좋아질 수 있지만, API 입력 변환 책임을 재사용할 seam은 줄어든다.
-- 검증 근거: 전체 Java 소스와 관련 호출부를 검색하고, `@UtilityClass`, embedded 매핑, `saveAndFlush`, API parser 사용 위치를 확인했다. 기존 `./gradlew test` 성공 상태를 기준으로 리뷰했으며 이 단계에서는 테스트를 다시 실행하지 않았다.
-- 결과와 연결 문서: 이 항목에 단순화 후보를 남기고, 사용자 선택 후 선택된 후보만 별도 코드 변경과 테스트로 진행한다.
-- 회고와 후속 조치: 후보 우선순위는 `ExtensionNameApiParser` 내부화, 단일 `@AttributeOverride` 표기 단순화, `saveAndFlush` 제거 검토 순서다. `ExtensionName`의 값 객체·정규화·검증 책임과 기능별 예외 handler는 현재 구조를 유지한다.
-
-## 2026-08-30T11:02:31+09:00 — 낯선 Lombok 확장 기능 제거
-
-- 상태: 수정 채택
-- 시간 근거: Lombok 확장 기능을 제거한 뒤 실행한 `./gradlew test`의 성공 시각
-- 스프린트/범위: 코드 가독성을 위한 Lombok 사용 기준 재정의
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java), [`ExtensionNormalizer`](src/main/java/com/example/demo/file/domain/normalizer/ExtensionNormalizer.java), [`ExtensionValidator`](src/main/java/com/example/demo/file/domain/validator/ExtensionValidator.java), [`FixedExtensionCatalog`](src/main/java/com/example/demo/file/domain/FixedExtensionCatalog.java), [`ExtensionNameApiParser`](src/main/java/com/example/demo/file/controller/ExtensionNameApiParser.java)
-- 요청·질문 요약: `@Accessors(fluent = true)`와 `@UtilityClass`처럼 익숙하지 않은 Lombok 기능은 사용하지 않고, 코드에서 생성 방식과 메서드 이름이 명확하게 드러나도록 변경한다.
-- 배경과 제약: Lombok을 적극 활용하되 초보자도 이해할 수 있는 코드 가독성이 우선이다. 기존 `ExtensionName.value()` 호출과 정규화·검증·카탈로그·API 변환 동작은 유지해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: Lombok 사용처 검색, `apply_patch`, Gradle 테스트, `git diff --check`
-- AI 제안: fluent accessor로 기존 `value()` API를 유지하고 `@UtilityClass`로 유틸리티 생성자를 제거하는 방안을 앞서 적용했으나, 사용자는 이런 숨은 동작이 낯설고 과하다고 판단했다.
-- 사람의 판단과 이유: 수정 채택. `@Accessors(fluent = true)`와 `@UtilityClass`를 제거하고 `ExtensionName.value()`와 각 유틸리티 클래스의 `final class`·private 생성자를 명시적으로 복원했다. Lombok은 익숙한 생성자·getter·값 비교 보일러플레이트에만 사용한다.
-- 코드·사용자 경험 영향: Lombok annotation processing에 의존해 생성되던 fluent accessor와 utility class 동작이 사라져 코드 독자가 실제 메서드와 생성 제한을 바로 확인할 수 있다. `@EqualsAndHashCode`, `@Getter`, `@RequiredArgsConstructor`, `@NoArgsConstructor` 등 기존 활용은 유지한다.
-- 검증 근거: 변경 후 `./gradlew test`가 성공했고, 값 객체 equality·JPA round-trip·정책 API·파일 업로드 테스트가 모두 통과했다.
-- 결과와 연결 문서: [`AGENTS.md`](AGENTS.md), [`ExtensionName`](src/main/java/com/example/demo/file/domain/value/ExtensionName.java)
-- 회고와 후속 조치: Lombok 적용은 보일러플레이트 감소량보다 코드 독자가 동작을 추적할 수 있는지를 기준으로 결정한다. 새 Lombok annotation을 도입할 때는 팀의 익숙함과 생성 코드의 가시성을 먼저 검토한다.
-
-## 2026-08-30T11:04:04+09:00 — 과도한 구조 단순화 후보 반영
-
-- 상태: 수정 채택
-- 시간 근거: 세 가지 구조 단순화 후 실행한 `./gradlew test`의 성공 시각
-- 스프린트/범위: 확장자 정책 API 입력 변환, 정책 저장 흐름, JPA embedded 매핑의 단순화
-- 관련 문서·코드: [`ExtensionPolicyRestController`](src/main/java/com/example/demo/file/controller/ExtensionPolicyRestController.java), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java)
-- 요청·질문 요약: 앞선 구조 리뷰에서 식별한 `ExtensionNameApiParser` 내부화, `saveAndFlush()` 단순화, 단일 `@AttributeOverrides` 표기를 실제 코드에 반영한다.
-- 배경과 제약: API 입력·파일 업로드의 오류 의미, `ExtensionName` 값 객체, 정책 유형별 동작, JPA 트랜잭션 계약은 유지해야 한다. 신규 정책은 저장되어야 하고, 변경 정책은 트랜잭션 종료 시 dirty checking으로 반영되어야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 구조 리뷰, `apply_patch`, Gradle 테스트, `git diff --check`
-- AI 제안: 한 컨트롤러에서만 사용하는 parser는 private 메서드로 합치고, 신규 등록은 `save()`, 조회된 엔티티의 상태 변경은 dirty checking에 맡기며, 단일 embedded 속성은 단일 `@AttributeOverride`로 선언한다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 리뷰에서 지적된 단순화 후보들을 모두 반영하도록 요청했다. parser 공개 모듈을 삭제해 API 입력 변환 책임의 locality를 높이고, 서비스가 즉시 flush 시점을 직접 제어하지 않도록 했다.
-- 코드·사용자 경험 영향: REST API 계약과 응답은 변하지 않는다. 컨트롤러 내부에서 입력을 `ExtensionName`으로 변환하고, 정책 저장·변경은 트랜잭션 커밋 시점에 반영된다. JPA 매핑 선언도 동일한 `extension` 컬럼을 더 짧게 표현한다.
-- 검증 근거: production 코드의 `ExtensionNameApiParser` 참조와 `saveAndFlush()`를 검색해 제거를 확인했다. 테스트 코드의 명시적 flush는 DB 제약·timestamp 검증 용도라 유지했다. `./gradlew test`와 `git diff --check`가 성공했다.
-- 결과와 연결 문서: [`ExtensionPolicyRestController`](src/main/java/com/example/demo/file/controller/ExtensionPolicyRestController.java), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java)
-- 회고와 후속 조치: 즉시 flush가 필요한 후속 조회나 외부 부작용이 생기면 그 근거를 테스트로 먼저 고정한다. 단순화 과정에서도 값 객체·validator·기능별 예외 handler처럼 책임을 얻는 모듈은 삭제하지 않는다.
-
-## 2026-08-30T11:08:24+09:00 — 파일 확장자 추출 책임 분리 검토
-
-- 상태: 검토 중
-- 시간 근거: 현재 `FileUploadServiceImpl`과 업로드 테스트를 검토한 시스템 시각
-- 스프린트/범위: 파일 업로드 기능의 파일명 확장자 추출과 업로드 orchestration 테스트 분리
-- 관련 문서·코드: [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileUploadServiceTests`](src/test/java/com/example/demo/service/impl/FileUploadServiceTests.java), [`ExtensionName`](src/main/java/com/example/demo/file/domain/entity/vo/ExtensionName.java)
-- 요청·질문 요약: private `extractExtensionName`의 테스트가 많아질 때, 추출 책임을 별도 클래스로 분리하는 것이 검증과 구조 측면에서 적절한지 검토한다.
-- 배경과 제약: 현재 업로드 서비스가 파일 입력 검증·경로 정리·마지막 확장자 추출·`ExtensionName` 생성·기능별 예외 변환·정책 조회·저장을 한 메서드 흐름에서 조정한다. `ExtensionName`의 정규화·형식 검증 책임은 값 객체에 유지해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `improve-codebase-architecture`
-  - plugin/도구: 관련 소스·테스트 검색, 삭제 테스트 관점의 모듈 검토
-- AI 제안: `FileExtensionExtractor`라는 구체 모듈이 `MultipartFile`에서 검증된 `ExtensionName`을 반환하도록 분리한다. 별도 interface나 두 번째 adapter는 만들지 않고, 추출 모듈 단위 테스트와 업로드 서비스 orchestration 테스트를 나눈다.
-- 사람의 판단과 이유: 검토 중. 사용자는 추출 전용 테스트의 진단성과 편의성을 확인하고 싶어 했으며, 현재 구조에서는 추출 케이스를 검증하려면 정책 저장소와 파일 저장소까지 준비해야 한다. 추출 로직은 경로 우회 방지와 입력 오류 변환이라는 자체 계약이 있어 단순 테스트용 함수보다 분리 가치가 있다.
-- 코드·사용자 경험 영향: 분리 시 API와 업로드 결과는 바뀌지 않는다. 추출 테스트는 파일명 케이스에 집중하고, 업로드 서비스 테스트는 차단 판정·저장 호출·저장 실패 같은 orchestration에 집중할 수 있다. interface까지 추가하면 현재 한 구현만 있는 seam에 불필요한 복잡성이 생긴다.
-- 검증 근거: 현재 `extractExtensionName`이 private이고 `FileUploadServiceTests`가 Spring context·정책 DB·임시 저장소를 함께 준비하는 것을 확인했다. 이번 단계는 설계 검토이므로 코드와 테스트는 변경하지 않았다.
-- 결과와 연결 문서: 별도 `FileExtensionExtractor` concrete module 분리를 후보로 기록한다.
-- 회고와 후속 조치: 사용자가 분리를 승인하면 추출 모듈의 입력·오류·반환 계약을 먼저 테스트로 고정하고, 업로드 서비스 테스트에서는 추출 세부 파일명 케이스를 제거한다. `ExtensionName` 생성과 정규화·검증을 추출 모듈에서 재구현하지 않는다.
-
 ## 2026-08-30T11:13:42+09:00 — 파일 확장자 추출 모듈 분리 구현
 
 - 상태: 수정 채택
@@ -710,101 +289,6 @@
 - 검증 근거: 먼저 추출 공개 계약 테스트를 추가해 RED를 확인한 뒤 최소 구현으로 GREEN을 확인했다. 이후 마지막 확장자, 확장자 없음, 빈 파일, 길이 초과 케이스를 추가했고 대상 테스트와 전체 `./gradlew test`가 성공했다. `git diff --check`와 기존 private 메서드 참조 제거도 확인했다.
 - 결과와 연결 문서: [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/impl/FileExtensionExtractor.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileExtensionExtractorTests`](src/test/java/com/example/demo/service/impl/FileExtensionExtractorTests.java)
 - 회고와 후속 조치: 한 구현만 있는 현재 seam에는 interface를 추가하지 않는다. 추출 규칙이 다른 입력 형식이나 두 번째 adapter가 실제로 생길 때만 interface 도입을 재검토한다.
-
-## 2026-08-30T11:17:51+09:00 — 파일 확장자 추출 모듈 의존성 주입 전환
-
-- 상태: 수정 채택
-- 시간 근거: `FileExtensionExtractor`를 Spring bean으로 등록하고 전체 테스트가 성공한 시스템 시각
-- 스프린트/범위: 파일 업로드 서비스의 추출 모듈 생성 방식 정리
-- 관련 문서·코드: [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/impl/FileExtensionExtractor.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileUploadServiceTests`](src/test/java/com/example/demo/service/impl/FileUploadServiceTests.java)
-- 요청·질문 요약: 추출 모듈을 서비스 내부에서 직접 생성하지 않고 의존성 주입으로 전환한다.
-- 배경과 제약: 추출 책임은 이미 별도 concrete module로 분리됐고, 서비스의 생성자에 필요한 협력 대상을 명시해야 한다. 별도 interface는 현재 구현이 하나뿐이므로 추가하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: `apply_patch`, Gradle 전체 테스트, `git diff --check`, 저장소 검색
-- AI 제안: `FileExtensionExtractor`에 `@Component`를 적용하고 `FileUploadServiceImpl`의 final 필드로 주입한다. 테스트에서 직접 서비스를 생성하는 경우에는 extractor를 명시적으로 전달한다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 production 코드의 직접 생성보다 의존성 주입이 일관성과 테스트성에 적합하다고 판단했다. 구체 클래스 주입은 유지하되 interface까지 확장하지 않았다.
-- 코드·사용자 경험 영향: 업로드 API 동작은 변하지 않는다. Spring이 추출 모듈의 생명주기를 관리하고, 서비스의 의존성이 생성자 계약에 드러난다.
-- 검증 근거: production 코드의 직접 `new FileExtensionExtractor()`를 제거하고 Spring context 테스트와 수동 생성 테스트를 수정했다. `./gradlew test`와 `git diff --check`가 성공했다.
-- 결과와 연결 문서: [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/impl/FileExtensionExtractor.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java)
-- 회고와 후속 조치: 단일 구현의 concrete module은 먼저 직접 주입하고, 두 번째 adapter나 교체 요구가 실제로 생길 때만 interface 도입을 검토한다.
-
-## 2026-08-30T11:25:35+09:00 — 코드 작성 규칙 문서 분리 및 인덱스 정비
-
-- 상태: 수정 채택
-- 시간 근거: 이번 세션의 리팩터링 결과와 `HEAD` 커밋(`9258f44`) 및 현재 작업 트리의 패키지 구조를 대조한 시스템 시각
-- 스프린트/범위: 세션 리팩터링에서 확인된 코드 스타일을 지속 가능한 에이전트 지침으로 문서화
-- 관련 문서·코드: [`AGENTS.md`](AGENTS.md), [`code-writing-guidelines.md`](docs/code-writing-guidelines.md), [`ExtensionName`](src/main/java/com/example/demo/file/domain/entity/vo/ExtensionName.java), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java), [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/impl/FileExtensionExtractor.java)
-- 요청·질문 요약: 현재 `AGENTS.md`에 섞여 있는 코드 작성 규칙을 별도 문서로 분리하고, 커밋된 코드와 세션에서 사용자가 채택한 리팩터링을 비교해 앞으로의 작성 기준으로 정리한다.
-- 배경과 제약: `AGENTS.md`는 작업 범위·문서 인덱스·브랜치·커밋·검증 절차에 집중해야 한다. 세션에서 확정된 값 객체의 끝단 전환, 도메인 행위 위임, 익숙한 Lombok만 사용, 불필요한 추상화·flush·트랜잭션 배제, 생성자 의존성 주입, move 기반 패키지 이동을 누락하지 않아야 한다. 현재 작업 트리는 이전 리팩터링 변경으로 dirty하므로 코드 변경이나 브랜치·커밋 작업은 수행하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: `git log`, `git status`, `find`, `rg`, 관련 소스·문서 확인, `apply_patch`, `git diff --check`
-- AI 제안: 코드 표현 규칙을 `docs/code-writing-guidelines.md`로 분리하고, 사용자 확정 선호와 현재 코드에서 관찰한 관례를 구분해 기록한다. 동시에 `AGENTS.md`의 stale한 패키지 인덱스를 실제 `com.example.demo.file` 구조로 갱신한다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 앞으로 같은 스타일을 유지할 수 있도록 단순한 인덱스가 아니라 책임·값 객체·계층·예외·Lombok·테스트·리팩터링 점검 순서를 별도 기준으로 남기기를 요청했다. 다만 새 interface·adapter·API·코드 변경은 요청 범위를 벗어나므로 추가하지 않았다.
-- 코드·사용자 경험 영향: 이후 에이전트가 `AGENTS.md`에서 운영 규칙과 코드 표현 규칙을 혼동하지 않는다. 실제 기능 동작은 바뀌지 않으며, 패키지 인덱스는 현재 파일 위치와 맞아져 링크·탐색 신뢰성이 높아진다.
-- 검증 근거: `find src/main/java`로 실제 패키지 구조를 확인하고 `AGENTS.md`의 인덱스 경로를 대조했다. 새 문서와 `AGENTS.md` 링크·내용을 재검토했으며 문서 변경 후 `git diff --check`와 `./gradlew test`가 모두 성공했다.
-- 결과와 연결 문서: [`docs/code-writing-guidelines.md`](docs/code-writing-guidelines.md), [`AGENTS.md`](AGENTS.md)
-- 회고와 후속 조치: 이번 문서는 사용자 확정 규칙과 관찰된 관례를 구분했으므로, 이후 요구사항이 바뀌면 관례를 무비판적으로 적용하지 말고 문서를 함께 갱신한다. 문서 변경은 저장소 운영 규칙에 따라 코드 변경과 분리된 docs 작업으로 커밋한다.
-
-## 2026-08-30T11:33:45+09:00 — 파일 업로드 보안·정책·UX·운영 구현 근거 점검
-
-- 상태: 검토 중
-- 시간 근거: 로컬 내부 체크리스트 작성과 전체 회귀 테스트를 마친 시스템 시각
-- 스프린트/범위: 스프린트 1 파일 업로드와 확장자 정책의 현재 구현 현황 판정
-- 관련 문서·코드: [로컬 구현 점검표](.internal-docs/file-upload-risk-implementation-checklist.md), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/FileExtensionExtractor.java), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java), [`extension-policy.js`](src/main/resources/static/js/extension-policy.js)
-- 요청·질문 요약: 파일 보안, 정책/데이터, UX/예외, 운영 관점의 19개 항목을 체크박스로 변환하고, 현재 완전 구현만 체크하며 미구현·부분 구현은 미체크와 근거 링크를 남긴다. 산출물은 Git에서 관리하지 않는 내부 문서로 둔다.
-- 배경과 제약: 현재 워킹 트리에 대규모 미커밋 리팩터링이 있으므로 커밋된 `main`만이 아니라 현재 파일 내용을 근거로 판정했다. 요청은 현황 문서화이므로 제품 코드·API·스키마는 변경하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, 코드·테스트·ADR 대조, `apply_patch`, Gradle 전체 테스트, `git diff --check`, `git check-ignore`
-- AI 제안: 복합 항목에서 일부 조건만 구현되었으면 완료로 과대평가하지 않고 `미체크(부분 구현)`로 분류한다. 예를 들어 대소문자·마지막 확장자 처리는 있지만 이중 확장자 공격 정책이 없으므로 해당 복합 항목은 미체크로 둔다.
-- 사람의 판단과 이유: 사용자가 제시한 “구현된 항목만 체크” 기준을 적용했다. 개별 미구현 항목의 우선순위와 스프린트 포함 여부는 사용자가 아직 확정하지 않았으므로 검토 중으로 남긴다.
-- 코드·사용자 경험 영향: 제품 동작은 변하지 않는다. 점검표는 완전 구현 6개, 미구현·부분 구현 13개로 분류하고, 각 항목에 코드·테스트·확정 문서 링크를 추가했다.
-- 검증 근거: `./gradlew test --rerun-tasks`를 실행해 4개 task가 모두 실행되고 `BUILD SUCCESSFUL in 13s`를 확인했다. `git diff --check`가 성공했고, `git check-ignore -v`가 `.git/info/exclude`의 `.internal-docs/` 규칙으로 점검표를 제외하는 것을 확인했다.
-- 결과와 연결 문서: [파일 업로드 보안·정책·UX·운영 구현 점검표](.internal-docs/file-upload-risk-implementation-checklist.md)
-- 회고와 후속 조치: 확장자 기반 차단은 서버 사이드에서 강제되지만 내용·MIME 검사와 운영 감사는 없다. 이 점검표는 우선순위 결정 전 현황 기준선으로 사용하고, 후속 구현 범위는 별도 결정으로 남긴다.
-
-## 2026-08-30T12:02:10+09:00 — 체크박스별 전공 수준 분석 문서 분리
-
-- 상태: 검토 중
-- 시간 근거: 체크박스별 분석 문서 19개 생성과 링크 검증을 마친 시스템 시각
-- 스프린트/범위: 파일 업로드 보안·정책·UX·운영 점검표의 항목별 원리 분석
-- 관련 문서·코드: [구현 점검표](.internal-docs/file-upload-risk-implementation-checklist.md), [항목별 분석 디렉터리](.internal-docs/file-upload-risk-analysis/)
-- 요청·질문 요약: 구현 여부와 무관하게 각 체크박스 문구를 독립 문서로 분석하고, 컴퓨터공학 전공 4학년 수준의 내부 원리와 AI의 견해를 포함하며, 체크리스트에서 각 문서로 연결한다.
-- 배경과 제약: 분석 문서는 Git에서 관리하지 않는 로컬 내부 문서여야 한다. 현재 코드·테스트·ADR의 근거와 일반적인 시스템 원리를 구분하고, 미구현 기능을 구현된 것처럼 표현하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: backend-documentation
-  - plugin/도구: rg, 코드·테스트·ADR 대조, apply_patch, git diff --check, 링크 대상 검증
-- AI 제안: 각 항목에 현재 상태, 핵심 원리와 내부 작동, 제 의견, 근거를 고정된 구조로 두고, 파싱·정규화·신뢰 경계·자원 고갈·동시성·관측성·다중 테넌시의 트레이드오프를 구현 상태와 분리해 설명한다.
-- 사람의 판단과 이유: 사용자의 독립 문서 요구를 채택했다. 체크박스 하나에 여러 보안·운영 조건이 섞인 경우에도 단일 결론으로 축약하지 않고, 현재 구현의 경계와 후속 권고를 함께 기록했다. 문서 작성은 분석 범위이며 코드·API 변경은 하지 않았다.
-- 코드·사용자 경험 영향: 제품 동작은 변하지 않는다. 체크리스트의 19개 문구가 각각 하나의 링크를 가지며, 독자는 구현 근거와 설계 판단을 문서 단위로 추적할 수 있다.
-- 검증 근거: 분석 문서 19개와 체크리스트 링크 19개가 일치하고 모든 링크 대상이 존재함을 확인했다. 모든 분석 문서에 제 의견과 근거 절이 있고 malformed patch 문자열이 없음을 확인했다. 기존 ./gradlew test --rerun-tasks는 BUILD SUCCESSFUL이었다.
-- 결과와 연결 문서: [체크박스별 분석 문서](.internal-docs/file-upload-risk-analysis/), [링크가 추가된 점검표](.internal-docs/file-upload-risk-implementation-checklist.md)
-- 회고와 후속 조치: 내용·MIME 검사, 명시적 업로드 한도, 감사·관측성, 동시 편집 충돌 정책은 별도 결정이 필요하다. 분석 문서의 권고를 구현 요구사항으로 승격할 때는 사용자 승인과 ADR 또는 스프린트 문서를 먼저 갱신한다.
-
-## 2026-08-30T12:23:34+09:00 — 체크박스별 분석을 10분 발표 리포트로 전면 확장
-
-- 상태: 수정 채택
-- 시간 근거: 19개 분석 문서의 전면 개정과 분량·구성·링크 검증을 마친 시스템 시각
-- 스프린트/범위: 로컬 파일 업로드 보안·정책·UX·운영 분석 문서의 깊이 보강
-- 관련 문서·코드: [구현 점검표](.internal-docs/file-upload-risk-implementation-checklist.md), [항목별 분석 디렉터리](.internal-docs/file-upload-risk-analysis/)
-- 요청·질문 요약: 기존 항목별 문서가 판정 메모 수준으로 빈약하므로, 각 문서를 약 10분 발표 분량의 리포트처럼 확장한다. 내부적으로 왜 필요한지, 무엇을 고려하는지, 구체적인 상황별 적합한 선택, 트레이드오프, 최종 추천 방향을 포함한다.
-- 배경과 제약: 19개 문서는 서로 독립적으로 읽혀야 하며 현재 구현 사실과 일반 설계 원리를 구분해야 한다. 미구현 권고를 구현 사실처럼 표현하지 않고 제품 코드·API는 변경하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: backend-documentation
-  - plugin/도구: apply_patch, 문서별 문자 수·필수 절·링크 검증, git diff --check, git check-ignore
-- AI 제안: 각 문서를 발표 질문, 필요성, 내부 처리 단계, 실패 시나리오, 상황별 선택, 트레이드오프, 현재 프로젝트 평가, 단계별 추천, 결론 구조로 전면 개정한다. 단순 일반론이 되지 않도록 현재 Java 클래스·DB 제약·JavaScript 상태 복구·테스트 근거에 연결한다.
-- 사람의 판단과 이유: 사용자의 피드백을 수정 채택했다. 문서별로 2,745자 이상, 전체 약 60,291자로 확장하고 각 문서에 발표 질문·트레이드오프·추천·결론을 포함했다. 보안 강화를 무조건 권고하지 않고 로컬 과제, 단일 서버, 공개 업로드, 기업 운영 등 상황별 적합성을 구분했다.
-- 코드·사용자 경험 영향: 제품 동작과 체크 상태는 변하지 않는다. 체크리스트 링크도 유지된다. 독자는 각 항목을 독립적인 발표·검토 자료로 사용하고 구현 우선순위를 판단할 수 있다.
-- 검증 근거: 분석 문서 19개와 체크리스트 링크 19개를 확인했다. 모든 문서가 2,500자 이상이고 발표 질문, 트레이드오프, 추천, 결론을 포함한다. 분석 문서의 코드·문서 근거 링크가 모두 존재하며 malformed patch 문자열과 후행 공백이 없고 git diff --check가 성공했다. .git/info/exclude가 분석 문서를 Git 대상에서 제외한다.
-- 결과와 연결 문서: [전면 개정된 항목별 분석 문서](.internal-docs/file-upload-risk-analysis/), [링크가 유지된 구현 점검표](.internal-docs/file-upload-risk-implementation-checklist.md)
-- 회고와 후속 조치: 분석 문서는 방향을 제안하지만 곧바로 구현 범위를 확정하지 않는다. 사용자가 우선순위를 정하면 필요한 항목만 질문 문서·ADR·스프린트 계약으로 전환한 뒤 TDD 구현을 진행한다.
 
 ## 2026-08-30T17:06:50+09:00 — MIME 기반 비실행 파일 허용정책 ADR 작성
 
@@ -862,25 +346,6 @@
 - 검증 근거: ADR, API 계약, 완료 체크리스트의 허용 문자 문구를 대조하고 문서 링크·Markdown 형식을 확인한다. 코드와 테스트는 아직 변경하지 않았다.
 - 결과와 연결 문서: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
 - 회고와 후속 조치: 다음 구현에서는 허용·거부 경계값을 한글 테스트명으로 먼저 고정하고, 기존 코드가 점만 검사하는지 확인한 뒤 검증 로직을 적용한다.
-
-## 2026-08-30T17:28:45+09:00 — 허용 문자 정책 ADR 분리
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 기존 `ADR 0004`가 이미 구현된 결정이므로 허용 문자 정책을 별도 ADR로 분리하자는 의견을 확정한 현재 대화 시각
-- 스프린트/범위: 확장자 이름 허용 문자 정책의 ADR 이력 정리
-- 관련 문서·코드: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 기존 값 객체 ADR을 수정하지 않고 한글·영문·숫자 허용 규칙을 새 ADR로 분리한다.
-- 배경과 제약: `ADR 0004`는 이미 구현된 값 객체 구조와 책임 경계를 기록하므로, 새로운 입력 정책을 기존 결정에 덧붙이면 과거 결정과 후속 정책의 경계가 흐려진다. 현재 `ADR 0007`은 다른 업로드 차단 주제에 사용 중이므로 새 번호를 사용한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 문서 검색, `apply_patch`, `git diff --check`, Git 상태·커밋 확인
-- AI 제안: 기존 `0004`는 원래 의미로 복원하고 허용 문자 규칙을 새 ADR로 기록하며, API 계약·체크리스트·문서 인덱스를 동기화한다.
-- 사람의 판단과 이유: 수정 채택. 사용자는 구현이 완료된 ADR의 의미를 보존하고, 이후 추가된 허용 문자 정책을 독립적인 변경으로 추적하기 위해 분리를 선택했다.
-- 코드·사용자 경험 영향: 문서상 정책은 한글·영문·숫자만 허용하고 공백·점·특수문자를 거부한다. 이번 작업에서는 제품 코드와 테스트를 변경하지 않는다.
-- 검증 근거: `ADR 0004`에서 허용 문자 정책 문구를 제거하고 `ADR 0010` 및 API 계약·체크리스트에 정책을 반영했다. 문서 인덱스 링크와 `git diff --check`를 확인한다.
-- 결과와 연결 문서: [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
-- 회고와 후속 조치: 새 정책을 구현할 때 `ExtensionName`의 기존 생성 경계를 유지하고, 허용·거부 입력 테스트를 먼저 추가한다. 기존 `ADR 0004`의 결정 문구를 다시 수정하지 않는다.
 
 ## 2026-08-30T17:27:09+09:00 — 최종 확장자 기준 업로드 차단 ADR 생성
 
@@ -1072,6 +537,26 @@
 - 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
 - 회고와 후속 조치: `202`·`Retry-After`·결과 조회 API·lease 시간·고아 임시 파일 정리 규칙을 확정한 뒤 API 계약과 ADR을 갱신한다. 결정 전에는 처리 중 동시 요청 코드를 구현하지 않는다.
 
++
+## 2026-08-30T18:12:54+09:00 — 업로드 상태 선저장과 원자적 파일 확정 결정
+
+- 상태: 결정 채택
+- 시간 근거: 사용자가 파일 쓰기 중 장애 가능성을 이유로 임시 경로 저장 후 최종 경로 이동 방식을 확인하고 ADR 작성을 요청한 현재 대화 시각
+- 스프린트/범위: `UploadFile` 메타데이터와 로컬 파일시스템 사이의 동기 업로드 상태 일관성
+- 관련 문서·코드: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`15-state-consistency.md`](.internal-docs/file-upload-risk-analysis/15-state-consistency.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
+- 요청·질문 요약: DB에 업로드 상태를 먼저 저장하고, 파일을 임시 경로에 동기적으로 쓴 뒤 atomic move로 확정하고, 완료 상태 변경 후 응답하는 흐름을 ADR로 기록한다.
+- 배경과 제약: DB와 파일시스템은 하나의 ACID 트랜잭션이 아니며, 최종 경로에 직접 쓰면 복사 중 프로세스 종료 시 부분 파일이 남을 수 있다. 현재 요구는 비동기 작업 API가 아니라 저장 완료 후 응답하는 동기 업로드다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: 명시적 사용 기록 없음
+  - plugin/도구: 기존 ADR·위험 분석·멱등성 검토 문서 확인, `apply_patch`, `git diff --check`
+- AI 제안: `RECEIVING` 레코드를 먼저 커밋하고 같은 파일시스템의 임시 경로에 저장한 뒤 atomic move를 수행하며, `COMPLETED` 커밋 후에만 `201`을 반환하는 상태 모델을 제안했다.
+- 사람의 판단과 이유: 채택. 사용자는 쓰기 중 장애로 인한 부분 파일을 최종 경로에 남기지 않기 위해 임시 경로와 원자적 이동을 사용하고, DB 선저장·파일 저장·완료 상태 변경 순서를 ADR로 남기기로 했다.
+- 코드·사용자 경험 영향: 성공 응답은 동기 저장과 `COMPLETED` DB 커밋 후 반환한다. `RECEIVING`과 `FAILED` 상태는 외부 파일 제공 대상이 아니며, 응답 유실 후 중복 방지와 결과 조회는 별도 결정으로 남긴다.
+- 검증 근거: 상태 일관성 분석의 DB·파일시스템 장애 구간, `UploadFile` 메타데이터 초안의 저장 순서, 서버 생성 파일명·로컬 저장 ADR을 대조하고 관련 문서 링크와 Markdown 변경을 점검한다.
+- 결과와 연결 문서: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`AGENTS.md`](AGENTS.md)
+- 회고와 후속 조치: 구현 시 DB 트랜잭션을 파일 I/O 동안 유지하지 않고, stale `RECEIVING` 복구·임시 파일 정리·파일 무결성 확인을 별도 구현 요구사항으로 구체화한다. 멱등성·재시도 정책은 결정 전 상태를 유지한다.
+
 ## 2026-08-30T18:17:35+09:00 — FE 재시도 한도와 서버 업로드 실패·삭제 전이 분리
 
 - 상태: 검토 중
@@ -1129,44 +614,6 @@
 - 결과와 연결 문서: [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
 - 회고와 후속 조치: 후속 구현 전 `Retry-After`, 처리 중 응답 코드, 멱등키 보존 기간, stale 복구와 비동기 정리의 구체값을 별도로 결정한다. ADR 0015의 원칙을 근거로 FE 재시도 횟수와 서버 상태 전이를 혼합하지 않는다.
 
-## 2026-08-30T18:12:54+09:00 — 업로드 상태 선저장과 원자적 파일 확정 결정
-
-- 상태: 결정 채택
-- 시간 근거: 사용자가 파일 쓰기 중 장애 가능성을 이유로 임시 경로 저장 후 최종 경로 이동 방식을 확인하고 ADR 작성을 요청한 현재 대화 시각
-- 스프린트/범위: `UploadFile` 메타데이터와 로컬 파일시스템 사이의 동기 업로드 상태 일관성
-- 관련 문서·코드: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`15-state-consistency.md`](.internal-docs/file-upload-risk-analysis/15-state-consistency.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
-- 요청·질문 요약: DB에 업로드 상태를 먼저 저장하고, 파일을 임시 경로에 동기적으로 쓴 뒤 atomic move로 확정하고, 완료 상태 변경 후 응답하는 흐름을 ADR로 기록한다.
-- 배경과 제약: DB와 파일시스템은 하나의 ACID 트랜잭션이 아니며, 최종 경로에 직접 쓰면 복사 중 프로세스 종료 시 부분 파일이 남을 수 있다. 현재 요구는 비동기 작업 API가 아니라 저장 완료 후 응답하는 동기 업로드다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 명시적 사용 기록 없음
-  - plugin/도구: 기존 ADR·위험 분석·멱등성 검토 문서 확인, `apply_patch`, `git diff --check`
-- AI 제안: `RECEIVING` 레코드를 먼저 커밋하고 같은 파일시스템의 임시 경로에 저장한 뒤 atomic move를 수행하며, `COMPLETED` 커밋 후에만 `201`을 반환하는 상태 모델을 제안했다.
-- 사람의 판단과 이유: 채택. 사용자는 쓰기 중 장애로 인한 부분 파일을 최종 경로에 남기지 않기 위해 임시 경로와 원자적 이동을 사용하고, DB 선저장·파일 저장·완료 상태 변경 순서를 ADR로 남기기로 했다.
-- 코드·사용자 경험 영향: 성공 응답은 동기 저장과 `COMPLETED` DB 커밋 후 반환한다. `RECEIVING`과 `FAILED` 상태는 외부 파일 제공 대상이 아니며, 응답 유실 후 중복 방지와 결과 조회는 별도 결정으로 남긴다.
-- 검증 근거: 상태 일관성 분석의 DB·파일시스템 장애 구간, `UploadFile` 메타데이터 초안의 저장 순서, 서버 생성 파일명·로컬 저장 ADR을 대조하고 관련 문서 링크와 Markdown 변경을 점검한다.
-- 결과와 연결 문서: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`AGENTS.md`](AGENTS.md)
-- 회고와 후속 조치: 구현 시 DB 트랜잭션을 파일 I/O 동안 유지하지 않고, stale `RECEIVING` 복구·임시 파일 정리·파일 무결성 확인을 별도 구현 요구사항으로 구체화한다. 멱등성·재시도 정책은 결정 전 상태를 유지한다.
-
-## 2026-08-30T18:23:11+09:00 — 스프린트 2에 접근성·반응형 UX 검증 추가
-
-- 상태: 채택
-- 시간 근거: 사용자가 접근성과 반응형 업로드 화면 분석을 스프린트 2 요구사항에 추가할지 검토한 뒤 포함하기로 한 현재 대화 시각
-- 스프린트/범위: 20자 확장자와 200개 정책 목록의 브라우저 UX 검증
-- 관련 문서·코드: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [`16-accessibility-responsive.md`](.internal-docs/file-upload-risk-analysis/16-accessibility-responsive.md)
-- 요청·질문 요약: 접근성·반응형 분석 내용을 스프린트 2 요구사항에 미리 포함할지 판단하고 반영한다.
-- 배경과 제약: 20자 입력과 200개 목록은 긴 텍스트 표시, 모바일 레이아웃, 키보드 탐색, 오류·포커스 복구와 직접 연결된다. 다만 이번 스프린트의 목표는 완전한 접근성 구현이나 UI 프레임워크 교체가 아니라 한도 UX 검증이다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 기존 스프린트 2 문서와 접근성·반응형 위험 분석 확인, `apply_patch`, `git diff --check`
-- AI 제안: 접근성·반응형을 별도 기능 개발이 아니라 키보드·스크린리더·확대·모바일 화면의 최소 검증 항목으로 추가하고, 발견된 문제만 후속 UX 개선으로 분리한다.
-- 사람의 판단과 이유: 채택. 사용자는 해당 검증 기준을 스프린트 2 요구사항에 포함하기로 했다. 한도 경계값의 실제 사용성을 판단할 때 조작 가능성과 상태 전달을 함께 확인해야 하며, 검증 전 구현 범위를 과도하게 확장하지 않는다.
-- 코드·사용자 경험 영향: 스프린트 2 문서에 접근성·반응형 검증, 판정 기준, 결과 기록, 범위 외 항목을 추가한다. 이번 변경으로 코드나 UI 동작은 변경하지 않는다.
-- 검증 근거: 기존 스프린트 2 문서가 이미 데스크톱·모바일 레이아웃, 긴 오류 메시지, 목록 탐색성과 오류 복구를 검증 대상으로 삼고 있음을 확인했다. 접근성·반응형 위험 분석의 키보드·스크린리더·확대·포커스 검증을 별도 항목으로 구체화했다.
-- 결과와 연결 문서: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [`16-accessibility-responsive.md`](.internal-docs/file-upload-risk-analysis/16-accessibility-responsive.md)
-- 회고와 후속 조치: 브라우저 검증에서 실제 문제가 발견될 때만 최소 UX 개선·검색·페이징 등의 후속 요구사항을 별도로 만든다. 완전한 WCAG 준수 여부는 이번 스프린트의 완료 조건으로 확대하지 않는다.
-
 ## 2026-08-30T19:11:15+09:00 — 파일 업로드 로깅·모니터링 최소선 정리
 
 - 상태: 수정 채택
@@ -1204,81 +651,6 @@
 - 검증 근거: 현재 전역 정책과 화이트리스트 전환 위험을 기존 위험 분석 문서에서 확인하고, ADR 0001·0012·0013의 정책 모델·감사 이력·오류 안내 책임과 충돌하지 않도록 연결했다. Markdown 공백 검사를 실행했다.
 - 결과와 연결 문서: [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`AGENTS.md`](AGENTS.md)
 - 회고와 후속 조치: 제품 요구와 운영 데이터를 확인해 제안 상태를 accepted ADR로 확정하거나, 사용자·조직 정책의 구체적인 scope 우선순위와 API·스키마 요구사항을 별도 결정한다.
-
-## 2026-08-30T19:20:20+09:00 — ADR 구현 상태와 즉시 구현 후보 점검
-
-- 상태: 구현 현황 검토 완료·코드 변경 없음
-- 시간 근거: 사용자가 현재 ADR의 구현·미구현 구분과 즉시 구현 가능 항목의 코멘트 문서 생성을 요청한 현재 대화 시각
-- 스프린트/범위: 파일 업로드·확장자 정책 ADR 0001~0016의 구현 근거 대조
-- 관련 문서·코드: [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md), [`AGENTS.md`](AGENTS.md), `main`의 확장자 정책·파일 업로드 코드와 테스트
-- 요청·질문 요약: 구현된 ADR과 구현되지 않은 ADR을 구분하고, 미구현·문제 항목 중 바로 구현할 수 있는 후보와 선결 조건을 문서 하단 코멘트로 남긴다.
-- 배경과 제약: 현재 체크아웃된 `docs` 브랜치의 `src`는 예제 애플리케이션이므로, 파일 업로드 기능이 구현된 `main@0f6b53c`을 판정 기준으로 사용했다. 사용자가 보유한 기존 미커밋 문서와 `uploads/` 산출물은 변경하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: ADR·`main` 코드·설정·테스트 대조, `apply_patch`, `git diff --check`
-- AI 제안: ADR 0010, 0009, 0011을 바로 착수 가능한 작은 작업으로 두고, 0005는 MIME 호환표 확정 후, 0006·0014·0015는 상태·메타데이터·멱등성 의존성을 한 작업 단위로 확정한 뒤 구현하도록 정리했다.
-- 사람의 판단과 이유: 확인 대기. 이번 요청은 상태 점검 문서 작성이며, 각 후보의 실제 구현 착수 승인은 포함하지 않는다.
-- 코드·사용자 경험 영향: 코드와 API 동작은 변경하지 않는다. 구현 상태와 누락된 정책·계약을 명시해 다음 작업의 범위와 순서를 판단할 수 있게 한다.
-- 검증 근거: `main`의 `ExtensionPolicy`, `ExtensionName`, `FileUploadServiceImpl`, `LocalFileStorage`, 오류 handler, `application.yml`, 프런트 JavaScript, 관련 테스트와 각 ADR의 결정 항목을 대조했다.
-- 결과와 연결 문서: [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)
-- 회고와 후속 조치: 구현을 시작할 때는 이 점검 문서의 선결 조건을 API 계약·질문 문서 또는 ADR 결정으로 전환하고, TDD 절차와 문서/기능 브랜치 동기화 절차를 따른다.
-
-## 2026-08-30T19:28:49+09:00 — 스프린트 2 미완료 ADR 완료 목표 PRD 작성
-
-- 상태: PRD 작성 완료·로컬 Markdown 이슈 추적기 게시
-- 시간 근거: 사용자가 미구현 ADR 전체 완료를 목표로 하나의 스프린트 2 PRD 작성을 요청하고 로컬 Markdown 관리를 선택한 현재 대화 시각
-- 스프린트/범위: ADR 0005, 0006, 0009, 0010, 0011, 0012, 0013, 0014, 0015, 0016의 미완료·부분 구현 항목
-- 관련 문서·코드: [스프린트 2 PRD](docs/sprints/sprint-2/sprint-2-prd.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md), 관련 ADR 전체
-- 요청·질문 요약: 미구현 ADR을 모두 완료 목표로 하는 단일 스프린트 2 PRD를 작성한다.
-- 배경과 제약: ADR 0006과 0016은 `proposed`이고, MIME allowlist·stale 복구·멱등 처리 중 HTTP 계약·보존 기간은 구체 결정이 부족하다. PRD는 이 항목을 임의 구현하지 않고 결정 게이트로 명시한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `setup-matt-pocock-skills`, `to-prd`
-  - plugin/도구: ADR·스프린트 문서·API 계약 확인, `apply_patch`, `git diff --check`
-- AI 제안: 보안·자원 보호, MIME 검증, 관측성·감사, 업로드 상태, 멱등성, allowlist 전환 준비를 하나의 스프린트 목표 아래 의존 순서로 배치했다.
-- 사람의 판단과 이유: 사용자는 하나의 스프린트 2 PRD로 관리하고 로컬 Markdown을 이슈 추적기로 사용하기로 했다.
-- 코드·사용자 경험 영향: 이번 변경은 PRD와 에이전트 작업 추적기 설정 문서만 추가한다. API와 애플리케이션 코드는 변경하지 않는다.
-- 검증 근거: ADR 구현 상태 점검과 기존 API 계약·스프린트 1 문서를 대조해, 구현 완료로 오인하면 안 되는 `proposed` ADR과 미결 계약을 PRD의 결정 게이트로 구분했다.
-- 결과와 연결 문서: [스프린트 2 PRD](docs/sprints/sprint-2/sprint-2-prd.md), [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md)
-- 회고와 후속 조치: 구현 전 MIME 매핑, 원본 파일명 영속화 채택, stale 복구 수치, 멱등 처리 중 HTTP 계약·보존 기간, allowlist scope·승인·shadow 기준을 사용자 결정 문서와 ADR에 반영한다.
-
-## 2026-08-30T19:28:49+09:00 — 스프린트 2 구현 순서와 결정 게이트 체크리스트 작성
-
-- 상태: 체크리스트 작성 완료·구현 대기
-- 시간 근거: 사용자가 PRD 기반 구현 순서와 작업별 사전 질문 규칙이 있는 스프린트 2 체크리스트 작성을 요청한 현재 대화 시각
-- 스프린트/범위: 스프린트 2 PRD의 미완료 ADR 전체를 작업 순서·결정 게이트·테스트 순서로 전환
-- 관련 문서·코드: [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [스프린트 2 PRD](docs/sprints/sprint-2/sprint-2-prd.md), 관련 ADR 0005~0016
-- 요청·질문 요약: 구현 기반 작업 순서를 정의하고, 작업 시작 전 결정이 필요한 부분을 표시해 해당 작업 전에 질문하도록 구성한다.
-- 배경과 제약: MIME allowlist, 원본 파일명 영속화, stale 복구, 멱등 처리, allowlist 전환에는 확정되지 않은 제품·운영 선택이 남아 있다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `next-work-briefing`
-  - plugin/도구: PRD·ADR·기존 스프린트 문서 대조, `apply_patch`, `git diff --check`
-- AI 제안: 결정이 완료된 0010·0009·0011부터 시작하고, 나머지는 질문 문서→사용자 답변→ADR/API 계약 갱신→구현의 중단 규칙으로 진행하도록 구성했다.
-- 사람의 판단과 이유: 사용자는 모든 작업의 사전 결정 필요 여부를 명시하고, 미결이면 해당 작업 수행 전에 질문하도록 요청했다.
-- 코드·사용자 경험 영향: 코드와 API 동작은 변경하지 않는다. 구현 작업은 체크리스트의 시작 전 질문이 닫힌 뒤에만 시작한다.
-- 검증 근거: PRD의 구현 결정·테스트 결정과 ADR 0005, 0006, 0012~0016의 명시적 미결 항목을 대조해 작업 의존성과 중단 조건을 분리했다.
-- 결과와 연결 문서: [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
-- 회고와 후속 조치: 구현을 시작할 때 각 작업의 질문을 새 질문 문서로 먼저 기록하고, 사용자 답변 후에만 해당 기능 브랜치·TDD 작업을 시작한다.
-
-## 2026-08-30T19:44:57+09:00 — 스프린트 2 PRD 문서 위치 정정
-
-- 상태: 문서 위치와 내부 링크 정정 완료·문서 브랜치 커밋 대기
-- 시간 근거: 사용자가 스프린트 2 PRD를 로컬 이슈 폴더가 아닌 스프린트 2 문서 폴더에 두도록 지시한 현재 대화 시각
-- 요청·질문 요약: `.scratch/sprint-2/PRD.md`를 `docs/sprints/sprint-2/`로 이동한다.
-- 사람의 판단과 이유: 채택. 스프린트 단위 기준 문서는 관련 체크리스트·UX 검증 문서와 같은 폴더에서 관리한다.
-- 코드·사용자 경험 영향: 애플리케이션 코드와 API 동작은 변경하지 않는다. 체크리스트·문서 인덱스·기존 기록의 PRD 링크를 새 위치로 갱신하고, 스프린트 PRD와 개별 구현 이슈의 저장 위치를 구분하도록 추적기 안내를 정정한다.
-- 검증 근거: 전체 저장소에서 이전 `.scratch/sprint-2/PRD.md` 참조가 남지 않았고, Markdown 공백 검증을 통과했다.
-- 결과와 연결 문서: [스프린트 2 PRD](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`docs/agents/issue-tracker.md`](docs/agents/issue-tracker.md), [`AGENTS.md`](AGENTS.md)
-
-## 2026-08-30T19:48:23+09:00 — 스프린트 2 체크리스트 진행 상태 대조
-
-- 상태: 실제 구현·테스트 근거가 있는 기준선 항목만 체크
-- 요청·질문 요약: 체크리스트에서 이미 진행된 항목과 아직 구현되지 않은 항목을 실제 코드·테스트와 대조한다.
-- 사람의 판단과 이유: 기존 완료 ADR 0001, 0002, 0003, 0004, 0007은 스프린트 2 추가 작업과 구분하고, 스프린트 2 작업은 완료 조건 전체가 충족되지 않으면 완료 처리하지 않는다.
-- 검증 근거: ADR 구현 상태 점검, 실제 Java 코드·테스트 검색, `./gradlew test` 성공 결과를 대조했다. ADR 0010은 `ExtensionName` 공유 구조만 진행된 상태이며 허용 문자 제한은 미완료다.
-- 결과와 연결 문서: [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)
 
 ## 2026-08-30T19:53:29+09:00 — 확장자 규칙과 원본 파일명 범위 명확화
 
@@ -1320,15 +692,6 @@
 - 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
 - 회고와 후속 조치: 프록시·로드밸런서의 업로드 제한도 10MB/12MB와 일치하는지 운영 환경에서 확인하고, 다음 작업은 ADR 0011 저장 경로 외부화다.
 
-## 2026-08-30T20:30:40+09:00 — multipart 구현 설명 범위 단순화
-
-- 상태: 구조·검증 범위 축소
-- 요청·질문 요약: 과제 설명에 불필요한 Tomcat `max-swallow-size`, multipart 지연 해석, 실제 대용량 내장 서버 테스트를 제외하고 용량 정책을 단순하게 유지한다.
-- 사람의 판단과 이유: 용량 초과 예외는 공통 REST Advice에서 처리하고, `FileUploadExceptionHandler`는 파일 업로드 도메인 예외 전용으로 유지한다. 설정은 10MB/12MB만 남긴다.
-- 코드·사용자 경험 영향: 공통 Advice에 `MaxUploadSizeExceededException` 처리를 두고 파일 Advice의 `assignableTypes` 범위를 복원한다. 설정 바인딩 테스트와 413 매핑 테스트만 유지하며 실제 파일 저장 흐름은 변경하지 않는다.
-- 검증 근거: `DemoApplicationTests`와 `FileUploadRestControllerTests`가 통과했고, 전체 대용량 HTTP 통합 테스트는 제거했다.
-- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
-
 ## 2026-08-30T20:45:30+09:00 — ADR 0011 저장 루트 설정 외부화 구현
 
 - 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
@@ -1367,25 +730,6 @@
 - 결과와 연결 문서: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
 - 회고와 후속 조치: 텍스트 안의 스크립트·HTML 의미 분석은 하지 않으며, 다운로드·미리보기·파싱 기능이 추가될 때 실행·렌더링 경계를 별도 검토한다. 다음 단계는 기능 브랜치에서 Tika 감지기와 실행 MIME 차단 테스트를 구현하는 것이다.
 
-## 2026-08-30T21:23:09+09:00 — docs 원격 push 권한 실패
-
-- 상태: 외부 반영 실패·로컬 커밋 유지
-- 시간 근거: `git push origin docs` 실행 결과
-- 스프린트/범위: 실행 가능한 MIME만 차단하는 ADR 0005 문서 반영
-- 관련 문서·코드: `docs` 브랜치 커밋 `e4d2207`
-- 요청·질문 요약: 확정한 문서 커밋을 `origin/docs`에 push한다.
-- 배경과 제약: 저장소 문서 절차에 따라 원격 문서 브랜치 반영이 필요하다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `tdd`
-  - plugin/도구: Git
-- AI 제안: 원격 push가 실패해도 유효한 로컬 문서 커밋을 기능 브랜치에 병합하고, 원격 반영 실패를 완료로 보고하지 않는다.
-- 사람의 판단과 이유: 채택. 현재 오류는 코드나 문서 내용이 아니라 GitHub 저장소 권한 `403`이며, 로컬 구현을 계속할 수 있다.
-- 코드·사용자 경험 영향: 없음. 원격 `origin/docs`에는 문서 커밋이 반영되지 않았고 로컬 `docs` 브랜치에는 보존되어 있다.
-- 검증 근거: `git push origin docs`가 `Permission denied`와 HTTP 403으로 실패했다.
-- 결과와 연결 문서: 로컬 커밋 `e4d2207`; 원격 push는 미완료
-- 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 뒤 `git push origin docs`를 재시도해야 한다.
-
 ## 2026-08-30T21:34:07+09:00 — 실행 MIME 차단 구현 완료
 
 - 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
@@ -1404,25 +748,6 @@
 - 검증 근거: 카탈로그·Tika 감지기·서비스 단위 테스트, 실제 Tika `MZ` 헤더 테스트, MockMvc 오류 계약 테스트, 기존 업로드 회귀 테스트와 전체 `./gradlew test`가 성공했다.
 - 결과와 연결 문서: 기능 커밋 `b171051`; 문서 후속 커밋에서 ADR 구현 상태·패키지 인덱스·체크리스트를 갱신한다.
 - 회고와 후속 조치: `text/javascript`·`text/x-shellscript`의 의미 분석과 악성코드 검사는 하지 않는다. 다운로드·미리보기·파싱 기능을 추가할 때 실행·렌더링 경계를 별도 결정한다.
-
-## 2026-08-30T21:34:59+09:00 — 구현 문서 원격 push 재실패
-
-- 상태: 외부 반영 실패·로컬 문서 보존
-- 시간 근거: `git push origin docs` 재시도 결과
-- 스프린트/범위: 실행 MIME 차단 구현 상태 문서의 원격 반영
-- 관련 문서·코드: `docs` 브랜치 커밋 `a7fe4f7`
-- 요청·질문 요약: 최신 구현 상태 문서를 `origin/docs`에 push한다.
-- 배경과 제약: 로컬 기능·문서 커밋은 완료됐지만 GitHub 원격 저장소 인증·권한이 확인되지 않았다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `tdd`
-  - plugin/도구: Git
-- AI 제안: 동일 원격 권한 오류를 완료로 간주하지 않고 로컬 커밋을 보존하며 최종 보고에서 원격 반영 미완료를 명시한다.
-- 사람의 판단과 이유: 채택. 오류가 코드나 문서 내용이 아니라 GitHub HTTP 403이므로 기능 구현과 원격 반영을 분리한다.
-- 코드·사용자 경험 영향: 없음. 원격 `origin/docs`에는 최신 문서가 반영되지 않았다.
-- 검증 근거: push 결과가 `Permission to seokjun7410/file-upload.git denied`와 HTTP 403을 반환했다.
-- 결과와 연결 문서: 로컬 문서 커밋 `a7fe4f7`; 원격 push 미완료
-- 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 후 `git push origin docs`를 재시도한다.
 
 ## 2026-08-30T21:36:51+09:00 — 최종 회귀 컴파일 오류 복구
 
@@ -1462,25 +787,6 @@
 - 결과와 연결 문서: ADR 0006·0013·0014·0015, 스프린트 1 파일 업로드 API, 스프린트 2 PRD·구현 체크리스트·ADR 구현 상태 점검
 - 회고와 후속 조치: SHA-256 미사용으로 같은 ID에 다른 파일이 와도 기존 작업 결과를 사용한다. 구현 시 ID 재사용·동시 요청·stale `RECEIVING` 테스트를 우선 작성하고, 문서 커밋을 기능 브랜치에 병합한 뒤 코드를 구현한다.
 
-## 2026-08-30T22:27:35+09:00 — 통합 멱등성 문서 원격 push 실패
-
-- 상태: 외부 반영 실패·로컬 커밋 유지
-- 시간 근거: `git push origin docs` 실행 결과
-- 스프린트/범위: 스프린트 2 requestId 통합 멱등 업로드 계약
-- 관련 문서·코드: docs 커밋 `e0e2c9f`
-- 요청·질문 요약: 확정한 ADR·API·스프린트 문서를 `origin/docs`에 push한다.
-- 배경과 제약: 로컬 문서 브랜치에는 계약 변경이 커밋되었지만 원격 저장소 인증 계정에 쓰기 권한이 있는지 확인되지 않았다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `tdd`
-  - plugin/도구: Git
-- AI 제안: 원격 반영 실패를 완료로 간주하지 않고 로컬 docs 커밋을 기능 브랜치에 병합해 구현을 계속하되, 최종 보고에 push 미완료를 명시한다.
-- 사람의 판단과 이유: 채택. 오류는 문서 내용이 아니라 GitHub HTTP 403이며 로컬 결정 문서와 기능 구현을 분리해 보존할 수 있다.
-- 코드·사용자 경험 영향: 없음. `origin/docs`에는 `e0e2c9f`가 반영되지 않았다.
-- 검증 근거: `git push origin docs`가 `Permission to seokjun7410/file-upload.git denied`와 HTTP 403을 반환했다.
-- 결과와 연결 문서: 로컬 docs 커밋 `e0e2c9f`; 원격 push 미완료
-- 회고와 후속 조치: GitHub 인증·저장소 권한을 확인한 뒤 동일 push를 재시도한다.
-
 ## 2026-08-30T22:49:40+09:00 — requestId 멱등 업로드 구현 및 회귀 검증 완료
 
 - 상태: 구현 완료·브라우저 smoke 후속
@@ -1497,7 +803,7 @@
 - 사람의 판단과 이유: 채택. 동기 multipart API의 범위를 유지하면서 응답 유실과 동시 요청의 중복 파일을 막고, FE 재시도와 서버 저장 상태를 분리한다.
 - 코드·사용자 경험 영향: 업로드 헤더가 필수가 되고, 서버 오류에는 requestId·안전한 context가 포함된다. 처리 중에는 FE가 같은 키로 최대 3회·전체 30초까지 자동 재시도하고 이후 결과 확인 상태를 표시한다.
 - 검증 근거: 전체 `./gradlew test` 99개 성공, `node --check src/main/resources/static/js/extension-policy.js` 성공, controller·integration·domain·recovery 테스트 추가. 브라우저 smoke는 아직 실행하지 않았다.
-- 결과와 연결 문서: `docs` 브랜치에서 체크리스트·ADR 구현 상태·PRD·API 계약·PROMPT_LOG를 갱신한다. `origin/docs` push는 GitHub HTTP 403으로 미완료다.
+- 결과와 연결 문서: 체크리스트·ADR 구현 상태·PRD·API 계약을 갱신한다.
 - 회고와 후속 조치: 키 보존 기간과 브라우저 접근성·반응형 smoke는 별도 운영·UX 검증으로 남긴다. 기존 미추적 `uploads/` 파일은 보존했다.
 
 ## 2026-08-31T00:44:25+09:00 — 정책 감사 이력 구현 계약 확정
@@ -1595,44 +901,6 @@
 - 결과와 연결 문서: refactor 커밋 `526d355` 이후 상태 단순화 변경; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태를 동기화한다.
 - 회고와 후속 조치: 향후 감사 조회 기능을 추가할 때 동일 정책 ID의 직전 이력 조회 정렬 기준을 `createdAt`, 동률 시 `id`로 고정한다.
 
-## 2026-08-31T01:37:30+09:00 — 현재 코드 기준으로 문서 구현 상태 정정
-
-- 상태: 수정 채택
-- 시간 근거: 현재 기준 브랜치 `feat/extension-policy-audit-history@ddb5698`의 코드·설정·테스트와 기존 문서 대조를 완료한 시각
-- 스프린트/범위: 스프린트 2 구현 상태 문서·스프린트 1 API 계약·ADR 0012 연계 문서
-- 관련 문서·코드: `docs/adr/adr-implementation-status-review-2026-08-30.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/file-upload-api.md`, `docs/sprints/sprint-2/sprint-2-prd.md`, `AGENTS.md`, `ExtensionPolicyAuditHistory`
-- 요청·질문 요약: ADR과 체크리스트의 구현 완료 표시가 실제 현재 코드와 일치하는지 판단하고 문서를 코드 기준으로 갱신한다.
-- 배경과 제약: 업로드 신뢰성 구현 커밋 `164a8e0`과 MIME·용량·저장 루트 구현 커밋은 별도 기능 브랜치에만 있으며 현재 기준 브랜치에 병합되지 않았다. ADR의 정책 결정과 구현 완료 상태를 혼동하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `diagnose`, `backend-documentation`
-  - plugin/도구: `apply_patch`, Git, `./gradlew test`, `rg`
-- AI 제안: 현재 브랜치에 없는 구현을 완료로 표시한 상태 점검·체크리스트·API 문서를 실제 코드 기준으로 낮추고, ADR 자체의 정책 결정은 유지한다.
-- 사람의 판단과 이유: 채택. 구현 여부의 진실 원천은 현재 기준 브랜치의 코드이며, 다른 기능 브랜치의 커밋은 병합 전까지 현재 구현으로 주장하지 않는다. 정책 감사 이력의 `state` 단순화는 현재 코드와 문서가 일치하므로 유지한다.
-- 코드·사용자 경험 영향: 코드 변경은 없다. 현재 API는 파일 파트 기반 기본 업로드와 `code`·`message` 오류 응답만 제공하며, requestId·MIME 차단·용량 제한·업로드 상태 영속화는 구현 대기로 문서화한다.
-- 검증 근거: 현재 기준 브랜치에서 `./gradlew test` 성공. `UploadFile`, `UploadRequestId`, `UploadFileRecoveryService`, Tika 감지기, `file.upload.storage-path` 설정이 현재 기준 브랜치에 없음을 확인했다. `git diff --check`도 통과했다.
-- 결과와 연결 문서: ADR 구현 상태 점검, 스프린트 2 체크리스트, 스프린트 1 API 계약, 스프린트 2 PRD, `AGENTS.md`를 현재 코드 기준으로 갱신했다.
-- 회고와 후속 조치: 문서 브랜치와 기능 브랜치의 병합 상태를 구현 완료 판단 전에 확인한다. `PROMPT_LOG.md` 기존 기록의 일부 시각 순서 위반은 이번 변경 범위에서 재작성하지 않고 별도 정리 대상으로 남긴다.
-
-## 2026-08-31T14:55:10+09:00 — 업로드 신뢰성 기능과 정책 감사 이력의 단일 작업 브랜치 통합
-
-- 상태: 채택
-- 시간 근거: 사용자가 `feat/upload-policy-reliability`에서만 작업하고 관련 작업을 모두 해당 브랜치에 모으기로 확정한 시각
-- 스프린트/범위: 스프린트 2 업로드 신뢰성·MIME·multipart 용량·저장 루트·정책 감사 이력과 연계 문서
-- 관련 문서·코드: `feat/upload-policy-reliability@f7468c3`, `feat/upload-request-id-idempotency@d23103d`, `feat/extension-policy-audit-history@001980a`, ADR 구현 상태 점검, 스프린트 1 API 계약, 스프린트 2 구현 체크리스트
-- 요청·질문 요약: 분리되어 있던 업로드 신뢰성 구현과 정책 감사 이력 구현을 `feat/upload-policy-reliability`에 통합하고, 이후 작업 기준과 문서를 하나로 맞춘다.
-- 배경과 제약: ADR의 결정 상태와 실제 구현 상태가 서로 다른 브랜치에 나뉘어 있으면 완료 표기가 코드와 어긋날 수 있다. 기능 브랜치에는 코드만 직접 커밋하고 문서 변경은 `docs` 브랜치에서 커밋한 뒤 기능 브랜치에 병합한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `diagnose`, `backend-documentation`
-  - plugin/도구: `apply_patch`, Git, `rg`, `./gradlew test`
-- AI 제안: requestId·MIME·용량·저장 루트·업로드 상태와 정책 감사 이력을 하나의 기능 브랜치 기준으로 통합하고, 코드·설정·테스트에 근거해 구현 상태 문서를 다시 정렬한다.
-- 사람의 판단과 이유: 채택. 이후 구현·검증·문서 갱신은 `feat/upload-policy-reliability`에서만 진행해 작업 기준을 단일화한다. ADR 0016 allowlist 전환과 ADR 0015 키 보존 기간은 결정 전까지 구현하지 않는다.
-- 코드·사용자 경험 영향: 정책 API의 requestId 계약은 추가하지 않고, 파일 업로드 API의 UUID v4 `Idempotency-Key`·requestId·오류 context 계약은 유지한다. MIME 실행 파일 차단, 10MB/12MB 용량 제한, 업로드 상태 복구, 정책 감사 이력이 같은 기준 브랜치에서 함께 동작한다.
-- 검증 근거: 통합 기준 브랜치에서 `./gradlew test`가 `BUILD SUCCESSFUL`로 완료되었다. 기준 커밋에 Tika MIME 감지, multipart 설정, `file.upload.storage-path`, `UploadFile` 상태 전이·복구, 정책 감사 이력 코드와 테스트가 존재함을 확인했다.
-- 결과와 연결 문서: `docs` 브랜치에서 구현 상태 점검·스프린트 1 API 계약·스프린트 2 체크리스트를 `f7468c3` 기준으로 갱신한 뒤 `feat/upload-policy-reliability`에 문서 병합한다.
-- 회고와 후속 조치: 다음 작업은 키 보존 기간과 만료·고아 파일 정리 상호작용 테스트 결정, 브라우저 smoke 검증이다. 기존 `PROMPT_LOG.md`의 과거 시각 순서 위반은 이번 통합 범위에서 재작성하지 않는다.
-
 ## 2026-08-31T15:16:50+09:00 — 업로드 FE 오류 메시지를 code·context 기준으로 전환
 
 - 상태: 수정 채택
@@ -1670,25 +938,6 @@
 - 검증 근거: 정확히 20자 등록 성공, 21자 `INVALID_EXTENSION` 거부·입력 보존, `ux001`~`ux200` 200개 렌더링, 201번째 `409 CUSTOM_LIMIT_EXCEEDED`·입력 보존, 빈 목록 전환을 확인했다. 정상 `.txt` 업로드 성공, 실행 MIME `422 BLOCKED_EXECUTABLE_MIME`, 11MiB `413 FILE_SIZE_EXCEEDED`, 동일 requestId 동시 요청의 `201`·`409 IDEMPOTENCY_IN_PROGRESS`·`Retry-After: 2`를 확인했다. 기본 `1280px`, `320px`, `640px` 유효 폭에서 가로 overflow가 없었다. 오류 화면에는 내부 경로·stack trace가 없었다. 삭제·업로드 실패 후 포커스 복귀 수정과 전체 `./gradlew test`도 성공했다. IAB의 실제 409 화면 주입, OS VoiceOver, 실제 브라우저 200% zoom은 도구 제약으로 미확정이다.
 - 결과와 연결 문서: 기능 커밋 `a840db2`; 스프린트 2 UX 검증 결과·체크리스트·ADR 구현 상태 점검을 현재 결과에 맞춰 갱신했다.
 - 회고와 후속 조치: 브라우저 도구가 정적 리소스 캐시와 포커스 이벤트를 숨길 수 있어 새 탭·버전 query·DOM 상태 확인을 함께 사용했다. 실제 VoiceOver·200% zoom·409 화면 재시도 문구는 수동 환경 또는 결정적 주입 경로 확보 후 보완한다. ADR 0016 allowlist와 requestId 만료·정리는 계속 보류한다.
-
-## 2026-08-31T15:51:11+09:00 — 스프린트 2 최종 브랜치·회귀 감사
-
-- 상태: 채택
-- 시간 근거: 기능·문서 커밋을 분리하고 기능 브랜치에 문서 merge를 반영한 뒤 최종 공백·경로·전체 테스트 감사를 완료한 시각
-- 스프린트/범위: 스프린트 2 최종 검증 완료 조건과 브랜치 커밋 경로 감사
-- 관련 문서·코드: `feat/upload-policy-reliability@c6e92d2`, `docs@a2f3605`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`
-- 요청·질문 요약: 기능 변경과 문서 변경이 저장소 브랜치 규칙에 맞는지 확인하고 최종 회귀 테스트를 실행한다.
-- 배경과 제약: 기능 브랜치의 직접 커밋은 코드만, 문서 변경은 docs 브랜치 커밋 후 merge commit으로 반영해야 한다. allowlist와 실제 200%·VoiceOver·409 화면 검증은 완료로 주장하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱
-  - skill: `next-work-briefing`, `browser:control-in-app-browser`, `diagnose`
-  - plugin/도구: Git, `./gradlew test`, `git diff --check`
-- AI 제안: 기능 커밋과 문서 커밋을 분리하고, 최종 보고 전에 `main..브랜치` 직접 커밋 경로·staged 공백·전체 테스트를 확인한다.
-- 사람의 판단과 이유: 채택. 기능 커밋 `a840db2`에는 FE 코드·템플릿만 두고, 검증 결과는 docs 커밋 `a2f3605`에서 관리한 뒤 기능 브랜치에 `c6e92d2`로 병합했다. 이는 기능 브랜치의 문서 직접 커밋을 방지하면서 기능 기준에서 결과 문서를 함께 확인하게 한다.
-- 코드·사용자 경험 영향: 추가 코드 변경은 없다. 스프린트 체크리스트의 최종 감사 항목을 완료로 표시하고, 미확정 브라우저 환경은 후속 항목으로 유지한다.
-- 검증 근거: `git log --first-parent --no-merges main..HEAD --name-only`에서 직접 기능 커밋의 경로가 `src/**`뿐임을 확인했다. `git diff --check`와 최종 `./gradlew test`가 성공했다. 최종 작업 트리는 clean이다.
-- 결과와 연결 문서: 체크리스트와 이 기록을 갱신하고 기능 브랜치에 docs merge를 반영했다.
-- 회고와 후속 조치: 원격 `origin/docs` push는 사용자가 별도로 승인하거나 인증 문제가 해결될 때 수행한다. 스프린트 완료 보고는 VoiceOver·실제 200% zoom·409 화면 분기를 보류한 상태로 기능 구현 완료와 수동 검증 미완료를 구분해 작성한다.
 
 ## 2026-08-31T16:54:41+09:00 — 스프린트 2 수동검증 일괄 실행
 
@@ -1803,264 +1052,6 @@
 - 검증 근거: Red 단계에서 새 예외 클래스 부재로 테스트 컴파일 실패를 확인한 뒤 Green 구현을 적용했다. MIME 서비스·Tika detector·REST 테스트와 전체 `./gradlew test`가 성공했고 `node --check src/main/resources/static/js/extension-policy.js`, `git diff --check`도 통과했다.
 - 결과와 연결 문서: 기능 커밋 `7c69a29`; docs 커밋 `f602502` 및 후속 구현 상태·검증 기록 문서 커밋으로 반영한다.
 - 회고와 후속 조치: Tika IOException의 원인은 내부 로그에만 남기고 외부 응답에는 노출하지 않는다. MIME allowlist·악성코드 검사·Retry-After는 별도 범위로 유지한다.
-
-## 2026-08-31T20:09:22+09:00 — 파일 업로드 API 명세 경로 정리
-
-- 상태: 채택
-- 시간 근거: 사용자가 API 명세를 `docs` 하위로 옮기도록 요청한 작업 시각
-- 스프린트/범위: 제출 문서 경로와 내부 링크 정리
-- 관련 문서·코드: [`파일 업로드 API 명세`](docs/file-upload-api.md), [`README.md`](README.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: 스프린트 1 하위에 있던 API 명세를 `docs` 하위의 독립 문서로 이동한다.
-- 사람의 판단과 이유: 채택. API 계약은 스프린트 구현 절차 문서와 분리해 최상위 `docs`에서 직접 참조할 수 있도록 한다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README·ADR·질문·스프린트 문서의 내부 링크를 새 경로로 갱신한다.
-- 검증 근거: 저장소 내 Markdown 링크에서 이전 경로가 남지 않았는지 검색하고 `git diff --check`로 문서 형식을 확인한다.
-- 결과와 연결 문서: 이전 `docs/sprints/sprint-1/sprint-1-file-upload-api.md`를 `docs/file-upload-api.md`로 이동했다.
-
-## 2026-08-31T20:14:55+09:00 — 핵심 업로드 판단 다이어그램 간소화
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 README의 질문형 핵심 판단 제목과 긴 다이어그램을 간소화하도록 요청한 작업 시각
-- 스프린트/범위: README 핵심 업로드 흐름 시각화
-- 관련 문서·코드: [`README.md`](README.md), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`UploadFileRecoveryService`](src/main/java/com/example/demo/file/service/impl/UploadFileRecoveryService.java)
-- 요청·질문 요약: 네 개의 질문형 제목을 정책·흐름 중심 제목으로 바꾸고, 확장자·MIME 판정과 멱등·저장·복구 흐름을 짧고 시각적으로 표현한다.
-- 배경과 제약: 다이어그램의 텍스트가 많아 전체 흐름을 빠르게 읽기 어려웠다. 상태·오류 결과·처리 순서는 현재 구현과 일치해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, `apply_patch`
-- AI 제안: 조건 분기는 흐름도, `RECEIVING`·`COMPLETED`·`FAILED` 변화는 상태도로 분리한다.
-- 사람의 판단과 이유: 수정 채택. 파일 검증·멱등·복구의 분기는 흐름도로, 저장 결과는 상태도로 표현해 각 그림의 책임을 줄인다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README의 네 제목을 `확장자·MIME 차단 흐름`, `동일 요청 멱등 키 정책`, `업로드 저장 상태 전이`, `저장 실패·중단 복구`로 바꾼다.
-- 검증 근거: 업로드 서비스의 확장자 추출→Tika MIME 감지→정책 검사 순서와 상태 서비스·복구 서비스의 상태 전이를 대조했다. `git diff --check`를 통과했다.
-- 결과와 연결 문서: [`README.md`](README.md)에 네 개의 간소화된 Mermaid 다이어그램을 반영했다.
-- 회고와 후속 조치: 렌더링 환경에서 Mermaid 상태도의 화살표 표기가 호환되지 않으면 라벨을 ASCII 표기로 대체한다.
-
-## 2026-08-31T20:22:01+09:00 — 핵심 판단의 행위 중심 표현과 범위 확장
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 저장 상태 전이의 기술 용어를 쉬운 행위로 바꾸고, 추가 핵심 판단 두 개를 README에 넣도록 요청한 작업 시각
-- 스프린트/범위: README 핵심 판단 시각화
-- 관련 문서·코드: [`README.md`](README.md), [`application.yml`](src/main/resources/application.yml), [`ExtensionPolicyServiceImpl`](src/main/java/com/example/demo/file/service/impl/ExtensionPolicyServiceImpl.java)
-- 요청·질문 요약: `.part → atomic move`를 `임시 파일 저장 → 저장 경로 이동`으로 바꾸고, 업로드 제한과 커스텀 확장자 등록 정합성 흐름을 추가한다.
-- 배경과 제약: README는 구현 세부 명칭보다 사용자가 이해할 수 있는 행위 중심 흐름을 우선하되, 실제 제한·동시성 규칙은 빠뜨리지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, `apply_patch`
-- AI 제안: 상태도는 자연어 상태명과 내부 상태명을 함께 보여주고, 요청 제한·정책 등록은 각각 한 개의 짧은 흐름도로 추가한다.
-- 사람의 판단과 이유: 수정 채택. HTTP 상태 코드와 내부 저장 구현 세부를 그림의 중심에서 빼고, 제한·중복·한도 판단이 한눈에 보이게 한다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README 핵심 판단에 `업로드 요청 크기·개수 제한`, `커스텀 확장자 등록 정합성`을 추가하고 기존 네 그림의 용어를 단순화한다.
-- 검증 근거: multipart의 part 1개·파일 10MB·요청 12MB 설정과 커스텀 등록의 잠금·중복·200개 검사 코드를 대조했다. `git diff --check`를 통과했다.
-- 결과와 연결 문서: [`README.md`](README.md)에 여섯 개의 핵심 판단을 반영했다.
-- 회고와 후속 조치: Mermaid 렌더링에서 상태 별칭과 한글 라벨을 확인하고, 호환 문제가 있으면 상태도 라벨만 짧게 조정한다.
-
-## 2026-08-31T20:22:54+09:00 — 핵심 업로드 흐름을 시퀀스 다이어그램으로 전환
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 핵심 업로드 흐름을 메서드 단위가 아닌 큰 처리 단계의 Mermaid 시퀀스 다이어그램으로 바꾸도록 요청한 작업 시각
-- 스프린트/범위: README 핵심 업로드 흐름
-- 관련 문서·코드: [`README.md`](README.md), [`FileUploadRestController`](src/main/java/com/example/demo/file/controller/FileUploadRestController.java), [`application.yml`](src/main/resources/application.yml)
-- 요청·질문 요약: multipart 제한, 컨트롤러 이후 입력 확인·기존 요청 확인·확장자·MIME·정책 검사·저장 순서를 간략한 시퀀스로 표현한다.
-- 배경과 제약: 이전 흐름도는 업로드 요청의 전달 순서를 보여주기 어렵고, 문서에는 메서드 수준 구현 세부를 넣지 않는다. 사용자가 언급한 80MB가 아니라 실제 설정값 10MB·12MB를 사용한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, `apply_patch`
-- AI 제안: 사용자·Tomcat/Servlet·업로드 API·업로드 처리·DB/파일 저장의 다섯 참여자를 두고, 제한 초과·기존 요청·새 요청만 `alt` 분기로 표시한다.
-- 사람의 판단과 이유: 수정 채택. HTTP 요청부터 결과까지의 책임 전달과 세 가지 큰 분기가 한 그림에서 보이도록 한다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README에 part 1개·파일 10MB·요청 12MB 제한과 기존 결과 재사용·재시도 안내 흐름을 표시한다.
-- 검증 근거: multipart 설정과 컨트롤러의 `/api/v1/files`·`file` part·`Idempotency-Key` 계약을 대조했다. `git diff --check`를 통과했다.
-- 결과와 연결 문서: [`README.md`](README.md)의 핵심 업로드 흐름을 Mermaid 시퀀스 다이어그램으로 교체했다.
-- 회고와 후속 조치: Mermaid 렌더링에서 `alt` 분기와 한글 참여자 표시를 확인한다.
-
-## 2026-08-31T20:23:59+09:00 — 테이블 스키마를 ERD로 전환
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 테이블별 설명 대신 관계를 직관적으로 보여주는 Mermaid ERD를 요청한 작업 시각
-- 스프린트/범위: README 데이터 구조 표현
-- 관련 문서·코드: [`README.md`](README.md), [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java), [`ExtensionPolicyAuditHistory`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicyAuditHistory.java), [`UploadFile`](src/main/java/com/example/demo/file/domain/entity/UploadFile.java)
-- 요청·질문 요약: JPA 매핑과 개별 테이블 설명을 제거하고 ERD로 바꾼다.
-- 배경과 제약: 정책·감사 이력의 논리적 연결은 보여 주되, 실제 DB에 없는 외래 키 관계를 사실처럼 표현하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, `apply_patch`
-- AI 제안: 핵심 키·상태 필드만 남긴 ERD를 사용하고, 정책과 감사 이력의 연결은 별도 문장으로 DB 외래 키가 아님을 설명한다.
-- 사람의 판단과 이유: 수정 채택. 네 테이블의 역할과 정책 변경 이력의 연결을 한 화면에서 읽을 수 있게 한다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README의 Table Schema 표를 Mermaid ERD로 교체한다.
-- 검증 근거: 네 엔티티의 테이블명·키·유니크 제약을 코드와 대조했고, 감사 이력에 JPA 연관관계·외래 키 정의가 없음을 확인했다. `git diff --check`를 통과했다.
-- 결과와 연결 문서: [`README.md`](README.md)의 `ERD` 섹션에 반영했다.
-- 회고와 후속 조치: Mermaid 렌더링에서 ERD의 한글 관계 라벨이 읽기 어려우면 관계 라벨만 짧게 조정한다.
-
-## 2026-08-31T20:42:28+09:00 — 구버전 Mermaid 호환 ERD 단순화
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 IntelliJ 구버전에서도 ERD가 렌더링되도록 요청한 작업 시각
-- 스프린트/범위: README Mermaid ERD 호환성
-- 관련 문서·코드: [`README.md`](README.md), [IntelliJ Markdown 문서](https://www.jetbrains.com/help/idea/markdown.html), [Mermaid ERD 문법](https://mermaid.js.org/syntax/entityRelationshipDiagram.html)
-- 요청·질문 요약: IntelliJ에서 깨지는 ERD를 구버전 Mermaid 문법에 가깝게 바꾼다.
-- 배경과 제약: Mermaid 플러그인이 설치·활성화되지 않은 환경은 문법 변경만으로 지원할 수 없다. ERD의 데이터 의미는 유지한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: JetBrains·Mermaid 공식 문서 검색, `apply_patch`
-- AI 제안: 기본 엔터티·관계·속성 문법만 남기고, 구버전 파서에서 차이가 날 수 있는 `UK` 키 표기와 한글 관계 라벨을 제거한다.
-- 사람의 판단과 이유: 수정 채택. PK와 핵심 속성·정책-감사 이력 관계는 유지하면서 파서 의존적인 표현을 줄인다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. README ERD의 고유 제약 표시는 제거되지만, 실제 DB 제약은 코드와 데이터베이스에 그대로 유지된다.
-- 검증 근거: Mermaid 공식 ERD 문법과 IntelliJ의 Mermaid 플러그인 요구사항을 확인했고, `git diff --check`를 통과했다.
-- 결과와 연결 문서: [`README.md`](README.md)의 ERD를 기본 문법으로 단순화했다.
-- 회고와 후속 조치: 구버전 IntelliJ에서 계속 깨지면 Mermaid 플러그인 설치·활성화 또는 IDE 업데이트가 필요하다.
-
-## 2026-08-31T20:48:13+09:00 — AI 프롬프트 기록의 사람 판단 중심 재구성
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 대표 AI 활용 문서의 제목·파일명·열 가지 사례 제목을 바꾸도록 요청한 작업 시각
-- 스프린트/범위: 필수 제출용 AI 활용 및 프롬프트 기록
-- 관련 문서·코드: [`docs/ai-prompt.md`](docs/ai-prompt.md), [`README.md`](README.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: “AI와 함께 해결한 문제”라는 표현 대신, AI의 제안을 어떻게 다시 질문하고 검증해 보완·선택했는지를 보여 주도록 전면 재구성한다.
-- 배경과 제약: 제출 평가는 결과물보다 AI를 사용하며 문제를 쪼개고 판단한 과정을 본다. 기존 사례의 사실관계와 시간순 원문 기록은 바꾸지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: 저장소 검색, `apply_patch`, Git diff 검사
-- AI 제안: 문서명을 `AI 프롬프트`로 바꾸고, 각 사례 제목을 ‘AI 제안의 한계 → 사람이 적용한 보완 기준’으로 다시 쓴다. 본문은 AI 답변과 사용자의 추가 질문·채택·거부 근거를 계속 분리한다.
-- 사람의 판단과 이유: 수정 채택. 단순히 AI가 문제를 해결한 것처럼 보이는 제목은 제출 목적과 맞지 않는다. UUID 기반 멱등성, MIME 감지 실패, 커밋 복구, 자동 테스트, 데이터 모델처럼 사람이 AI 답변을 제한·수정·재검증한 지점을 제목에서 먼저 보여 준다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. `docs/ai-usage-top-10-qa.md`를 `docs/ai-prompt.md`로 이름을 바꾸고 README·문서 인덱스 링크를 갱신한다.
-- 검증 근거: 이전 파일명·제목·존재하지 않는 스토리 아카이브 링크가 남지 않았는지 검색하고, `git diff --check`로 Markdown 공백 오류를 검사한다.
-- 결과와 연결 문서: [`docs/ai-prompt.md`](docs/ai-prompt.md)의 열 가지 제목과 도입 문구를 갱신했다. 원문에 가까운 시간순 입력 기록은 [`PROMPT_LOG.md`](PROMPT_LOG.md)에 그대로 유지한다.
-- 회고와 후속 조치: 사례 본문을 더 줄여야 하는 제출 형식이 생기면 AI 답변의 상세 나열보다 사람이 던진 후속 질문, 거부한 제안, 검증 근거를 우선 남긴다.
-
-## 2026-08-31T20:52:16+09:00 — AI 협업 방식 소개 문서를 프로젝트 작업공간으로 이동
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 별도 임시 worktree의 문서를 현재 프로젝트에서 직접 볼 수 있도록 이동해 달라고 요청한 시각
-- 스프린트/범위: README 연결용 AI 협업 방식 소개 문서의 저장 위치
-- 관련 문서·코드: [`AI와 함께 개발한 방식`](docs/ai-assisted-development-workflow.md), [`AGENTS.md`](AGENTS.md)
-- 요청·질문 요약: `/private/tmp`의 문서 전용 worktree에 있던 소개 문서를 현재 프로젝트의 `docs/`로 옮긴다.
-- 배경과 제약: 임시 worktree 경로는 현재 프로젝트 파일 트리에서 보이지 않고 정리될 가능성도 있다. 사용자가 직접 확인할 수 있는 위치가 우선이다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: 없음
-  - plugin/도구: `apply_patch`, 파일 동일성 검사
-- AI 제안: 최종 문서를 현재 작업공간에 복사한 뒤 내용이 같은지 확인하고, 임시 worktree의 원본과 해당 인덱스·기록을 제거한다.
-- 사람의 판단과 이유: 채택. 문서 브랜치의 형식적 분리보다 현재 프로젝트에서 문서를 직접 확인할 수 있어야 한다는 요청을 우선한다.
-- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서는 현재 프로젝트 파일 트리에서 확인할 수 있다.
-- 검증 근거: 이동 전후 파일을 바이트 단위로 비교한 뒤 임시 원본을 제거하고 `git diff --check`를 확인한다.
-- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 현재 프로젝트 작업공간에 추가했다.
-- 회고와 후속 조치: README에는 이 문서 링크만 짧게 연결한다.
-
-## 2026-08-31T20:55:56+09:00 — 대표 AI 프롬프트 사례를 여덟 개로 압축
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 제출용 사례에서 강조도가 낮은 항목을 제외하고 3번을 압축하도록 요청한 작업 시각
-- 스프린트/범위: 필수 제출용 AI 프롬프트 기록의 사례 선정과 서술 밀도
-- 관련 문서·코드: [`docs/ai-prompt.md`](docs/ai-prompt.md)
-- 요청·질문 요약: 문서 완료 표시 점검과 Lombok 축약 사례를 제거하고, 기존 9·10번을 7·8번으로 재번호화한다. 커밋 복구 사례는 짧게 정리한다.
-- 배경과 제약: 제출 문서는 AI가 만든 결과보다 사람이 부족한 답변을 어떻게 검증·보완했는지를 빠르게 보여야 한다. 기존 사실관계는 유지하되 중복되거나 제품 영향이 작은 사례는 대표 목록에서 제외한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 검색, `apply_patch`, Git diff 검사
-- AI 제안: 8번과 7번은 대표 사례의 밀도를 낮추므로 제외하고, 3번은 복구 과정의 세부 순서 대신 파일 목록·삭제 상태·독립 테스트라는 검수 기준을 남긴다.
-- 사람의 판단과 이유: 채택. 코드 스타일 중심 Lombok 사례와 문서 상태 점검 사례는 다른 사례에 비해 제품·보안·사용자 경험 영향이 작거나 커밋 복구 사례와 겹친다. 반면 3번은 AI 결과를 그대로 믿지 않고 검증 기준을 세운 점만 남긴다.
-- 코드·사용자 경험 영향: 애플리케이션 동작은 변경하지 않는다. AI 프롬프트 문서는 10개에서 8개 사례로 줄고, 이후 테스트 설계·데이터 모델 사례의 번호가 7·8번이 된다.
-- 검증 근거: 제목 번호가 1부터 8까지 연속되는지 확인하고 `git diff --check`로 Markdown 공백 오류를 검사한다.
-- 결과와 연결 문서: [`docs/ai-prompt.md`](docs/ai-prompt.md)의 7·8번 사례를 제거하고 3번을 압축했다.
-- 회고와 후속 조치: 사례가 더 늘어나면 구현의 세부 작업보다 사용자 판단, AI 제안의 한계, 검증 가능한 최종 선택이 모두 있는지로 대표 여부를 판단한다.
-
-## 2026-08-31T20:57:39+09:00 — 프로젝트 AI 워크플로우 제목과 흐름도 정리
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 문서 제목·소개 문단·전체 흐름도의 배치를 조정하도록 요청한 시각
-- 스프린트/범위: 프로젝트 AI 작업 방식 소개 문서의 첫 화면 구성
-- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md)
-- 요청·질문 요약: 제목을 `프로젝트 AI 워크플로우`로 바꾸고 제목 아래 소개글을 삭제하며, 스프린트 1이 위에 있고 스프린트 2가 아래에 보이도록 전체 흐름도를 세로로 배치한다.
-- 배경과 제약: 가로로 긴 흐름도는 렌더링 시 글씨가 작아지므로 상급자가 읽기 어려울 수 있다. 본문 내용은 변경하지 않는다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: `apply_patch`, Mermaid
-- AI 제안: 전역 방향과 각 스프린트 subgraph의 방향을 모두 위에서 아래로 고정하고, 두 스프린트 사이에 공통 기준 노드를 둔다.
-- 사람의 판단과 이유: 채택. 문서 첫 화면에서 스프린트의 시간 순서와 피드백 연결을 읽기 쉽게 보여 주기 위해 세로 구성을 사용한다.
-- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서의 제목과 Mermaid 배치만 변경된다.
-- 검증 근거: 제목과 도입부 삭제 여부, Mermaid의 `flowchart TB`·`direction TB` 설정과 `git diff --check`를 확인한다.
-- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`의 첫 화면 구성을 수정했다.
-- 회고와 후속 조치: 이후 README에는 이 문서 링크만 연결한다.
-
-## 2026-08-31T21:03:29+09:00 — 프로젝트 AI 워크플로우의 스프린트 목적과 단계별 이유 재구성
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 스프린트 구분 의도와 각 단계의 필요 이유가 명확히 보이도록 문서를 다시 구성해 달라고 요청한 시각
-- 스프린트/범위: 프로젝트 AI 워크플로우 소개 문서의 전체 서술 구조
-- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md), `README.md`, `CONSIDERATIONS.md`, `docs/ai-prompt.md`
-- 요청·질문 요약: 전체 흐름은 스프린트 1 위·스프린트 2 아래로 유지하되 각 스프린트 내부 요소는 가로로 배치한다. 스프린트 1은 최소 기능을 빠르게 만든 뒤 개발자의 스타일을 AI에 반영한 과정, 스프린트 2는 안전성과 안정성을 ADR 관계 기반으로 확장한 과정으로 설명한다.
-- 배경과 제약: 기존 문서는 회고형 문장이 많아 실제 워크플로우와 각 단계의 선택 이유가 한눈에 보이지 않았다. README·고려사항·AI 프롬프트처럼 문제, 판단과 적용 결과가 구분되는 서술 방식이 필요했다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 저장소 문서 비교, `apply_patch`, Mermaid
-- AI 제안: 스프린트를 나눈 이유를 먼저 비교하고, 각 스프린트를 목표·단계별 필요 이유·적용 방식·결과로 구분한다. 전체 흐름도는 상위 스프린트는 세로, 내부 작업은 가로로 구성한다.
-- 사람의 판단과 이유: 수정 채택. 문서의 중심은 일반적인 AI 협업 장점이 아니라 이 프로젝트가 왜 MVP 캘리브레이션 이후 ADR 기반 확장으로 진행됐는지를 설명하는 데 둔다.
-- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 프로젝트의 AI 작업 흐름과 스프린트 구분 이유를 상급자가 빠르게 파악할 수 있도록 문서 구조가 변경된다.
-- 검증 근거: README·CONSIDERATIONS·AI 프롬프트의 문단 구조와 표현을 비교하고, 요청한 스프린트 방향·목표·단계별 이유가 모두 포함됐는지 확인한다. `git diff --check`로 Markdown 공백 오류를 검사한다.
-- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 스프린트 목적과 단계별 인과 중심으로 다시 작성했다.
-- 회고와 후속 조치: README에는 이 문서를 작업 방식 상세 설명으로만 연결하고 본문을 중복하지 않는다.
-
-## 2026-08-31T21:10:00+09:00 — 프로젝트 AI 워크플로우의 핵심 루프 중심 재구성
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 모든 작업 단계를 나열하기보다 각 스프린트에서 강조해야 할 핵심 루프를 중심으로 문서를 다시 구성해 달라고 요청한 시각
-- 스프린트/범위: 프로젝트 AI 워크플로우 소개 문서의 강조점과 서술 밀도
-- 관련 문서·코드: [`프로젝트 AI 워크플로우`](docs/ai-assisted-development-workflow.md)
-- 요청·질문 요약: 스프린트 1은 체크리스트, MVP 이후 전수 조사·리팩터링·회고 피드백을 강조하고, 스프린트 2는 ADR로 전체를 이해한 뒤 작은 구현과 재확인을 반복한 점을 강조한다.
-- 배경과 제약: 이전 문서는 단계와 이유를 모두 표로 나열해 핵심 메시지가 분산됐다. 소개 문서는 모든 흐름의 기록이 아니라 스프린트별 학습·피드백 구조를 설명해야 한다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 사용자 피드백, 저장소 문서 비교, `apply_patch`, Mermaid
-- AI 제안: 스프린트 구분 이유를 짧게 제시하고, 각 스프린트는 핵심 목적과 한 개의 피드백 루프 중심으로 서술한다. 세부 단계 표와 반복적인 검증 설명은 제거한다.
-- 사람의 판단과 이유: 수정 채택. 상급자에게 작업 방식의 핵심 의도와 인과를 빠르게 전달하는 것을 우선한다.
-- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 문서는 핵심 루프가 먼저 보이고 상세 구현 문서에 덜 의존하도록 축약된다.
-- 검증 근거: 전체 방향도는 스프린트 영역을 세로로 두고 내부 요소는 가로로 배치했다. 스프린트 1·2의 강조점과 필요 이유가 본문에 포함됐는지 확인하고 `git diff --check`를 실행한다.
-- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 핵심 루프 중심으로 전면 재구성했다.
-- 회고와 후속 조치: README에는 이 문서 링크만 연결하고, 세부 단계와 증빙은 해당 문서에 추가하지 않는다.
-
-## 2026-08-31T21:12:43+09:00 — 프로젝트 AI 워크플로우의 강조점 재압축
-
-- 상태: 수정 채택
-- 시간 근거: 사용자가 모든 단계를 나열하기보다 스프린트별 핵심 루프가 드러나도록 문서를 더 간결하게 정리해 달라고 요청한 시각
-- 스프린트/범위: `docs/ai-assisted-development-workflow.md`의 소개 서술과 Mermaid 흐름도
-- 요청·질문 요약: 스프린트 1은 체크리스트와 MVP 이후의 전수 조사·리팩터링·회고를, 스프린트 2는 ADR 관계 이해와 작은 단위 구현 후 재확인을 중심으로 표현한다.
-- 배경과 제약: 단계별 설명이 많아질수록 소개 문서에서 무엇을 강조하는지 흐려지므로, 작업 기록이 아닌 핵심 의도와 피드백 루프만 남긴다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `backend-documentation`
-  - plugin/도구: 사용자 피드백, `apply_patch`, Mermaid, `git diff --check`
-- AI 제안: 각 스프린트를 하나의 짧은 서술과 핵심 루프 하나로 축약하고, 세부 단계·검증 항목 나열은 제거한다.
-- 사람의 판단과 이유: 수정 채택. 상급자가 스프린트 분리 이유와 학습·피드백 구조를 빠르게 이해하는 것을 우선한다.
-- 코드·사용자 경험 영향: 제품 코드와 API는 변경하지 않는다. 소개 문서의 문장과 흐름도만 간결하게 조정한다.
-- 검증 근거: 스프린트 1·2의 핵심 문장과 루프가 남아 있는지 확인하고 `git diff --check`를 실행한다.
-- 결과와 연결 문서: `docs/ai-assisted-development-workflow.md`를 핵심 루프 중심으로 재작성했다.
-- 회고와 후속 조치: README에는 이 문서 링크만 연결하고, 상세 작업 기록은 각 스프린트 문서에서 관리한다.
-
-## 2026-08-31T21:20:12+09:00 — 스프린트 2 체크리스트와 병합 전 상태 감사
-
-- 상태: 수정 채택
-- 시간 근거: 현재 대화에서 체크리스트·코드·실행 중인 로컬 HTTP 응답을 대조한 시각
-- 스프린트/범위: 스프린트 2 완료 상태, ADR 0016 결정 게이트, multipart 입력 제한
-- 관련 문서·코드: [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md), `application.yml`, `FileUploadExceptionHandler`, `MultipartFileCountIntegrationTests`
-- 요청·질문 요약: 체크되지 않은 스프린트 2 항목이 코드 문제인지 문서 문제인지 판단하고, 문서는 고치며 병합 직전 커밋 상태를 준비한다.
-- 배경과 제약: ADR 0016은 제품·운영 선택이 없어서 allowlist 구현을 시작할 수 없다. 409 화면 재시도 분기는 API·FE 코드가 존재하지만 결정적 화면 주입 환경이 없어 실제 화면 확인 근거가 없다.
-- AI 활용 정보:
-  - 모델/실행 환경: Codex 데스크톱 작업 환경
-  - skill: `browser:control-in-app-browser`
-  - plugin/도구: `apply_patch`, Gradle Wrapper, Git, curl, Codex In-app Browser
-- AI 제안: 결정 게이트를 코드 미완료로 오인하지 않고 문서 상태를 실제 기준 커밋과 맞춘다. 하나의 업로드만 허용하는 multipart part 제한은 API 오류 의미를 별도로 검증한다.
-- 사람의 판단과 이유: 수정 채택. PRD 상태, ADR 0016 질문 문구, 확장자 검사 범위, 구현 상태 점검 기준 커밋, AI 로그 시간 순서를 실제 상태와 맞춘다. allowlist 결정과 수동 접근성 검증은 완료로 표시하지 않는다.
-- 코드·사용자 경험 영향: 문서만 수정한다. 두 개의 `file` part 요청이 `413 FILE_SIZE_EXCEEDED`와 용량 초과 메시지로 응답하는 코드 결함은 병합하지 않고 별도 수정 대상으로 남긴다.
-- 검증 근거: 대상 Gradle 테스트가 통과했고, 실행 중인 로컬 서버에 두 개의 파일 part를 전송해 `413`과 `FILE_SIZE_EXCEEDED` 응답을 재현했다. `git diff --check`를 통과했다.
-- 결과와 연결 문서: 스프린트 2 PRD·체크리스트·ADR 구현 상태 점검·README와 이 로그를 갱신한다.
-- 회고와 후속 조치: part 개수 제한을 유지하려면 파일 수 초과용 오류 코드·HTTP 계약을 먼저 확정하고, 그렇지 않으면 해당 제한 변경을 제거한다. 이 결정 전에는 코드를 커밋하지 않는다.
 
 ## 2026-08-31T21:39:30+09:00 — 파일 하나 업로드 계약과 오류 코드 분리
 
