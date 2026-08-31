@@ -45,11 +45,14 @@ public class FileUploadServiceImpl implements FileUploadService {
         }
 
         OriginalFilename originalFilename = OriginalFilename.from(file.getOriginalFilename());
-        ExtensionName extension = extensionExtractor.extract(file);
+        var extensions = extensionExtractor.extractAll(file);
+        ExtensionName extension = extensions.getLast();
         enforceExecutableMimePolicy(file, extension);
 
-        if (extensionPolicyService.isBlocked(extension)) {
-            throw new BlockedExtensionException(extension);
+        for (ExtensionName extensionSegment : extensions) {
+            if (extensionPolicyService.isBlocked(extensionSegment)) {
+                throw new BlockedExtensionException(extensionSegment);
+            }
         }
 
         String storedFilename = fileStorage.generateFilename(extension);

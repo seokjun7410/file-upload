@@ -97,6 +97,68 @@ class FileUploadServiceTests {
     }
 
     @Test
+    @DisplayName("차단된 고정 확장자가 중간에 있어도 저장하지 않는다")
+    void rejectsBlockedIntermediateFixedExtensionBeforeStorage() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        var service = uploadService();
+        var file = multipartFile("malware.exe.pdf", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(exe)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("여러 차단 확장자가 있으면 파일명 왼쪽의 확장자를 오류에 사용한다")
+    void reportsFirstBlockedExtensionFromLeft() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        extensionPolicyService.registerCustom(ExtensionName.from("jsp"));
+        var service = uploadService();
+        var file = multipartFile("test.exe.jsp.pdf", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(exe)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("차단 확장자의 부분 문자열만 포함한 구간은 저장할 수 있다")
+    void allowsExtensionThatOnlyContainsBlockedExtensionText() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        var service = uploadService();
+        var file = multipartFile("test.exefoo.pdf", "allowed");
+
+        // when
+        var uploadedFile = service.upload(file);
+
+        // then
+        assertThat(uploadedFile.filename()).matches("[0-9a-f-]{36}\\.pdf");
+        assertThat(uploadDirectory.resolve(uploadedFile.filename())).exists().isRegularFile();
+    }
+
+    @Test
+    @DisplayName("차단된 커스텀 확장자가 중간에 있어도 저장하지 않는다")
+    void rejectsBlockedIntermediateCustomExtensionBeforeStorage() throws IOException {
+        // given
+        extensionPolicyService.registerCustom(ExtensionName.from("jsp"));
+        var service = uploadService();
+        var file = multipartFile("test.jsp.png", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(jsp)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
     @DisplayName("실행 파일을 텍스트 확장자로 위장해도 저장하지 않는다")
     void rejectsExecutableContentRenamedAsText() throws IOException {
         // given

@@ -33,6 +33,24 @@ class FileExtensionExtractorTests {
     }
 
     @Test
+    @DisplayName("파일명의 모든 확장자 구간을 파일명 순서대로 추출한다")
+    void extractsAllExtensionSegments() {
+        // given
+        var file = new MockMultipartFile(
+                "file",
+                "test.EXE.PDF",
+                "application/pdf",
+                "content".getBytes()
+        );
+
+        // when
+        var extensions = extractor.extractAll(file);
+
+        // then
+        assertThat(extensions).containsExactly(ExtensionName.from("exe"), ExtensionName.from("pdf"));
+    }
+
+    @Test
     @DisplayName("점이 여러 개인 파일명에서는 마지막 확장자를 추출한다")
     void extractsLastExtension() {
         // given

@@ -135,6 +135,30 @@ class ExtensionPolicyApiIntegrationTests {
     }
 
     @Test
+    @DisplayName("차단된 중간 확장자는 HTTP 업로드에서도 거부되고 저장하지 않는다")
+    void rejectsBlockedIntermediateExtensionThroughApi() throws Exception {
+        // given
+        mockMvc.perform(patch("/api/v1/extension-policies/fixed/exe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"blocked\":true}"));
+        Set<Path> beforeUpload = snapshotUploadFiles();
+        var file = new MockMultipartFile(
+                "file", "malware.exe.pdf", "application/pdf", "blocked".getBytes()
+        );
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440018"));
+
+        // then
+        result.andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("BLOCKED_EXTENSION"))
+                .andExpect(jsonPath("$.context.extension").value("exe"));
+        org.assertj.core.api.Assertions.assertThat(snapshotUploadFiles()).isEqualTo(beforeUpload);
+    }
+
+    @Test
     @DisplayName("완료된 requestId를 재사용하면 파일을 다시 저장하지 않고 기존 성공 응답을 반환한다")
     void reusesCompletedUploadResult() throws Exception {
         // given
