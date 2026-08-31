@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.file.exception.BlockedExtensionException;
+import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
@@ -14,8 +15,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import com.example.demo.file.service.impl.FileUploadServiceImpl;
+import com.example.demo.file.service.impl.TikaMimeTypeDetector;
 import com.example.demo.file.service.FileExtensionExtractor;
 import com.example.demo.file.service.impl.LocalFileStorage;
+import com.example.demo.file.service.impl.RetryAfterCalculator;
+import com.example.demo.file.service.impl.UploadFileStateService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -33,6 +37,12 @@ class FileUploadServiceTests {
 
     @Autowired
     private ExtensionPolicyService extensionPolicyService;
+
+    @Autowired
+    private UploadFileStateService uploadFileStateService;
+
+    @Autowired
+    private RetryAfterCalculator retryAfterCalculator;
 
     @TempDir
     private Path uploadDirectory;
@@ -87,6 +97,87 @@ class FileUploadServiceTests {
     }
 
     @Test
+    @DisplayName("차단된 고정 확장자가 중간에 있어도 저장하지 않는다")
+    void rejectsBlockedIntermediateFixedExtensionBeforeStorage() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        var service = uploadService();
+        var file = multipartFile("malware.exe.pdf", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(exe)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("여러 차단 확장자가 있으면 파일명 왼쪽의 확장자를 오류에 사용한다")
+    void reportsFirstBlockedExtensionFromLeft() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        extensionPolicyService.registerCustom(ExtensionName.from("jsp"));
+        var service = uploadService();
+        var file = multipartFile("test.exe.jsp.pdf", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(exe)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("차단 확장자의 부분 문자열만 포함한 구간은 저장할 수 있다")
+    void allowsExtensionThatOnlyContainsBlockedExtensionText() throws IOException {
+        // given
+        extensionPolicyService.changeFixedBlocked(ExtensionName.from("exe"), true);
+        var service = uploadService();
+        var file = multipartFile("test.exefoo.pdf", "allowed");
+
+        // when
+        var uploadedFile = service.upload(file);
+
+        // then
+        assertThat(uploadedFile.filename()).matches("[0-9a-f-]{36}\\.pdf");
+        assertThat(uploadDirectory.resolve(uploadedFile.filename())).exists().isRegularFile();
+    }
+
+    @Test
+    @DisplayName("차단된 커스텀 확장자가 중간에 있어도 저장하지 않는다")
+    void rejectsBlockedIntermediateCustomExtensionBeforeStorage() throws IOException {
+        // given
+        extensionPolicyService.registerCustom(ExtensionName.from("jsp"));
+        var service = uploadService();
+        var file = multipartFile("test.jsp.png", "blocked");
+
+        // when / then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(BlockedExtensionException.class)
+                .hasMessage("차단된 확장자(jsp)는 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("실행 파일을 텍스트 확장자로 위장해도 저장하지 않는다")
+    void rejectsExecutableContentRenamedAsText() throws IOException {
+        // given
+        var service = uploadService();
+        byte[] executableHeader = new byte[64];
+        executableHeader[0] = 'M';
+        executableHeader[1] = 'Z';
+        var file = new MockMultipartFile("file", "document.txt", "text/plain", executableHeader);
+
+        // when
+
+        // then
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(ExecutableMimeTypeException.class)
+                .hasMessage("실행 가능한 파일 형식은 업로드할 수 없습니다.");
+        assertThat(storedFiles()).isEmpty();
+    }
+
+    @Test
     @DisplayName("커스텀 확장자를 삭제하면 같은 확장자 파일을 다시 업로드할 수 있다")
     void allowsCustomExtensionAfterPolicyDeletion() {
         // given
@@ -129,7 +220,10 @@ class FileUploadServiceTests {
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
                 new LocalFileStorage(fileInsteadOfDirectory),
-                new FileExtensionExtractor()
+                new FileExtensionExtractor(),
+                new TikaMimeTypeDetector(),
+                uploadFileStateService,
+                retryAfterCalculator
         );
         var file = multipartFile("readme.txt", "content");
 
@@ -146,7 +240,10 @@ class FileUploadServiceTests {
         return new FileUploadServiceImpl(
                 extensionPolicyService,
                 new LocalFileStorage(uploadDirectory),
-                new FileExtensionExtractor()
+                new FileExtensionExtractor(),
+                new TikaMimeTypeDetector(),
+                uploadFileStateService,
+                retryAfterCalculator
         );
     }
 

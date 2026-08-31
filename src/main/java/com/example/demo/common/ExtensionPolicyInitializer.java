@@ -3,9 +3,11 @@ package com.example.demo.common;
 import com.example.demo.file.domain.FixedExtensionCatalog;
 import com.example.demo.file.domain.entity.ExtensionPolicy;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
+import com.example.demo.file.domain.entity.ExtensionPolicyAuditHistory;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
 import com.example.demo.file.repository.ExtensionPolicyRepository;
+import com.example.demo.file.repository.ExtensionPolicyAuditHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -18,6 +20,7 @@ public class ExtensionPolicyInitializer implements CommandLineRunner {
 
     private final ExtensionPolicyRepository repository;
     private final ExtensionPolicyQuotaRepository quotaRepository;
+    private final ExtensionPolicyAuditHistoryRepository auditHistoryRepository;
 
     /** 누락된 고정 정책만 차단 해제 상태로 저장하고 기존 상태는 보존한다. */
     @Override
@@ -28,7 +31,8 @@ public class ExtensionPolicyInitializer implements CommandLineRunner {
         }
         for (ExtensionName extension : FixedExtensionCatalog.defaultExtensions()) {
             if (!repository.existsByExtension(extension)) {
-                repository.save(ExtensionPolicy.fixed(extension));
+                ExtensionPolicy policy = repository.save(ExtensionPolicy.fixed(extension));
+                auditHistoryRepository.save(ExtensionPolicyAuditHistory.initialized(policy));
             }
         }
     }

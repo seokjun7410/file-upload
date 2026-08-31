@@ -6,6 +6,25 @@ const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 �
 const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
 const DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE = "커스텀 확장자를 삭제하지 못했습니다.";
 const DEFAULT_FILE_UPLOAD_ERROR_MESSAGE = "파일을 업로드하지 못했습니다.";
+const POLICY_ERROR_MESSAGES = Object.freeze({
+    INVALID_EXTENSION: "확장자는 비어 있지 않고 20자 이내이며 점을 포함할 수 없습니다.",
+    DUPLICATE_EXTENSION: "이미 등록된 확장자입니다.",
+    CUSTOM_LIMIT_EXCEEDED: "커스텀 확장자는 최대 200개까지 등록할 수 있습니다.",
+    ENTITY_NOT_FOUND: "요청한 확장자 정책을 찾을 수 없습니다."
+});
+const FILE_UPLOAD_ERROR_MESSAGES = Object.freeze({
+    INVALID_FILE: "업로드할 파일을 선택해 주세요.",
+    INVALID_REQUEST_ID: "업로드 요청 식별자를 확인하지 못했습니다. 다시 시도해 주세요.",
+    MULTIPLE_FILES_NOT_ALLOWED: "한 번에 파일 1개만 업로드할 수 있습니다.",
+    FILE_SIZE_EXCEEDED: "파일 크기가 허용된 제한을 초과했습니다.",
+    BLOCKED_EXECUTABLE_MIME: "실행 가능한 파일 형식은 업로드할 수 없습니다.",
+    FILE_TYPE_DETECTION_FAILED: "파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    FILE_UPLOAD_FAILED: DEFAULT_FILE_UPLOAD_ERROR_MESSAGE
+});
+const UPLOAD_MAX_RETRIES = 3;
+const UPLOAD_MAX_DURATION_MS = 30 * 1000;
+const UPLOAD_RESULT_CONFIRMATION_MESSAGE =
+    "자동 재시도를 종료했습니다. 업로드 결과를 확인한 뒤 다시 시도해 주세요.";
 const RESYNCHRONIZE_ERROR_MESSAGE =
     "최신 정책 상태도 확인하지 못했습니다. 페이지를 새로고침해 주세요.";
 
@@ -217,6 +236,7 @@ async function registerCustomPolicy() {
         await resynchronizeAfterCustomPolicyFailure(changeErrorMessage);
     } finally {
         setCustomPolicyControlsDisabled(false);
+        document.getElementById("custom-extension-input").focus();
     }
 }
 
@@ -252,12 +272,14 @@ async function deleteCustomPolicy(extension) {
         await resynchronizeAfterCustomPolicyFailure(policyErrorMessage);
     } finally {
         setCustomPolicyControlsDisabled(false);
+        document.getElementById("custom-extension-input").focus();
     }
 }
 
 /**
  * 선택된 파일을 FormData로 서버에 업로드하고 서버가 생성한 파일명을 표시한다.
  * 확장자 차단 여부는 화면에서 판단하지 않고 서버 응답을 최종 결과로 사용한다.
+ * 한 번의 논리 업로드 동안 같은 UUID v4를 Idempotency-Key로 유지한다.
  *
  * @returns {Promise<void>} 업로드 요청과 화면 결과 표시가 끝난 뒤 완료된다.
  */
@@ -272,19 +294,71 @@ async function uploadFile() {
     setFileUploadControlsDisabled(true);
     showFileUploadStatus("파일을 업로드하는 중입니다.");
 
+    const requestId = crypto.randomUUID();
+    const startedAt = Date.now();
+    let retryCount = 0;
+
     try {
-        const response = await axios.post("/api/v1/files", formData);
-        input.value = "";
-        showFileUploadStatus(
-            `${response.data.message} 저장된 파일명: ${response.data.filename}`
-        );
+        while (true) {
+            try {
+                const response = await axios.post("/api/v1/files", formData, {
+                    headers: {"Idempotency-Key": requestId}
+                });
+                input.value = "";
+                showFileUploadStatus(
+                    `${response.data.message} 저장된 파일명: ${response.data.filename}`
+                );
+                break;
+            } catch (error) {
+                const retryAfterSeconds = resolveRetryAfterSeconds(error);
+                const elapsedMs = Date.now() - startedAt;
+                const waitMs = retryAfterSeconds * 1000;
+                const canRetry = error?.response?.status === 409
+                    && error?.response?.data?.code === "IDEMPOTENCY_IN_PROGRESS"
+                    && retryCount < UPLOAD_MAX_RETRIES
+                    && elapsedMs + waitMs <= UPLOAD_MAX_DURATION_MS;
+
+                if (!canRetry) {
+                    if (error?.response?.status === 409
+                        && error?.response?.data?.code === "IDEMPOTENCY_IN_PROGRESS") {
+                        showFileUploadStatus(UPLOAD_RESULT_CONFIRMATION_MESSAGE);
+                    } else {
+                        showFileUploadStatus(
+                            resolveFileUploadErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+                        );
+                    }
+                    break;
+                }
+
+                retryCount++;
+                showFileUploadStatus(
+                    `업로드 처리 중입니다. ${retryAfterSeconds}초 후 재시도합니다. (${retryCount}/${UPLOAD_MAX_RETRIES})`
+                );
+                await delay(retryAfterSeconds * 1000);
+            }
+        }
     } catch (error) {
         showFileUploadStatus(
-            resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+            resolveFileUploadErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
         );
     } finally {
         setFileUploadControlsDisabled(false);
+        document.getElementById("file-input").focus();
     }
+}
+
+/** 서버가 계산한 Retry-After 초 값을 안전한 범위로 해석한다. */
+function resolveRetryAfterSeconds(error) {
+    const value = Number.parseInt(error?.response?.headers?.["retry-after"], 10);
+    if (!Number.isFinite(value)) {
+        return 1;
+    }
+    return Math.min(30, Math.max(1, value));
+}
+
+/** 재시도 전에 서버가 지정한 대기 시간을 기다린다. */
+function delay(milliseconds) {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 /**
@@ -420,16 +494,43 @@ function clearPolicyLists() {
 }
 
 /**
- * 공통 오류 응답의 메시지를 반환하고, 메시지가 없으면 작업별 기본 안내 문구를 반환한다.
+ * 정책 오류 코드를 사용자 안내 문구로 우선 변환하고, 알 수 없는 오류만 서버 메시지를 사용한다.
  *
  * @param {unknown} error Axios가 반환한 정책 요청 오류
  * @param {string} fallbackMessage 공통 오류 메시지가 없을 때 사용할 안내 문구
  * @returns {string} 사용자에게 표시할 오류 메시지
  */
 function resolvePolicyErrorMessage(error, fallbackMessage) {
+    const responseCode = error?.response?.data?.code;
+    if (typeof responseCode === "string" && POLICY_ERROR_MESSAGES[responseCode]) {
+        return POLICY_ERROR_MESSAGES[responseCode];
+    }
+
     const responseMessage = error?.response?.data?.message;
     if (typeof responseMessage === "string" && responseMessage.trim() !== "") {
         return responseMessage;
     }
     return fallbackMessage;
+}
+
+/**
+ * 파일 업로드 오류 코드를 사용자 안내 문장으로 변환한다.
+ * 서버 message는 호환 응답일 수 있으므로 업로드 오류 분기에는 사용하지 않는다.
+ *
+ * @param {unknown} error Axios가 반환한 파일 업로드 오류
+ * @param {string} fallbackMessage 오류 코드가 없을 때 사용할 기본 안내 문구
+ * @returns {string} 사용자에게 표시할 업로드 오류 메시지
+ */
+function resolveFileUploadErrorMessage(error, fallbackMessage) {
+    const data = error?.response?.data;
+    const code = typeof data?.code === "string" ? data.code : "";
+
+    if (code === "BLOCKED_EXTENSION") {
+        const extension = data?.context?.extension;
+        if (typeof extension === "string" && extension.trim() !== "") {
+            return `차단된 확장자(${extension})는 업로드할 수 없습니다.`;
+        }
+    }
+
+    return FILE_UPLOAD_ERROR_MESSAGES[code] ?? fallbackMessage;
 }

@@ -1,14 +1,18 @@
 package com.example.demo.file.controller;
 
 import com.example.demo.file.controller.dto.res.FileUploadResponse;
+import com.example.demo.file.domain.entity.vo.UploadRequestId;
+import com.example.demo.file.exception.MultipleFilesNotAllowedException;
 import com.example.demo.file.service.FileUploadService;
 import com.example.demo.file.service.UploadedFile;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,10 +28,21 @@ public class FileUploadRestController {
     /** 파일을 저장하고 생성된 서버 파일명을 201 응답으로 반환한다. */
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileUploadResponse> upload(
-            @RequestPart("file") MultipartFile file
+            @RequestHeader("Idempotency-Key") String requestId,
+            @RequestPart("file") List<MultipartFile> files
     ) {
-        UploadedFile uploadedFile = service.upload(file);
+        String normalizedRequestId = UploadRequestId.from(requestId).value();
+        MultipartFile file = singleFile(files);
+        UploadedFile uploadedFile = service.upload(normalizedRequestId, file);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(FileUploadResponse.from(uploadedFile));
+    }
+
+    /** 업로드 요청이 파일 하나만 포함하도록 검증한다. */
+    private MultipartFile singleFile(List<MultipartFile> files) {
+        if (files.size() > 1) {
+            throw new MultipleFilesNotAllowedException();
+        }
+        return files.getFirst();
     }
 }

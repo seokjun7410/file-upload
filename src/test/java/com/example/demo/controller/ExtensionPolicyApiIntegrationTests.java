@@ -109,7 +109,9 @@ class ExtensionPolicyApiIntegrationTests {
         );
 
         // when
-        var blockedResult = mockMvc.perform(multipart("/api/v1/files").file(blockedFile));
+        var blockedResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(blockedFile)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440010"));
 
         // then
         blockedResult.andExpect(status().isUnprocessableEntity())
@@ -121,13 +123,72 @@ class ExtensionPolicyApiIntegrationTests {
         mockMvc.perform(patch("/api/v1/extension-policies/fixed/exe")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"blocked\":false}"));
-        var allowedResult = mockMvc.perform(multipart("/api/v1/files").file(blockedFile));
+        var allowedResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(blockedFile)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440011"));
 
         // then
         allowedResult.andExpect(status().isCreated())
                 .andExpect(jsonPath("$.filename").value(org.hamcrest.Matchers.endsWith(".exe")))
                 .andExpect(jsonPath("$.message").value("파일 업로드가 완료되었습니다."));
         rememberCreatedFile(allowedResult.andReturn());
+    }
+
+    @Test
+    @DisplayName("차단된 중간 확장자는 HTTP 업로드에서도 거부되고 저장하지 않는다")
+    void rejectsBlockedIntermediateExtensionThroughApi() throws Exception {
+        // given
+        mockMvc.perform(patch("/api/v1/extension-policies/fixed/exe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"blocked\":true}"));
+        Set<Path> beforeUpload = snapshotUploadFiles();
+        var file = new MockMultipartFile(
+                "file", "malware.exe.pdf", "application/pdf", "blocked".getBytes()
+        );
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440018"));
+
+        // then
+        result.andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.code").value("BLOCKED_EXTENSION"))
+                .andExpect(jsonPath("$.context.extension").value("exe"));
+        org.assertj.core.api.Assertions.assertThat(snapshotUploadFiles()).isEqualTo(beforeUpload);
+    }
+
+    @Test
+    @DisplayName("완료된 requestId를 재사용하면 파일을 다시 저장하지 않고 기존 성공 응답을 반환한다")
+    void reusesCompletedUploadResult() throws Exception {
+        // given
+        String requestId = "550e8400-e29b-41d4-a716-446655440017";
+        var file = new MockMultipartFile("file", "readme.exe", "text/plain", "content".getBytes());
+        var firstResult = mockMvc.perform(multipart("/api/v1/files")
+                        .file(file)
+                        .header("Idempotency-Key", requestId))
+                .andExpect(status().isCreated())
+                .andReturn();
+        String storedFilename = objectMapper.readTree(firstResult.getResponse().getContentAsString())
+                .get("filename")
+                .asText();
+        rememberCreatedFile(firstResult);
+
+        mockMvc.perform(patch("/api/v1/extension-policies/fixed/exe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"blocked\":true}"));
+
+        // when
+        var replayResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(new MockMultipartFile("file", "different.exe", "application/octet-stream", "different".getBytes()))
+                .header("Idempotency-Key", requestId));
+
+        // then
+        replayResult.andExpect(status().isCreated())
+                .andExpect(jsonPath("$.requestId").value(requestId))
+                .andExpect(jsonPath("$.filename").value(storedFilename));
+        org.assertj.core.api.Assertions.assertThat(snapshotUploadFiles())
+                .contains(Path.of("uploads", storedFilename));
     }
 
     @Test
@@ -140,7 +201,9 @@ class ExtensionPolicyApiIntegrationTests {
         var file = new MockMultipartFile("file", "script.sh", "text/plain", "content".getBytes());
 
         // when
-        var blockedResult = mockMvc.perform(multipart("/api/v1/files").file(file));
+        var blockedResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440012"));
 
         // then
         blockedResult.andExpect(status().isUnprocessableEntity())
@@ -149,7 +212,9 @@ class ExtensionPolicyApiIntegrationTests {
         // when
         mockMvc.perform(delete("/api/v1/extension-policies/custom/sh"))
                 .andExpect(status().isNoContent());
-        var allowedResult = mockMvc.perform(multipart("/api/v1/files").file(file));
+        var allowedResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440013"));
 
         // then
         allowedResult.andExpect(status().isCreated());
@@ -164,9 +229,14 @@ class ExtensionPolicyApiIntegrationTests {
         var extensionlessFile = new MockMultipartFile("file", "README", "text/plain", "content".getBytes());
 
         // when
-        var missingResult = mockMvc.perform(multipart("/api/v1/files"));
-        var emptyResult = mockMvc.perform(multipart("/api/v1/files").file(emptyFile));
-        var extensionlessResult = mockMvc.perform(multipart("/api/v1/files").file(extensionlessFile));
+        var missingResult = mockMvc.perform(multipart("/api/v1/files")
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440014"));
+        var emptyResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(emptyFile)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440015"));
+        var extensionlessResult = mockMvc.perform(multipart("/api/v1/files")
+                .file(extensionlessFile)
+                .header("Idempotency-Key", "550e8400-e29b-41d4-a716-446655440016"));
 
         // then
         missingResult.andExpect(status().isBadRequest())
