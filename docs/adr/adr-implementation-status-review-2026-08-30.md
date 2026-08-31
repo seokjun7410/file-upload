@@ -1,7 +1,7 @@
 ---
 status: review
 reviewed_at: 2026-08-31
-implementation_baseline: feat/upload-policy-reliability@f7468c3
+implementation_baseline: feat/upload-policy-reliability@a89a5ef
 ---
 
 # ADR 구현 상태 점검과 다음 작업
@@ -10,7 +10,7 @@ implementation_baseline: feat/upload-policy-reliability@f7468c3
 
 ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현재 기준 브랜치의 Java 코드·설정·프런트 JavaScript·테스트에서 확인되는 경우에만 표시한다.
 
-이번 점검의 기준 코드는 `feat/upload-policy-reliability@f7468c3`이다. 문서 전용 `docs` 브랜치의 `src`는 구현 근거로 사용하지 않는다. 이 기준 브랜치에는 MIME 검증·multipart 제한·저장 루트 외부화·requestId 멱등 업로드·업로드 상태 전이·정책 감사 이력이 병합되어 있다.
+이번 점검의 기준 코드는 `feat/upload-policy-reliability@a89a5ef`이다. 문서 전용 `docs` 브랜치의 `src`는 구현 근거로 사용하지 않는다. 이 기준 브랜치에는 MIME 검증·multipart 제한·저장 루트 외부화·requestId 멱등 업로드·업로드 상태 전이·정책 감사 이력이 병합되어 있다.
 
 상태의 의미는 다음과 같다.
 
@@ -36,18 +36,18 @@ ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현�
 | [0012](0012-preserve-policy-change-history-for-operations.md) | 구현 완료 | 정책 초기화·생성·상태 변경·삭제 이력과 원자성 테스트가 존재한다. 이벤트 후 상태는 `state` 하나로 저장한다. |
 | [0013](0013-use-request-id-and-frontend-owned-upload-messages.md) | 구현 완료 | UUID v4 `Idempotency-Key`를 requestId로 검증하고 응답·오류·로그의 안전한 context에 연결한다. |
 | [0014](0014-persist-upload-state-before-file-and-finalize-atomically.md) | 구현 완료 | `RECEIVING` 선저장, 임시 파일, atomic move, `COMPLETED`·`FAILED` 전환과 stale 복구가 존재한다. |
-| [0015](0015-separate-upload-retry-idempotency-and-state.md) | 구현 완료·후속 결정 대기 | 동일 requestId 결과 재사용, 처리 중 `409 + Retry-After`, FE 재시도 상한을 구현했다. 키 보존 기간과 만료 상호작용 테스트는 남아 있다. |
+| [0015](0015-separate-upload-retry-idempotency-and-state.md) | 구현 완료 | 동일 requestId 결과 재사용, 처리 중 `409 + Retry-After`, FE 재시도 상한을 구현했다. requestId 만료·정리 로직은 현재 파일 업로드 범위에 포함하지 않는다. |
 | [0016](0016-migrate-to-allowlist-when-policy-requires.md) | 의도적 보류 | `proposed` ADR이며 정책 집합·scope·allowlist·shadow 구현을 시작하지 않는다. |
 
 ## 현재 코드 기준 요약
 
-현재 기준 브랜치에는 스프린트 2의 MIME 검증, multipart 제한, 저장 루트 설정, 원본 파일명 메타데이터, requestId 멱등성·재시도, 업로드 상태 복구, 정책 감사 이력이 포함되어 있다. 브라우저 smoke와 키 보존 기간 결정·상호작용 테스트는 아직 남아 있다.
+현재 기준 브랜치에는 스프린트 2의 MIME 검증, multipart 제한, 저장 루트 설정, 원본 파일명 메타데이터, requestId 멱등성·재시도, 업로드 상태 복구, 정책 감사 이력이 포함되어 있다. FE 오류 코드·context 매핑도 구현했다. 브라우저 smoke의 일부 시나리오와 최종 UX 회귀 검증이 남아 있으며, requestId 만료·정리는 현재 범위에서 제외한다.
 
-통합 후 `./gradlew test`는 성공했다. 브라우저 smoke는 아직 실행하지 않았다.
+통합 후 `./gradlew test`는 성공했다. 브라우저에서는 정상 `.txt` 업로드, 차단된 `env` 업로드, 320px 폭의 가로 overflow 부재를 확인했다.
 
 ## 다음 작업과 선결 조건
 
-1. 키 보존 기간과 만료 후 `COMPLETED`·`FAILED`·고아 임시 파일 정리 정책을 확정한다.
-2. 해당 정책을 ADR 0015와 체크리스트에 반영하고 통합 테스트를 추가한다.
-3. 브라우저 오류 안내·접근성·반응형 smoke를 실행한다.
+1. MIME 거부·413 용량 초과·409 처리 중 재시도 화면을 브라우저에서 검증한다.
+2. 20자·200개·201번째 등록과 키보드·스크린리더·200% 확대 UX smoke를 실행한다.
+3. 브랜치 직접 커밋 경로와 최종 회귀 결과를 감사한다.
 4. ADR 0016은 제품·운영 결정이 끝날 때까지 보류한다.

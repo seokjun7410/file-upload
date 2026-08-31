@@ -1,6 +1,6 @@
 # 스프린트 1 API 문서
 
-> 상태: `feat/upload-policy-reliability` 기준 정책 REST API와 업로드 신뢰성 확장 계약 구현 완료. 브라우저 smoke와 ADR 0015 키 보존 기간은 후속 검증·결정 대상
+> 상태: `feat/upload-policy-reliability` 기준 정책 REST API와 업로드 신뢰성 확장 계약 구현 완료. 브라우저 smoke는 후속 검증 대상이며 requestId 만료는 현재 범위 외
 >
 > 정책 API의 구현은 `ExtensionPolicyRestController`와 `ExtensionPolicyService`, 파일 업로드 API의 구현은 `FileUploadRestController`와 `FileUploadService`를 기준으로 한다.
 

@@ -1632,3 +1632,22 @@
 - 검증 근거: 통합 기준 브랜치에서 `./gradlew test`가 `BUILD SUCCESSFUL`로 완료되었다. 기준 커밋에 Tika MIME 감지, multipart 설정, `file.upload.storage-path`, `UploadFile` 상태 전이·복구, 정책 감사 이력 코드와 테스트가 존재함을 확인했다.
 - 결과와 연결 문서: `docs` 브랜치에서 구현 상태 점검·스프린트 1 API 계약·스프린트 2 체크리스트를 `f7468c3` 기준으로 갱신한 뒤 `feat/upload-policy-reliability`에 문서 병합한다.
 - 회고와 후속 조치: 다음 작업은 키 보존 기간과 만료·고아 파일 정리 상호작용 테스트 결정, 브라우저 smoke 검증이다. 기존 `PROMPT_LOG.md`의 과거 시각 순서 위반은 이번 통합 범위에서 재작성하지 않는다.
+
+## 2026-08-31T15:16:50+09:00 — 업로드 FE 오류 메시지를 code·context 기준으로 전환
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 업로드 화면의 다음 작업을 진행하도록 승인한 뒤 FE 오류 표시 구현과 검증을 완료한 시각
+- 스프린트/범위: 스프린트 2 ADR 0013 업로드 오류 메시지 책임과 브라우저 smoke
+- 관련 문서·코드: `src/main/resources/static/js/extension-policy.js`, ADR 0013, 스프린트 2 구현 체크리스트, 스프린트 1 파일 업로드 API
+- 요청·질문 요약: 업로드 오류 화면이 서버 `message` 문자열에 의존하지 않고 오류 `code`와 안전한 `context`로 사용자 문장을 조립하도록 수정한다.
+- 배경과 제약: 서버는 `requestId`·`code`·`context`를 제공하지만 기존 FE 공통 함수는 `message`를 우선 반환했다. 정책 관리 API의 기존 메시지 계약과 성공 응답 문구는 이번 변경에서 유지한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`, `browser:control-in-app-browser`
+  - plugin/도구: `apply_patch`, Node 정적 매핑 검사, 로컬 브라우저, `./gradlew test`
+- AI 제안: 업로드 전용 오류 코드 매핑을 정책 API 오류 처리와 분리하고, `BLOCKED_EXTENSION`의 확장자 context만 안전하게 문장에 삽입하며 알 수 없는 코드는 기본 안내로 처리한다.
+- 사람의 판단과 이유: 채택. requestId는 논리적 업로드 중복 방지 식별자이며 파일 업로드 만료 기능이 아니다. 보존기간·멱등키 정리는 현재 범위에 추가하지 않고, 파일 생명주기 정책이 필요해질 때 별도 결정한다.
+- 코드·사용자 경험 영향: `BLOCKED_EXTENSION`, `FILE_SIZE_EXCEEDED`, `BLOCKED_EXECUTABLE_MIME`, `INVALID_REQUEST_ID`, `FILE_UPLOAD_FAILED`를 FE가 직접 매핑한다. 서버가 호환용 `message`를 보내도 업로드 오류 선택에는 사용하지 않는다.
+- 검증 근거: Node 기반 매핑 확인에서 확장자 context·알 수 없는 code fallback·서버 message 무시를 확인했다. 로컬 브라우저에서 정상 `.txt` 업로드 성공, 차단 `env` 오류 문구, 320px 화면의 가로 overflow 부재를 확인했다. 전체 `./gradlew test`는 `BUILD SUCCESSFUL`로 완료했다.
+- 결과와 연결 문서: 기능 커밋 `a89a5ef`; 후속 docs 커밋에서 ADR 구현 상태 점검·스프린트 API·체크리스트를 현재 코드 및 부분 smoke 결과에 맞춰 갱신한다.
+- 회고와 후속 조치: MIME 거부·413 용량 초과·처리 중 409 재시도와 20자·200개·201번째 등록·키보드·스크린리더·200% 확대 검증을 남긴다. requestId 만료 구현은 다음 작업으로 올리지 않는다.
