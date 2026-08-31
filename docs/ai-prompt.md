@@ -56,7 +56,7 @@ AI 답변:
 
 내 최종 선택: 구현 편의가 아니라 정책의 공통 의미와 불가능한 상태를 기준으로 단일 `ExtensionPolicy` 모델을 선택했다.
 
-- 관련 결정: [`ADR 0001`](adr/0001-unify-extension-policies.md)
+- 관련 구현: `ExtensionPolicy` 단일 모델과 유형별 정책 검증
 
 </details>
 
@@ -97,7 +97,7 @@ AI 답변:
 
 내 최종 선택: MIME을 특정하지 못한 결과는 기존 정책으로 처리하고, MIME 분석 실패는 저장 전에 차단하도록 결정했다.
 
-- 관련 결정: [`ADR 0005`](adr/0005-limit-upload-to-known-non-executable-types.md), [`ADR 0018`](adr/0018-fail-closed-on-mime-detection-failure.md)
+- 관련 구현: Apache Tika 기반 MIME 감지와 분석 실패 시 업로드 차단
 
 </details>
 
@@ -138,7 +138,7 @@ AI 답변:
 
 내 최종 선택: 자동 테스트 통과를 완료 기준으로 삼지 않고, 실제 화면에서 메시지와 포커스 흐름까지 확인한 결과를 완료 기준으로 사용했다.
 
-- 관련 검증 기준: [`스프린트 2 UX 검증 문서`](sprints/sprint-2/sprint-2-extension-limit-ux-validation.md)
+- 관련 검증: 정책 한도·업로드 오류·화면 포커스 흐름 확인
 
 </details>
 

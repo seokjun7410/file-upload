@@ -1,4 +1,4 @@
-# 스프린트 1 API 문서
+# 파일 업로드 API 명세
 
 > 상태: `feat/upload-policy-reliability` 기준 정책 REST API와 업로드 신뢰성 확장 계약 구현 완료. 브라우저 smoke는 후속 검증 대상이며 requestId 만료는 현재 범위 외
 >
@@ -7,7 +7,7 @@
 ## 공통 사항
 
 - Base URL: `/api/v1`
-- 확장자 입력: 앞뒤 공백을 제거하고 소문자로 정규화하며, 빈 값·20자 초과·점(`.`) 포함을 거부한다. 한글·영문·숫자 전용 제한은 ADR 0010에 따라 보류한다.
+- 확장자 입력: 앞뒤 공백을 제거하고 소문자로 정규화하며, 빈 값·20자 초과·점(`.`) 포함을 거부한다. 한글·영문·숫자 전용 제한은 적용하지 않는다.
 - 확장자 비교: 앞뒤 공백 제거 후 소문자로 정규화
 - 커스텀 확장자 최대 길이: 20자
 - 커스텀 확장자 최대 개수: 200개
@@ -154,7 +154,7 @@
 
 콘텐츠가 실행 가능한 MIME으로 감지된 경우에는 `BLOCKED_EXECUTABLE_MIME` 오류를 반환한다. 실행 MIME 상세값과 원본 파일명은 응답에 포함하지 않는다.
 
-사용자에게 표시할 문장은 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 FE가 `code`와 `context`로 조립한다. 기존 호환을 위해 서버 `message`가 포함될 수 있지만, FE는 `message` 문자열을 분기 기준으로 사용하지 않는다.
+사용자에게 표시할 문장은 FE가 `code`와 `context`로 조립한다. 기존 호환을 위해 서버 `message`가 포함될 수 있지만, FE는 `message` 문자열을 분기 기준으로 사용하지 않는다.
 
 ### 오류
 
@@ -181,7 +181,7 @@
 }
 ```
 
-위 형식은 업로드 API의 오류 계약이다. 업로드 오류는 [ADR 0013](../adr/0013-use-request-id-and-frontend-owned-upload-messages.md)에 따라 `code`, `requestId`, 안전한 `context`를 중심으로 하며, `message`는 호환 기간에만 유지한다. 정책 API는 기존 `message` 계약을 유지한다.
+위 형식은 업로드 API의 오류 계약이다. 업로드 오류는 `code`, `requestId`, 안전한 `context`를 중심으로 하며, `message`는 호환 기간에만 유지한다. 정책 API는 기존 `message` 계약을 유지한다.
 
 정책 API와 파일 업로드 API는 오류 상황에 따라 다음 `code`를 사용한다.
 

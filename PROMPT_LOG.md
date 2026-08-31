@@ -2,7 +2,7 @@
 
 이 문서는 제출용 AI 활용 기록이다. 프롬프트·AI 제안·사용한 skill/plugin·사람의 판단·검증 결과·회고를 사건 발생 시각 기준으로 누적한다.
 
-작성 규칙은 [`docs/ai-usage-guidelines.md`](docs/ai-usage-guidelines.md)를 따른다. 각 제목은 `YYYY-MM-DDTHH:MM:SS+09:00` ISO-8601 형식으로 시작하므로 문자열 정렬만으로 시간순 정렬할 수 있다. 새 사건은 맨 아래에 추가하고, 뒤늦게 발견한 과거 사건은 시간 근거를 밝힌 뒤 올바른 위치에 삽입한다.
+각 제목은 `YYYY-MM-DDTHH:MM:SS+09:00` ISO-8601 형식으로 시작하므로 문자열 정렬만으로 시간순 정렬할 수 있다. 새 사건은 맨 아래에 추가하고, 뒤늦게 발견한 과거 사건은 시간 근거를 밝힌 뒤 올바른 위치에 삽입한다. 제출본에서는 과거 작업 문서의 이름을 기록으로만 보존하며, 별도 내부 문서는 포함하지 않는다.
 
 ## 2026-08-28T14:45:00+09:00 — Spring Boot 최소 프로젝트 구성 확정
 
@@ -47,7 +47,7 @@
 - 상태: 검토 중
 - 시간 근거: ADR 전 검토 문서 커밋 `33c3012`의 작성 시각. 구현 편향 제거는 후속 커밋 `5e62b98`의 2026-08-28T17:15:26+09:00 시각으로 확인했다.
 - 스프린트/범위: fixed/custom 정책의 데이터 모델과 검증 책임 결정 전 검토
-- 관련 문서·코드: [`sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md), `adr-predecision-review` skill
+- 관련 문서·코드: `sprint-1-extension-policy-modeling-options.md`, `adr-predecision-review` skill
 - 요청·질문 요약: fixed와 custom을 각각 엔티티로 둘지 하나의 엔티티와 유형으로 관리할지, 그 외 선택지까지 구체적 예시와 장단점으로 비교하되 최종 결정은 보류한다.
 - 배경과 제약: 현재 구현과 변경 비용은 초안 단계의 판단 근거에서 제외하고, 데이터 의미·불변식·향후 행위 규칙을 중심으로 비교해야 했다. 유효성 검증 책임 객체는 validator 패키지와 postfix 클래스명으로 컨벤션화하는 요구도 있었다.
 - AI 활용 정보:
@@ -66,7 +66,7 @@
 - 상태: 채택
 - 시간 근거: ADR 커밋 `3c1da81`의 작성 시각
 - 스프린트/범위: 확장자 차단 정책의 영속 모델과 유형별 행위 책임
-- 관련 문서·코드: [`0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md), [`sprint-1-extension-policy-modeling-options.md`](docs/questions/sprint-1-extension-policy-modeling-options.md)
+- 관련 문서·코드: `0001-unify-extension-policies.md`, `sprint-1-extension-policy-modeling-options.md`
 - 요청·질문 요약: 앞서 제시한 사용자의 개인 의견은 결정문 근거로 사용하지 않고, fixed와 custom이 모두 정규화된 확장자에 대한 차단 정책이라는 공통 의미를 가진다는 문장으로 ADR을 확정한다.
 - 배경과 제약: fixed는 기본 정책의 차단 상태 변경, custom은 등록·삭제로 차단 여부를 표현하지만 두 유형은 독립 데이터 개념이 아니라 정책 유형이다. 유형별 행위는 WAS가 검증하고 중복·필수값 같은 구조적 무결성은 DB가 보장해야 했다.
 - AI 활용 정보:
@@ -123,7 +123,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 정책 조회 화면 구현 계획의 실행을 요청한 직후 확인한 시스템 시각
 - 스프린트/범위: `GET /api/v1/extension-policies` Axios 화면·최신 DB 상태 통합 검증·브라우저 확인
-- 관련 문서·코드: [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md), `index.html`, `extension-policy.js`, `FileUploadPageControllerTests`, `ExtensionPolicyApiIntegrationTests`
+- 관련 문서·코드: `sprint-1-file-upload-checklist.md`, `index.html`, `extension-policy.js`, `FileUploadPageControllerTests`, `ExtensionPolicyApiIntegrationTests`
 - 요청·질문 요약: 이미 구현된 정책 조회 BE를 유지하고 Axios WebJar로 화면을 조립하며, 정책 변경·등록·삭제 후 GET의 최신 상태와 실제 브라우저 요청을 검증한다.
 - 배경과 제약: 이번 범위는 GET 화면으로 한정하고 PATCH·POST·DELETE 화면 조작과 파일 업로드는 추가하지 않는다.
 - AI 활용 정보:
@@ -134,7 +134,7 @@
 - 사람의 판단과 이유: 채택. 사용자가 제안된 계획 전체를 명시적으로 구현하도록 요청했다.
 - 코드·사용자 경험 영향: 루트 페이지가 서버 Model 데이터 대신 정책 REST API를 조회해 고정·커스텀 정책을 표시한다. GET 전용 단계의 체크박스는 비활성화한다.
 - 검증 근거: 페이지 테스트는 화면 영역 없음으로 Red를 확인한 뒤 Green으로 전환했다. 격리 H2를 사용한 API 통합 테스트로 초기 GET, PATCH·POST·DELETE 후 GET의 최신 상태를 확인했다. `./gradlew test --rerun-tasks`, `node --check`, `git diff --check`가 성공했다. 인앱 브라우저에서 고정 7개·빈 custom 목록, `exe` 변경·`sh` 등록·삭제 후 새로고침 결과를 확인했고 Tomcat access log에 `GET_/api/v1/extension-policies_200`이 남았다.
-- 결과와 연결 문서: 코드 커밋 `2f2bc22 feat: implement extension policy query screen`, [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md).
+- 결과와 연결 문서: 코드 커밋 `2f2bc22 feat: implement extension policy query screen`, `sprint-1-file-upload-checklist.md`.
 - 회고와 후속 조치: 브라우저 도구의 네트워크 상세 조회 한계를 화면 DOM과 서버 access log를 함께 확인해 보완했다.
 
 ## 2026-08-28T22:16:13+09:00 — 정책 조회 테스트 리뷰 의견 반영
@@ -161,7 +161,7 @@
 - 상태: 채택
 - 시간 근거: 구현 시작 전 시스템 시각과 사용자 승인 메시지
 - 스프린트/범위: `PATCH /api/v1/extension-policies/fixed/{extension}` 화면 연동
-- 관련 문서·코드: [`sprint-1-fixed-policy-change-screen-options.md`](docs/questions/sprint-1-fixed-policy-change-screen-options.md), [`0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md), `extension-policy.js`
+- 관련 문서·코드: `sprint-1-fixed-policy-change-screen-options.md`, `0002-use-server-policy-state-as-source-of-truth.md`, `extension-policy.js`
 - 요청·질문 요약: 고정 확장자 체크박스를 Axios PATCH와 연결하고 실패 시 서버 상태로 복구하며 새로고침 유지까지 검증한다.
 - 배경과 제약: PATCH 백엔드 계약과 자동화 테스트는 이미 구현되어 있다. 파일 업로드와 새 JavaScript 테스트 도구는 이번 범위에서 제외한다.
 - AI 활용 정보:
@@ -180,7 +180,7 @@
 - 상태: 채택
 - 시간 근거: 전체 회귀 테스트 완료 직후 확인한 시스템 시각
 - 스프린트/범위: 고정 확장자 체크·해제 PATCH, 실패 재동기화, 새로고침 유지
-- 관련 문서·코드: `extension-policy.js`, [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md), [`0002-use-server-policy-state-as-source-of-truth.md`](docs/adr/0002-use-server-policy-state-as-source-of-truth.md)
+- 관련 문서·코드: `extension-policy.js`, `sprint-1-file-upload-checklist.md`, `0002-use-server-policy-state-as-source-of-truth.md`
 - 요청·질문 요약: 승인된 계획에 따라 고정 확장자 체크박스를 PATCH API에 연결하고 성공·실패·재조회 실패를 검증한다.
 - 배경과 제약: Java 백엔드 계약은 변경하지 않고 새 JavaScript 테스트 도구도 도입하지 않는다. 실제 파일 업로드 허용·거부는 후속 범위다.
 - AI 활용 정보:
@@ -295,7 +295,7 @@
 - 상태: 채택
 - 시간 근거: 사용자 요청 직후 ADR 초안 작성, 문서 인덱스 갱신, `git diff --check` 검증을 수행한 시스템 시각
 - 스프린트/범위: 파일 업로드 콘텐츠 검증 라이브러리 선택과 허용 범위에 대한 ADR
-- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: `0005-limit-upload-to-known-non-executable-types.md`, `AGENTS.md`
 - 요청·질문 요약: 여러 MIME 감지 라이브러리 중 Apache Tika를 선택하는 이유, MIME 불일치 허용·거부의 한계, 실행파일·악성코드 검증의 책임 범위를 비교한 뒤 ADR을 생성한다.
 - 배경과 제약: MIME 감지만으로 실행 가능성이나 악성 여부를 완전히 판단할 수 없다. 사용자에게 노출되는 정책과 내부 기술 검증을 혼동하지 않으며, Parser와 악성코드 검사는 별도 후속 범위로 둔다.
 - AI 활용 정보:
@@ -306,7 +306,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 과도한 세부사항과 특정 구현 맥락을 제외하고, MIME 감지의 한계를 인정하면서 현재는 비실행 파일 형식만 허용하고 향후 실행파일 식별·악성코드 검사·격리 체계가 마련되면 허용 범위를 재검토하는 ADR을 생성하도록 결정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 허용 형식과 MIME 호환성 검증이 사용자에게 어떤 오류로 노출되는지는 후속 구현·API 계약에서 구체화한다.
 - 검증 근거: Tika 공식 문서에서 `tika-core`의 감지 범위와 Parser 의존성을 확인했고, Oracle 문서에서 JDK MIME 감지의 플랫폼 의존성을 확인했다. 새 ADR 링크와 Markdown 문법을 확인했으며 `git diff --check`가 성공했다.
-- 결과와 연결 문서: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0005-limit-upload-to-known-non-executable-types.md`, `AGENTS.md`
 - 회고와 후속 조치: ADR은 MIME 감지와 악성코드 검사를 동일시하지 않는다. 실제 구현 전 허용 파일 형식 목록, MIME 불일치 오류 의미, Parser 격리·악성코드 검사 도입 조건을 API·스프린트 문서와 함께 구체화해야 한다.
 
 ## 2026-08-30T17:12:04+09:00 — 원본 파일명과 서버 저장 파일명 매핑 ADR 초안
@@ -314,7 +314,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자와 원본 파일명 보존, 서버 생성 저장 파일명, 매핑 DB, 길이 제한의 인과관계를 확인한 현재 대화 시각.
 - 스프린트/범위: 파일 업로드 메타데이터와 원본·저장 파일명 매핑 정책 초안
-- 관련 문서·코드: [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [인터널 독스 3번](.internal-docs/file-upload-risk-analysis/03-name-shape-and-length.md), [`UploadedFile`](src/main/java/com/example/demo/file/service/UploadedFile.java), [`LocalFileStorage`](src/main/java/com/example/demo/file/service/impl/LocalFileStorage.java)
+- 관련 문서·코드: `0003-server-generated-file-storage-policy.md`, `0006-persist-upload-file-name-mapping.md`, 인터널 독스 3번, [`UploadedFile`](src/main/java/com/example/demo/file/service/UploadedFile.java), [`LocalFileStorage`](src/main/java/com/example/demo/file/service/impl/LocalFileStorage.java)
 - 요청·질문 요약: 파일명 충돌을 해결하기 위해 서버 내부 저장 파일명을 사용하고, 원본 파일명과의 매핑을 `UploadFile` Entity로 관리할 때 원본 파일명 길이 제한을 함께 결정해야 하는지 검토한 뒤 ADR 초안을 작성한다.
 - 배경과 제약: 서버 생성 UUID 파일명은 물리 파일명 충돌을 줄이지만, 원본 파일명을 저장하지 않으면 업로드 후 표시·다운로드를 위한 매핑을 복원할 수 없다. 인터널 독스 3번은 원본 파일명을 저장하지 않는 현재 상태에서도 전송·파싱·로그 위험 때문에 입력 길이 제한이 필요하다고 설명한다.
 - AI 활용 정보:
@@ -325,7 +325,7 @@
 - 사람의 판단과 이유: 수정 채택. 사용자는 파일명 충돌 회피만이 아니라 원본 파일명과 서버 저장 파일명의 매핑을 DB에서 유지해야 한다는 흐름을 확인했고, 원본 파일명을 저장하는 모델이라면 길이 제한이 필요한 것으로 판단했다. ADR은 구현을 확정하기 전 검토 가능한 `proposed` 초안으로 작성한다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 향후 구현 시 사용자는 원본 파일명을 표시할 수 있고, 서버는 충돌 없는 저장 파일명을 유지한다. 원본 파일명 최대 255 Unicode code point, 경로·제어문자 처리, DB-파일 시스템 보상 삭제는 구현 전 검토 대상이다.
 - 검증 근거: 인터널 독스 3번의 전송·애플리케이션·저장 계층 구분과 현재 `LocalFileStorage`의 UUID 저장 정책을 대조했다. 기존 API의 `filename`이 서버 저장 파일명을 반환한다는 계약도 확인했다. 구현·테스트 실행은 하지 않았다.
-- 결과와 연결 문서: [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0006-persist-upload-file-name-mapping.md`, `AGENTS.md`
 - 회고와 후속 조치: 255자 제한은 초안의 제안값이므로 제품 요구사항과 UI 표시 정책을 확인한 뒤 accepted로 승격한다. 구현 시 DB 저장 실패 후 물리 파일 보상 삭제와 원본 파일명 경계값 테스트를 먼저 고정한다.
 
 ## 2026-08-30T17:23:28+09:00 — 확장자 허용 문자 범위 ADR 반영
@@ -333,7 +333,7 @@
 - 상태: 채택
 - 시간 근거: 사용자 결정 직후 문서 변경을 수행한 시스템 시각과 현재 대화 순서
 - 스프린트/범위: 확장자 이름 값 객체의 허용 문자 검증 정책
-- 관련 문서·코드: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 관련 문서·코드: `0004-use-extension-name-value-object.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `sprint-1-file-upload-checklist.md`
 - 요청·질문 요약: 특수문자를 제외하고 한글·영문·숫자만 허용하는 확장자 검증 규칙을 ADR에 반영한다.
 - 배경과 제약: 기존 문서는 점 제외와 정규화·길이만 정의하고 허용 문자 범위는 명시하지 않았다. 숫자를 허용하면 `mp3`, `7z`와 같은 일반적인 확장자를 표현할 수 있다.
 - AI 활용 정보:
@@ -344,7 +344,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 숫자가 포함된 정상 확장자도 허용할 수 있도록 한글·영문·숫자 범위를 확정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 향후 구현 시 커스텀 확장자 입력과 업로드 확장자 검증에서 허용 문자 범위를 동일하게 적용해야 한다.
 - 검증 근거: ADR, API 계약, 완료 체크리스트의 허용 문자 문구를 대조하고 문서 링크·Markdown 형식을 확인한다. 코드와 테스트는 아직 변경하지 않았다.
-- 결과와 연결 문서: [`0004-use-extension-name-value-object.md`](docs/adr/0004-use-extension-name-value-object.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 결과와 연결 문서: `0004-use-extension-name-value-object.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `sprint-1-file-upload-checklist.md`
 - 회고와 후속 조치: 다음 구현에서는 허용·거부 경계값을 한글 테스트명으로 먼저 고정하고, 기존 코드가 점만 검사하는지 확인한 뒤 검증 로직을 적용한다.
 
 ## 2026-08-30T17:27:09+09:00 — 최종 확장자 기준 업로드 차단 ADR 생성
@@ -352,7 +352,7 @@
 - 상태: 채택
 - 시간 근거: 사용자와 다중 점 파일명의 판정 기준을 확정한 뒤 ADR 생성과 문서 인덱스 갱신을 수행한 시스템 시각
 - 스프린트/범위: 파일 업로드 확장자 차단 정책의 다중 점 파일명 처리
-- 관련 문서·코드: [`0007-use-final-file-extension-for-upload-blocking.md`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [인터널 독스 2번](.internal-docs/file-upload-risk-analysis/02-case-double-extension.md), [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/FileExtensionExtractor.java)
+- 관련 문서·코드: `0007-use-final-file-extension-for-upload-blocking.md`, 인터널 독스 2번, [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/FileExtensionExtractor.java)
 - 요청·질문 요약: `file.txt.exe`는 최종 확장자 `exe`이므로 차단하고, `file.exe.txt`는 최종 확장자 `txt`이므로 중간 `exe`만으로 자동 차단하지 않는 정책을 ADR로 생성한다.
 - 배경과 제약: 모든 중간 확장자를 차단하면 정상적인 다중 점 파일명을 과도하게 거부할 수 있다. 반면 확장자 검사는 파일 내용·MIME·악성코드 여부를 보장하지 않으므로 최종 확장자 정책의 책임 범위를 분리해야 한다.
 - AI 활용 정보:
@@ -363,7 +363,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 파일명의 최종 확장자를 기준으로 판단하는 정책을 확정했다. `file.txt.exe`와 `file.exe.txt`의 사용자 의미 차이를 반영하면서 정상 파일 오탐을 줄이는 것이 이유다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 현재 구현의 마지막 확장자 추출 계약을 ADR로 명확히 하며, 중간 확장자 자동 차단이나 복합 확장자 정책 등록은 추가하지 않는다.
 - 검증 근거: 인터널 독스 2번, ADR 0003·0004, 현재 `FileExtensionExtractor`의 마지막 점 이후 추출 동작을 대조했다. 새 ADR 링크와 Markdown 문법을 확인하고 `git diff --check`를 실행한다.
-- 결과와 연결 문서: [`0007-use-final-file-extension-for-upload-blocking.md`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0007-use-final-file-extension-for-upload-blocking.md`, `AGENTS.md`
 - 회고와 후속 조치: 다운로드·실행·압축 해제·미리보기 기능이 추가되면 중간 확장자 위험, MIME 불일치, 파일 내용 검사를 별도 결정한다.
 
 ## 2026-08-30T17:30:00+09:00 — multipart 업로드 용량 제한 ADR 생성
@@ -371,7 +371,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 업로드 용량 제한을 100MB로 확정한 현재 대화 시각. 전체 요청 제한은 multipart 부가 정보 여유를 고려해 110MB로 정했다.
 - 스프린트/범위: 서버 multipart 단계의 파일 업로드 용량 제한
-- 관련 문서·코드: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: `0009-limit-multipart-upload-size.md`, `AGENTS.md`
 - 요청·질문 요약: 서버에서 YML의 multipart 설정으로 파일 용량을 제한하는 방안을 검토하고, 100MB 기준으로 ADR을 생성한다.
 - 배경과 제약: 애플리케이션 서비스보다 앞선 multipart 처리 단계에서 큰 요청을 차단해 메모리·디스크·처리 자원 낭비를 줄인다. 확장자·MIME 검증과 원본·저장 파일명 매핑은 기존 ADR의 책임으로 분리한다.
 - AI 활용 정보:
@@ -382,7 +382,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 업로드 용량을 100MB로 확정했다. 파일 1개 한도와 전체 요청 한도를 구분해 정상적인 100MB 파일이 multipart 오버헤드 때문에 거부되지 않도록 했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 사용자는 100MB 이하 파일을 업로드할 수 있고, 초과 요청은 저장·파일 형식 검증 전에 거부되는 정책을 갖는다. 실제 YML과 공통 오류 핸들러 구현은 후속 코드 작업이다.
 - 검증 근거: 기존 ADR 0005·0006의 책임 범위와 `AGENTS.md`의 ADR 작성·문서 인덱스 규칙을 대조했다. ADR과 인덱스 작성 후 Markdown 구조 및 `git diff --check`를 확인한다.
-- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0009-limit-multipart-upload-size.md`, `AGENTS.md`
 - 회고와 후속 조치: 실제 구현 시 Spring Boot multipart 설정, 413 오류의 공통 응답 변환, 프록시의 업로드 제한을 함께 검증한다. 사용자가 전체 요청도 100MB로 제한하기를 원하면 `max-request-size`를 별도 조정해야 한다.
 
 ## 2026-08-30T17:42:16+09:00 — 업로드 저장 루트 외부화 ADR 생성
@@ -390,7 +390,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 구현된 ADR 0003을 수정하지 않고 저장 경로의 YAML 외부화를 별도 ADR로 기록하라고 결정한 현재 대화 시각
 - 스프린트/범위: 업로드 물리 저장 루트의 환경 설정 외부화
-- 관련 문서·코드: [`0011-externalize-upload-storage-path.md`](docs/adr/0011-externalize-upload-storage-path.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md)
+- 관련 문서·코드: `0011-externalize-upload-storage-path.md`, `0003-server-generated-file-storage-policy.md`, `0006-persist-upload-file-name-mapping.md`
 - 요청·질문 요약: 기존 ADR 0003은 이미 구현된 저장 정책이므로 변경하지 않고, 업로드 저장 경로를 YML 설정으로 관리하는 결정을 새 ADR로 생성한다.
 - 배경과 제약: 서버 생성 저장 파일명과 원본 표시 파일명은 별도 책임으로 유지해야 한다. 저장 루트를 요청값이나 원본 파일명에서 파생하면 경로 조작과 운영 경계 혼동이 생기므로 서버 설정으로 한정한다. 기본 `./uploads` 동작은 유지한다.
 - AI 활용 정보:
@@ -401,7 +401,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 이미 구현된 ADR 0003의 의미를 보존하고, 저장 경로 설정 외부화라는 운영 경계를 독립적인 ADR로 추적하기로 결정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 후속 구현에서는 환경별 저장 루트를 설정할 수 있지만 원본 파일명은 물리 저장 경로에 사용하지 않는다.
 - 검증 근거: ADR 0003·0006의 책임 범위와 현재 문서 브랜치 상태를 대조했다. 새 ADR 번호와 문서 인덱스 경로를 확인하고 Markdown·공백 검증을 수행한다. 코드·테스트 실행은 하지 않았다.
-- 결과와 연결 문서: [`0011-externalize-upload-storage-path.md`](docs/adr/0011-externalize-upload-storage-path.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0011-externalize-upload-storage-path.md`, `AGENTS.md`
 - 회고와 후속 조치: 후속 코드 작업에서 설정 바인딩, 디렉터리 생성·권한 오류, 테스트별 임시 저장 루트 주입을 구현 범위로 구체화한다. 저장소를 오브젝트 스토리지로 바꾸는 경우에는 별도 ADR을 작성한다.
 
 ## 2026-08-30T17:45:31+09:00 — 정책 변경 이력의 운영 원인 추적 목적 확정
@@ -409,7 +409,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 정책 이력 테이블의 핵심 가치를 “내부 로직 오류인지, 누가 삭제했다가 다시 추가했는지 확인해 운영 대응하는 것”으로 확정한 현재 대화 시각.
 - 스프린트/범위: 정책 변경·삭제·재등록 이력과 운영 장애 원인 추적을 위한 ADR
-- 관련 문서·코드: [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [정책 변경 이력 분석](.internal-docs/file-upload-risk-analysis/10-policy-audit-history.md), [`0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: `0012-preserve-policy-change-history-for-operations.md`, 정책 변경 이력 분석, `0001-unify-extension-policies.md`, `AGENTS.md`
 - 요청·질문 요약: 정책 변경 이력 테이블이 왜 필요한지 검토하고, 운영 원인 추적을 중심으로 ADR을 생성한다.
 - 배경과 제약: 현재 `updatedAt`은 최신 수정 시각만 보존하고, 커스텀 정책 물리 삭제는 삭제 사실을 현재 상태에서 제거한다. 인증·인가가 없으므로 실제 개인 actor를 추정해 기록하지 않는다.
 - AI 활용 정보:
@@ -420,7 +420,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 감사 자체보다 운영 중 정책 상태가 이상해졌을 때 사람의 변경, 삭제 후 재등록, 내부 로직 오류를 구분할 수 있는 것이 실질적인 가치라고 판단했다. 이에 따라 이력 보존을 운영 원인 추적을 위한 장기 정책으로 ADR에 기록한다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 후속 구현에서는 정책 생성·차단 변경·삭제 이벤트를 이력으로 남기고, 인증 도입 전에는 시스템 주체와 변경 경로 수준으로만 원인을 추적한다.
 - 검증 근거: 기존 정책 엔티티의 `createdAt`·`updatedAt` 한계, 커스텀 정책 물리 삭제, 기존 단일 엔티티 결정과 인터널 위험 분석 문서를 대조했다. ADR 문서 인덱스와 Markdown 공백 검증을 수행한다. 코드·테스트 실행은 하지 않았다.
-- 결과와 연결 문서: [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0012-preserve-policy-change-history-for-operations.md`, `AGENTS.md`
 - 회고와 후속 조치: 이력 도입만으로 과거 변경을 복원할 수는 없다. 구현 시 모든 정책 변경 경로의 기록 누락과 DB 직접 변경 경계를 확인하고, 인증·인가·보존 기간·조회 API는 별도 결정으로 구체화한다.
 
 ## 2026-08-30T17:55:44+09:00 — 업로드 오류 requestId 및 FE 메시지 책임 ADR 생성
@@ -428,7 +428,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 서버 로그 연결을 위한 `requestId` 포함, 재시도 정책 제외, 사용자 메시지의 FE 관리 결정을 확정한 현재 대화 시각.
 - 스프린트/범위: 파일 업로드 오류 응답의 추적 식별자와 사용자 메시지 책임
-- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [차단 메시지 분석](.internal-docs/file-upload-risk-analysis/13-block-message.md)
+- 관련 문서·코드: `0013-use-request-id-and-frontend-owned-upload-messages.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), 차단 메시지 분석
 - 요청·질문 요약: 업로드 오류 응답에 재시도 가능 여부와 `requestId`를 포함할지, 서버 메시지와 FE 메시지 중 어느 쪽이 책임을 가질지 검토한 뒤 ADR을 생성한다.
 - 배경과 제약: `requestId`는 사용자 문의를 서버 로그와 연결해야 한다. 과제 단순화를 위해 FE 구현은 이번 범위에서 제외하고, `retryable`은 멱등성·중복 업로드 정책과 얽히므로 다루지 않는다.
 - AI 활용 정보:
@@ -439,7 +439,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 서버 로그 연결을 위해 `requestId`를 포함하고, 과제 단순화를 위해 FE 구현은 제외하며, 재시도 가능 여부는 ADR 범위에서 다루지 않기로 결정했다. 서버 문구는 번역·표현 변경에 결합되므로 FE가 메시지를 관리하도록 확정했다.
 - 코드·사용자 경험 영향: 이번 변경은 문서만 수정한다. 목표 업로드 오류 응답은 `code`, `requestId`, 안전한 `context`를 중심으로 하며, FE는 오류 코드별 메시지를 조립한다. 실제 서버 응답·로그·FE 전환 구현은 후속 작업이다.
 - 검증 근거: `main`의 현재 `FileUploadExceptionHandler`, `FileUploadServiceImpl`, FE 오류 표시, 업로드 오류 테스트와 기존 ADR 0003·API 계약을 대조했다. `retryable`을 새 계약에 넣지 않았고, 문서 링크·Markdown·공백 검증은 변경 후 수행한다.
-- 결과와 연결 문서: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0013-use-request-id-and-frontend-owned-upload-messages.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `AGENTS.md`
 - 회고와 후속 조치: 구현 시 `requestId` 생성·전파·로그 필드의 경계를 정하고, 기존 `message` 의존 FE와의 호환 전환을 검토한다. 재시도와 멱등성은 별도 요구가 생길 때 독립적으로 결정한다.
 
 ## 2026-08-30T17:58:49+09:00 — 파일 업로드 네트워크 재시도와 멱등성 검토 시작
@@ -447,7 +447,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 파일 업로드의 네트워크 오류 시 FE 자동 재시도와 `Idempotency-Key` 도입 의견을 제시한 현재 대화 시각
 - 스프린트/범위: 로컬 파일시스템 기반 동기 파일 업로드의 응답 유실·중복 저장 대응
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [로딩·오류·네트워크 실패 상태 설계](.internal-docs/file-upload-risk-analysis/14-loading-error-network.md)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `0013-use-request-id-and-frontend-owned-upload-messages.md`, 로딩·오류·네트워크 실패 상태 설계
 - 요청·질문 요약: 네트워크 오류 시 FE가 자동 재시도하고 멱등성 키 하나를 유지하는 방안이 적절한지 검토한다.
 - 배경과 제약: 현재 업로드 API는 서버 생성 UUID 파일명만 사용하고 업로드 작업 ID·결과 조회·멱등성 기록이 없다. 같은 키를 재전송하는 것만으로는 서버가 키를 기억하지 않으므로 중복 저장 방지가 보장되지 않는다.
 - AI 활용 정보:
@@ -458,7 +458,7 @@
 - 사람의 판단과 이유: 미결정. 자동 재시도와 키 유지 방향의 적절성을 검토 중이며, 키 보존 기간·동시 요청·파일시스템과 기록 저장의 장애 구간은 추가 결정이 필요하다.
 - 코드·사용자 경험 영향: 현재는 문서만 추가한다. 향후 구현 시 응답 유실을 결과 미확정으로 안내하고, 멱등성 기록이 도입되면 같은 키 재요청에서 동일 성공 결과를 복원한다.
 - 검증 근거: 업로드 API 계약의 현재 응답·오류 코드와 ADR 0003의 서버 생성 파일명 정책, ADR 0013의 재시도·멱등성 범위 제외를 대조했다. 새 결정 전 검토 문서에 세 선택지와 실패 모드를 기록한다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`, `AGENTS.md`
 - 회고와 후속 조치: 사용자가 자동 재시도 범위와 서버 키 결과 저장을 확정하면 API 계약을 갱신하고 별도 ADR로 전환한다. 그 전에는 코드에 재시도나 `Idempotency-Key`를 임의로 구현하지 않는다.
 
 ## 2026-08-30T18:03:34+09:00 — 멱등키 구성 방식 구체화
@@ -466,7 +466,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 파일 업로드 멱등키의 구체적인 구성 방식을 질문한 현재 대화 시각
 - 스프린트/범위: FE 자동 재시도와 서버 멱등성 기록의 키 생성·수명·요청 지문
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `0013-use-request-id-and-frontend-owned-upload-messages.md`
 - 요청·질문 요약: 업로드 멱등키를 어떤 값으로 구성하고 재시도 동안 어떻게 유지할지 검토한다.
 - 배경과 제약: 파일명·사용자 ID·시각·파일 해시 조합은 개인정보, 의도적 중복 업로드 구분, 정규화와 충돌 문제를 만들 수 있다. 현재 API에는 인증·업로드 메타데이터·멱등성 기록이 없다.
 - AI 활용 정보:
@@ -477,7 +477,7 @@
 - 사람의 판단과 이유: 미결정. UUID 키의 생성 주체·보존 기간·동시 요청·요청 지문 범위를 검토 중이다.
 - 코드·사용자 경험 영향: 현재는 문서만 갱신한다. 향후 사용자는 네트워크 오류 시 같은 논리적 업로드를 안전하게 재시도할 수 있고, 의도적인 새 업로드는 새 키로 구분된다.
 - 검증 근거: 파일 업로드 API가 현재 서버 생성 UUID 파일명을 사용하고, ADR 0013이 재시도·멱등성을 범위에서 제외한다는 점을 대조했다. 키 구성·생명주기·서버 저장 구조를 결정 전 문서에 추가했다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: 자동 재시도 범위와 서버 영속화 방식을 확정한 뒤 API 계약과 별도 ADR을 갱신한다. 결정 전에는 `Idempotency-Key`를 API나 코드에 추가하지 않는다.
 
 ## 2026-08-30T18:06:19+09:00 — 클라이언트 UUID의 충분성 검토
@@ -485,7 +485,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 클라이언트 UUID만으로 업로드 멱등성이 충분한지 추가 질문한 현재 대화 시각
 - 스프린트/범위: 멱등키 형식과 서버 측 보장 조건
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `0003-server-generated-file-storage-policy.md`
 - 요청·질문 요약: FE가 생성한 UUID를 멱등키로 사용하는 것만으로 충분한지 검토한다.
 - 배경과 제약: 현재 파일명은 서버 UUID로 생성되며, 업로드 요청의 멱등키와 처리 결과를 서버가 저장하는 구조는 없다. 클라이언트 키 형식과 서버 멱등성 보장 장치를 구분해야 한다.
 - AI 활용 정보:
@@ -496,7 +496,7 @@
 - 사람의 판단과 이유: 미결정. UUID 기반 키를 채택할지와 서버 기록·지문·보존 정책을 함께 결정해야 한다.
 - 코드·사용자 경험 영향: 현재는 문서만 갱신한다. 향후 같은 논리적 업로드의 재시도는 같은 키를 유지하고, 다른 파일에 재사용된 키는 충돌로 안내한다.
 - 검증 근거: 기존 업로드 API의 서버 생성 UUID 파일명과 멱등성·결과 조회 부재를 대조하고, 결정 전 문서에 UUID의 충분한 범위와 한계를 추가했다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: 서버 저장 모델과 요청 지문 범위를 확정한 뒤 API 계약·ADR을 별도로 갱신한다. 클라이언트 UUID만 추가하는 부분 구현은 멱등성 보장으로 보고하지 않는다.
 
 ## 2026-08-30T18:08:26+09:00 — 스프린트 2 확장자 정책 한도 UX 검증 요구사항 작성
@@ -504,7 +504,7 @@
 - 상태: 요구사항 정의·브라우저 검증 대기
 - 시간 근거: 사용자가 스프린트 2 개요 문서에 20자·200개 한도의 실제 UI/UX 검증 요구사항을 기록해 달라고 요청한 현재 대화 시각
 - 스프린트/범위: 20자 입력, 200개 전체 목록, 201번째 등록 실패의 브라우저 UX 검증
-- 관련 문서·코드: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [제한값 근거와 UX 분석](.internal-docs/file-upload-risk-analysis/11-limit-rationale-and-ux.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`AGENTS.md`](AGENTS.md)
+- 관련 문서·코드: `sprint-2-extension-limit-ux-validation.md`, 제한값 근거와 UX 분석, [`파일 업로드 API 명세`](docs/file-upload-api.md), `AGENTS.md`
 - 요청·질문 요약: 20자·200개 한도를 UI/UX와 일반 확장자 길이 관점에서 검증하고, 결과에 따라 UX 구현 또는 ADR 필요 여부를 결정하는 내용을 스프린트 2 요구사항으로 남긴다.
 - 배경과 제약: 현재 값은 API 계약과 구현에 존재하지만, 실제 경계값의 화면 사용성은 확인되지 않았다. 200개는 DB 성능의 절대 한계로 단정하지 않고 전체 목록 관리성·응답·렌더링 부담을 함께 확인해야 한다.
 - AI 활용 정보:
@@ -515,7 +515,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 스프린트 2에서 실제 20자·200개 경계값을 화면에 적용해 확인하기로 했으며, 검증 전에는 숫자나 구현을 임의로 변경하지 않는다.
 - 코드·사용자 경험 영향: 이번 변경은 스프린트 2 요구사항 문서와 문서 인덱스·AI 활용 기록만 수정한다. 브라우저 검증 결과에 따라 후속 UX 구현 또는 ADR을 별도로 결정한다.
 - 검증 근거: 현재 `ExtensionValidator`의 20자 제한, `ExtensionPolicyQuota`의 200개 quota, 전체 목록 조회 및 한도 초과 오류 계약을 `main` 구현과 스프린트 1 문서에서 확인했다. 새 개요 문서 작성 후 Markdown 공백 검사를 수행한다.
-- 결과와 연결 문서: [`sprint-2-extension-limit-ux-validation.md`](docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `sprint-2-extension-limit-ux-validation.md`, `AGENTS.md`
 - 회고와 후속 조치: 브라우저에서 20자·200개·201개 경계를 검증한 뒤 결과를 분석 문서와 이 로그에 추가한다. 장기 불변식이나 페이징 전환 기준을 확정할 때만 ADR을 검토한다.
 
 ## 2026-08-30T18:10:00+09:00 — 동일 멱등키 처리 중 요청의 고착·중복 방지 검토
@@ -523,7 +523,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 동일 멱등키 요청이 `PROCESSING`일 때 영구 대기 또는 중복 파일 생성이 될 수 있는 문제를 제기한 현재 대화 흐름의 시각
 - 스프린트/범위: 동일 키 동시 요청, 처리 중 응답, stale 복구와 FE 재시도 종료 조건
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md)
 - 요청·질문 요약: 동일 키의 업로드가 진행 중일 때 예외 응답은 고착을 만들고, 무시하면 중복 파일이 생길 수 있으므로 안전한 처리 방법을 검토한다.
 - 배경과 제약: 동기 파일 업로드는 파일시스템과 멱등성 기록이 한 트랜잭션이 아니다. 첫 처리의 응답 유실·프로세스 종료·대용량 처리 지연을 구분해야 한다.
 - AI 활용 정보:
@@ -534,7 +534,7 @@
 - 사람의 판단과 이유: 미결정. 동기 요청의 bounded wait와 `202` 결과 조회를 도입할지, 처음부터 비동기 업로드 작업 모델로 갈지 결정이 필요하다.
 - 코드·사용자 경험 영향: 현재는 문서만 갱신한다. 향후 처리 중 사용자는 무한 오류가 아니라 재시도 가능한 진행 상태를 보고, 서버 장애 후에는 만료·복구 규칙에 따라 같은 키를 재처리한다.
 - 검증 근거: 기존 검토 문서의 `PROCESSING` 동시 요청·lease 필요성 언급을 구체화하고, 파일 저장 후 응답 유실과 프로세스 종료의 장애 구간을 연결했다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: `202`·`Retry-After`·결과 조회 API·lease 시간·고아 임시 파일 정리 규칙을 확정한 뒤 API 계약과 ADR을 갱신한다. 결정 전에는 처리 중 동시 요청 코드를 구현하지 않는다.
 
 +
@@ -543,7 +543,7 @@
 - 상태: 결정 채택
 - 시간 근거: 사용자가 파일 쓰기 중 장애 가능성을 이유로 임시 경로 저장 후 최종 경로 이동 방식을 확인하고 ADR 작성을 요청한 현재 대화 시각
 - 스프린트/범위: `UploadFile` 메타데이터와 로컬 파일시스템 사이의 동기 업로드 상태 일관성
-- 관련 문서·코드: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`15-state-consistency.md`](.internal-docs/file-upload-risk-analysis/15-state-consistency.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`0003-server-generated-file-storage-policy.md`](docs/adr/0003-server-generated-file-storage-policy.md)
+- 관련 문서·코드: `0014-persist-upload-state-before-file-and-finalize-atomically.md`, `15-state-consistency.md`, `0006-persist-upload-file-name-mapping.md`, `0003-server-generated-file-storage-policy.md`
 - 요청·질문 요약: DB에 업로드 상태를 먼저 저장하고, 파일을 임시 경로에 동기적으로 쓴 뒤 atomic move로 확정하고, 완료 상태 변경 후 응답하는 흐름을 ADR로 기록한다.
 - 배경과 제약: DB와 파일시스템은 하나의 ACID 트랜잭션이 아니며, 최종 경로에 직접 쓰면 복사 중 프로세스 종료 시 부분 파일이 남을 수 있다. 현재 요구는 비동기 작업 API가 아니라 저장 완료 후 응답하는 동기 업로드다.
 - AI 활용 정보:
@@ -554,7 +554,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 쓰기 중 장애로 인한 부분 파일을 최종 경로에 남기지 않기 위해 임시 경로와 원자적 이동을 사용하고, DB 선저장·파일 저장·완료 상태 변경 순서를 ADR로 남기기로 했다.
 - 코드·사용자 경험 영향: 성공 응답은 동기 저장과 `COMPLETED` DB 커밋 후 반환한다. `RECEIVING`과 `FAILED` 상태는 외부 파일 제공 대상이 아니며, 응답 유실 후 중복 방지와 결과 조회는 별도 결정으로 남긴다.
 - 검증 근거: 상태 일관성 분석의 DB·파일시스템 장애 구간, `UploadFile` 메타데이터 초안의 저장 순서, 서버 생성 파일명·로컬 저장 ADR을 대조하고 관련 문서 링크와 Markdown 변경을 점검한다.
-- 결과와 연결 문서: [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0014-persist-upload-state-before-file-and-finalize-atomically.md`, `0006-persist-upload-file-name-mapping.md`, `AGENTS.md`
 - 회고와 후속 조치: 구현 시 DB 트랜잭션을 파일 I/O 동안 유지하지 않고, stale `RECEIVING` 복구·임시 파일 정리·파일 무결성 확인을 별도 구현 요구사항으로 구체화한다. 멱등성·재시도 정책은 결정 전 상태를 유지한다.
 
 ## 2026-08-30T18:17:35+09:00 — FE 재시도 한도와 서버 업로드 실패·삭제 전이 분리
@@ -562,7 +562,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 `Retry-After` 기반 FE 재시도 최대 횟수 도달 시 업로드 엔티티를 `FAILED`로 전환하고 비동기 삭제할지 질문한 현재 대화 시각
 - 스프린트/범위: FE 관찰 재시도, 서버 저장 시도, 업로드 상태 전이와 비동기 파일 정리
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, `0006-persist-upload-file-name-mapping.md`
 - 요청·질문 요약: FE가 최대 3회 재시도한 뒤 `FileUpload`를 `FAILED`로 만들고 파일을 비동기로 삭제하는 방안을 검토한다.
 - 배경과 제약: FE의 재시도는 서버가 작업을 재실행했다는 뜻이 아니다. 응답 유실 후 서버 저장이 성공했을 수 있으므로 FE 재시도 한도만으로 최종 파일 삭제를 결정하면 성공 파일을 잃을 수 있다.
 - AI 활용 정보:
@@ -573,7 +573,7 @@
 - 사람의 판단과 이유: 미결정. FE 한도·서버 lease·최종 파일 보존 기간·비동기 삭제 대상과 `FileUpload`/`UploadOperation` 분리 여부를 결정해야 한다.
 - 코드·사용자 경험 영향: 현재는 문서만 갱신한다. 향후 사용자는 재시도 한도 초과 시 실패로 오인하지 않고 결과 확인 필요 상태를 보며, 서버는 확정된 실패 파일만 안전하게 정리한다.
 - 검증 근거: 기존 멱등성 검토 문서의 `PROCESSING`·lease·임시 파일 원칙에 FE 재시도와 서버 저장 시도의 차이를 대조해 상태 전이와 삭제 조건을 추가했다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: `FAILED`를 결정하는 서버 조건과 결과 조회·보존 정책을 확정한 뒤 API 계약과 ADR로 전환한다. FE 재시도 횟수만으로 최종 저장 파일을 삭제하지 않는다.
 
 ## 2026-08-30T18:23:19+09:00 — 저장 deadline과 Retry-After·실패 처리 시점 분리
@@ -581,7 +581,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 넉넉한 파일 저장 타임아웃과 `Retry-After`를 맞추고 시간이 지나면 실패 처리하는 방식이 베스트 프랙티스인지 질문한 현재 대화 시각
 - 스프린트/범위: 파일 저장 최대 실행 시간, FE 재시도 간격, 서버 실패 판정과 비동기 정리
-- 관련 문서·코드: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3)
+- 관련 문서·코드: `sprint-1-upload-retry-idempotency-options.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), [RFC 9110 Retry-After](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3)
 - 요청·질문 요약: 파일 저장 타임아웃을 넉넉하게 설정하고 그 시간에 맞춰 `Retry-After`를 정한 뒤, 시간이 지나면 업로드를 실패로 처리할지 검토한다.
 - 배경과 제약: 저장 deadline, 후속 요청 대기 간격, FE 전체 대기 시간은 서로 다른 의미다. FE의 재시도 한도만으로 서버 저장 성공 여부나 최종 파일 삭제를 판단하면 응답 유실 성공을 잃을 수 있다.
 - AI 활용 정보:
@@ -592,7 +592,7 @@
 - 사람의 판단과 이유: 미결정. 동기 API의 bounded wait와 `409`, 또는 `202`와 상태 조회 API 중 하나를 선택하고 deadline·lease·보존 기간을 정해야 한다.
 - 코드·사용자 경험 영향: 현재는 문서만 갱신한다. 향후 사용자는 `Retry-After`를 따른 제한된 확인을 수행하고, 결과 미확정 상태를 실패로 오인하지 않는다.
 - 검증 근거: RFC 9110의 `Retry-After`와 `202 Accepted` 의미, Stripe 공식 문서의 멱등키 결과 저장·동시 요청·파라미터 비교 관행을 확인하고 기존 검토 문서에 반영했다.
-- 결과와 연결 문서: [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: 서버 deadline 후 실패 판정 조건과 동기·비동기 API 형태를 확정한 뒤 API 계약과 ADR로 전환한다. `Retry-After`를 저장 deadline과 동일한 값으로 고정하지 않는다.
 
 ## 2026-08-30T18:28:00+09:00 — 업로드 재시도·멱등키·상태 책임 분리 ADR 채택
@@ -600,7 +600,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 리트라이·멱등키·상태를 서로 독립적으로 관리하는 단순한 방향을 확정하고 ADR 생성을 요청한 현재 대화 시각
 - 스프린트/범위: FE 재시도, `Idempotency-Key`, 서버 업로드 상태와 실패 파일 정리의 책임 경계
-- 관련 문서·코드: [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 관련 문서·코드: `0015-separate-upload-retry-idempotency-and-state.md`, `0014-persist-upload-state-before-file-and-finalize-atomically.md`, `sprint-1-upload-retry-idempotency-options.md`
 - 요청·질문 요약: 리트라이는 리트라이대로, 멱등키는 동일 요청 식별대로, 상태는 실제 서버 저장 결과대로 분리하는 결정을 ADR로 기록한다.
 - 배경과 제약: FE 재시도 횟수는 서버 저장 시도나 저장 실패를 의미하지 않는다. 응답 유실 후 저장 성공 가능성이 있으므로 FE 재시도 한도만으로 `FAILED` 전환이나 최종 파일 삭제를 수행하면 안 된다.
 - AI 활용 정보:
@@ -611,7 +611,7 @@
 - 사람의 판단과 이유: 채택. 사용자는 복잡한 타임아웃·lease·처리 중 HTTP 세부값은 후속 결정으로 남기고, 세 책임을 단순하게 분리하는 원칙을 ADR로 채택했다.
 - 코드·사용자 경험 영향: 현재는 문서만 수정한다. 향후 FE는 같은 키로 재시도하고, 서버 상태는 실제 저장 결과만 표현하며, 재시도 포기만으로 성공 파일을 삭제하지 않는다.
 - 검증 근거: ADR 0014의 `RECEIVING`·`COMPLETED`·`FAILED` 상태 및 임시 파일·원자적 확정 정책과 기존 멱등성 검토 문서를 대조했다. 새 ADR·문서 인덱스·기존 ADR 관련 링크를 갱신하고 Markdown 공백 검사를 수행한다.
-- 결과와 연결 문서: [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`sprint-1-upload-retry-idempotency-options.md`](docs/questions/sprint-1-upload-retry-idempotency-options.md)
+- 결과와 연결 문서: `0015-separate-upload-retry-idempotency-and-state.md`, `0013-use-request-id-and-frontend-owned-upload-messages.md`, `sprint-1-upload-retry-idempotency-options.md`
 - 회고와 후속 조치: 후속 구현 전 `Retry-After`, 처리 중 응답 코드, 멱등키 보존 기간, stale 복구와 비동기 정리의 구체값을 별도로 결정한다. ADR 0015의 원칙을 근거로 FE 재시도 횟수와 서버 상태 전이를 혼합하지 않는다.
 
 ## 2026-08-30T19:11:15+09:00 — 파일 업로드 로깅·모니터링 최소선 정리
@@ -619,7 +619,7 @@
 - 상태: 수정 채택
 - 시간 근거: 사용자가 `.internal-docs/file-upload-risk-analysis/18-logging-monitoring.md`에 로깅·메트릭 관점의 필수 제안을 요청한 현재 대화 시각
 - 스프린트/범위: 파일 업로드 운영 관측성의 최소 로그·메트릭·알람 제안
-- 관련 문서·코드: [`18-logging-monitoring.md`](.internal-docs/file-upload-risk-analysis/18-logging-monitoring.md), [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md)
+- 관련 문서·코드: `18-logging-monitoring.md`, `0012-preserve-policy-change-history-for-operations.md`, `0013-use-request-id-and-frontend-owned-upload-messages.md`, `0014-persist-upload-state-before-file-and-finalize-atomically.md`, `0015-separate-upload-retry-idempotency-and-state.md`
 - 요청·질문 요약: 로깅과 메트릭 중 운영에 필수적인 항목 위주로 위험 분석 문서를 정리한다.
 - 배경과 제약: `requestId`·오류 코드·업로드 상태·정책 감사 이력은 기존 결정과 책임이 분리되어 있다. 원본 파일명·내용·내부 경로·사용자 식별자와 확장자별 메트릭 label은 개인정보 또는 고카디널리티 위험이 있다.
 - AI 활용 정보:
@@ -630,7 +630,7 @@
 - 사람의 판단과 이유: 수정 채택. 사용자의 “필수적인 것 위주” 요청에 맞춰 기존 문서의 선택지·알람·메트릭을 최소 운영 질문 중심으로 재구성하고, 감사 이력과 일반 로그를 혼합하지 않도록 했다.
 - 코드·사용자 경험 영향: 이번 변경은 내부 위험 분석 문서와 AI 활용 기록만 수정한다. 현재 코드에는 Actuator·Micrometer 의존성과 모니터링 설정이 없으므로 기능 구현 완료로 간주하지 않는다.
 - 검증 근거: `build.gradle`에 Actuator·Micrometer가 없고 `application.yml`에 모니터링 설정이 없음을 확인했다. ADR 0012~0015의 감사 이력·requestId·업로드 상태·재시도 책임 경계를 문서 제안과 대조했으며, Markdown 공백 검사를 실행했다.
-- 결과와 연결 문서: [`18-logging-monitoring.md`](.internal-docs/file-upload-risk-analysis/18-logging-monitoring.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `18-logging-monitoring.md`, `AGENTS.md`
 - 회고와 후속 조치: 실제 구현 시 requestId 생성 위치, 로그 보존·접근 권한, 디스크 임계값, 메트릭 backend를 운영 환경에 맞게 별도로 결정한다. 본 작업에서는 코드와 알람을 임의로 추가하지 않는다.
 
 ## 2026-08-30T19:13:50+09:00 — 화이트리스트 전환 조건과 단계적 마이그레이션 ADR 초안
@@ -638,7 +638,7 @@
 - 상태: 검토 중
 - 시간 근거: 사용자가 사용자·조직별 정책 연결 모델과 화이트리스트 전환 시점·방법을 ADR로 작성할 수 있는지 요청한 현재 대화 시각
 - 스프린트/범위: 전역 denylist에서 사용자·조직별 정책 및 allowlist로 확장할 때의 장기 정책·전환 절차
-- 관련 문서·코드: [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md), [`0001-unify-extension-policies.md`](docs/adr/0001-unify-extension-policies.md)
+- 관련 문서·코드: `0016-migrate-to-allowlist-when-policy-requires.md`, `19-future-policy-model.md`, `0001-unify-extension-policies.md`
 - 요청·질문 요약: 사용자·조직별 정책은 관계 테이블로 연결하고, 화이트리스트 방식은 언제 적합하며 어떻게 안전하게 전환할지 ADR로 정리한다.
 - 배경과 제약: 현재 `blocked=false`는 허용목록 항목이 아니라 해당 행을 차단하지 않는다는 의미다. 따라서 기존 행을 반전하는 단순 마이그레이션은 신규·미등록 확장자를 잘못 허용하거나 기존 정상 파일을 갑자기 차단할 수 있다.
 - AI 활용 정보:
@@ -649,7 +649,7 @@
 - 사람의 판단과 이유: 결정 전. 사용자의 관계 테이블 방향은 ADR 초안에 반영했지만, 전역 강제 차단의 override 여부, 기존 파일 소급 여부, Shadow 기간과 허용 실패율은 추가 확인이 필요하다.
 - 코드·사용자 경험 영향: 이번 변경은 `proposed` ADR·문서 인덱스·AI 활용 기록만 수정한다. 즉시 화이트리스트 전환이나 사용자별 정책 코드 구현은 하지 않는다.
 - 검증 근거: 현재 전역 정책과 화이트리스트 전환 위험을 기존 위험 분석 문서에서 확인하고, ADR 0001·0012·0013의 정책 모델·감사 이력·오류 안내 책임과 충돌하지 않도록 연결했다. Markdown 공백 검사를 실행했다.
-- 결과와 연결 문서: [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`AGENTS.md`](AGENTS.md)
+- 결과와 연결 문서: `0016-migrate-to-allowlist-when-policy-requires.md`, `AGENTS.md`
 - 회고와 후속 조치: 제품 요구와 운영 데이터를 확인해 제안 상태를 accepted ADR로 확정하거나, 사용자·조직 정책의 구체적인 scope 우선순위와 API·스키마 요구사항을 별도 결정한다.
 
 ## 2026-08-30T19:53:29+09:00 — 확장자 규칙과 원본 파일명 범위 명확화
@@ -659,7 +659,7 @@
 - 사람의 판단과 이유: 제한 대상은 전체 원본 파일명이 아니라 파일명에서 추출한 최종 확장자 값이다. 원본 파일명 보존·길이 정책은 ADR 0006의 별도 책임으로 유지한다.
 - 코드·사용자 경험 영향: 애플리케이션 코드는 변경하지 않는다. ADR 0010, 스프린트 2 PRD·체크리스트, 스프린트 1 체크리스트의 표현과 실제 구현 상태를 일치시킨다.
 - 검증 근거: `ExtensionName`과 `FileExtensionExtractor`의 최종 확장자 처리, ADR 0007의 최종 확장자 정책, 현재 허용 문자 검증 부재를 대조하고 Markdown 공백 검증을 통과했다.
-- 결과와 연결 문서: [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`sprint-1-file-upload-checklist.md`](docs/sprints/sprint-1/sprint-1-file-upload-checklist.md)
+- 결과와 연결 문서: `0010-limit-extension-name-characters.md`, `sprint-2-prd.md`, `sprint-2-implementation-checklist.md`, `sprint-1-file-upload-checklist.md`
 
 ## 2026-08-30T20:06:27+09:00 — ADR 0010 구현 보류 결정
 
@@ -668,7 +668,7 @@
 - 사람의 판단과 이유: 현재 요구에서 해당 제한의 필요성이 확인되지 않았으므로 보류한다. 전체 원본 파일명 제한은 처음부터 이 ADR의 범위가 아니다.
 - 코드·사용자 경험 영향: 애플리케이션 코드는 변경하지 않는다. 기존 빈 값·20자·점 검증과 `ExtensionName` 공유 구조를 유지하고, 스프린트 2 다음 구현 순서에서 ADR 0010을 제외한다.
 - 검증 근거: `ExtensionName`, `ExtensionValidator`, `FileExtensionExtractor`의 현재 책임과 ADR 0007·0006의 범위를 대조했다.
-- 결과와 연결 문서: [`0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)
+- 결과와 연결 문서: `0010-limit-extension-name-characters.md`, `sprint-2-prd.md`, `sprint-2-implementation-checklist.md`, `adr-implementation-status-review-2026-08-30.md`
 
 ## 2026-08-30T20:14:21+09:00 — multipart 업로드 용량 정책을 10MB·12MB로 조정
 
@@ -677,7 +677,7 @@
 - 사람의 판단과 이유: 파일 제한은 10MB로 낮추되 multipart boundary·헤더 오버헤드 때문에 정상적인 10MB 파일이 거부되지 않도록 전체 요청은 12MB로 둔다.
 - 코드·사용자 경험 영향: `spring.servlet.multipart.max-file-size`와 `max-request-size`의 목표값, PRD·체크리스트·ADR의 경계값 테스트 기준을 10MB·12MB로 변경한다. 실제 설정과 413 handler 구현은 기능 브랜치에서 수행한다.
 - 검증 근거: 10MB 파일과 10MB 전체 요청을 동일하게 두면 multipart 부가 정보로 정상 경계 파일이 거부될 수 있음을 확인하고, 12MB 여유를 선택했다.
-- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)
+- 결과와 연결 문서: `0009-limit-multipart-upload-size.md`, `sprint-2-prd.md`, `sprint-2-implementation-checklist.md`, `adr-implementation-status-review-2026-08-30.md`
 
 ## 2026-08-30T20:19:30+09:00 — ADR 0009 multipart 용량 제한 구현
 
@@ -689,7 +689,7 @@
   - skill: `tdd`
   - 도구: `apply_patch`, `./gradlew test`
 - 검증 근거: 설정값 단위 검증, 413 handler MockMvc 테스트, 실제 내장 Tomcat에서 파일 초과·전체 요청 초과 통합 테스트, 전체 `./gradlew test` 성공.
-- 결과와 연결 문서: [`0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
+- 결과와 연결 문서: `0009-limit-multipart-upload-size.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `sprint-2-implementation-checklist.md`
 - 회고와 후속 조치: 프록시·로드밸런서의 업로드 제한도 10MB/12MB와 일치하는지 운영 환경에서 확인하고, 다음 작업은 ADR 0011 저장 경로 외부화다.
 
 ## 2026-08-30T20:45:30+09:00 — ADR 0011 저장 루트 설정 외부화 구현
@@ -697,7 +697,7 @@
 - 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
 - 시간 근거: 사용자가 ADR 0011 구현 계획의 실행을 요청한 현재 대화 시각
 - 스프린트/범위: `file.upload.storage-path` 설정으로 로컬 업로드 저장 루트 외부화
-- 관련 문서·코드: [`0011-externalize-upload-storage-path.md`](docs/adr/0011-externalize-upload-storage-path.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `LocalFileStorage`, `application.yml`
+- 관련 문서·코드: `0011-externalize-upload-storage-path.md`, `sprint-2-implementation-checklist.md`, `LocalFileStorage`, `application.yml`
 - 요청·질문 요약: 기존 `uploads` 고정 경로를 기본값으로 유지하면서 환경별 설정 override를 지원한다.
 - 배경과 제약: 서버 생성 UUID 파일명, 기존 `FileStorage` 인터페이스, `FILE_UPLOAD_FAILED` 오류, 원본 파일명과 저장 경로 분리 동작은 유지한다. 기존 파일 이동·마이그레이션은 범위에서 제외한다.
 - AI 활용 정보:
@@ -708,7 +708,7 @@
 - 사람의 판단과 이유: 수정 채택. 현재 구현에는 설정 바인딩 타입이 없고 저장소 구현이 하나이므로 새 공개 설정 타입을 만들지 않아 변경 범위와 의존성을 최소화했다.
 - 코드·사용자 경험 영향: `file.upload.storage-path`를 변경하면 신규 업로드가 해당 경로에 저장된다. 설정이 없으면 `./uploads`를 사용하고 HTTP 응답 계약은 바뀌지 않는다.
 - 검증 근거: override 테스트는 설정 미반영 상태에서 기본 경로 저장으로 Red를 확인한 뒤 설정 주입 구현 후 Green으로 전환했다. 기본 경로 회귀·저장 실패·원본 경로 분리·기존 업로드 테스트와 전체 `./gradlew test`가 통과했다.
-- 결과와 연결 문서: 기능 커밋 `2745a89`, [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), [`adr-implementation-status-review-2026-08-30.md`](docs/adr/adr-implementation-status-review-2026-08-30.md)
+- 결과와 연결 문서: 기능 커밋 `2745a89`, `sprint-2-implementation-checklist.md`, `adr-implementation-status-review-2026-08-30.md`
 - 회고와 후속 조치: 설정된 새 저장 루트의 디렉터리·쓰기 권한·디스크 용량은 운영 환경에서 별도로 확인한다. 기존 `uploads/` 파일은 자동 이동하지 않는다.
 
 ## 2026-08-30T21:21:56+09:00 — 실행 가능한 MIME만 차단하는 정책 확정
@@ -716,7 +716,7 @@
 - 상태: 사용자 결정 반영·기능 구현 준비
 - 시간 근거: 현재 대화에서 사용자가 MIME 검증 범위를 실행 MIME 차단으로 확정한 시각
 - 스프린트/범위: 스프린트 2 ADR 0005 콘텐츠 기반 MIME 검증
-- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `FileUploadServiceImpl`
+- 관련 문서·코드: `0005-limit-upload-to-known-non-executable-types.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `sprint-2-implementation-checklist.md`, `FileUploadServiceImpl`
 - 요청·질문 요약: 확장자와 MIME이 일치하지 않는 모든 파일을 차단하지 않고, 실제 실행 가능한 MIME만 차단하며 일반 텍스트 파일을 허용한다.
 - 배경과 제약: 확장자는 사용자가 바꿀 수 있지만 `.txt` 콘텐츠를 악성코드 검사 수준으로 분석할 수는 없다. 업로드·저장 단계에서 텍스트를 차단하면 정상 사용성이 낮아지므로 MIME 감지는 실행 바이너리 위장 방어에 한정한다.
 - AI 활용 정보:
@@ -727,7 +727,7 @@
 - 사람의 판단과 이유: 채택. 현재 요구의 핵심은 확장자 위장 실행 파일을 줄이는 것이며, 모든 비실행 형식 allowlist나 텍스트 의미 분석은 범위와 사용성 부담이 크다.
 - 코드·사용자 경험 영향: `.txt`·`text/plain` 업로드가 허용되고, 실행 MIME 파일만 저장 전에 거부된다. 확장자와 MIME 불일치 자체는 오류가 되지 않는다.
 - 검증 근거: 현재 업로드 흐름과 기존 테스트·ADR 0005를 대조했다. 구현 전 문서만 갱신했으며 MIME 기능 테스트는 후속 기능 브랜치에서 작성한다.
-- 결과와 연결 문서: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), [`sprint-2-prd.md`](docs/sprints/sprint-2/sprint-2-prd.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
+- 결과와 연결 문서: `0005-limit-upload-to-known-non-executable-types.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `sprint-2-prd.md`, `sprint-2-implementation-checklist.md`
 - 회고와 후속 조치: 텍스트 안의 스크립트·HTML 의미 분석은 하지 않으며, 다운로드·미리보기·파싱 기능이 추가될 때 실행·렌더링 경계를 별도 검토한다. 다음 단계는 기능 브랜치에서 Tika 감지기와 실행 MIME 차단 테스트를 구현하는 것이다.
 
 ## 2026-08-30T21:34:07+09:00 — 실행 MIME 차단 구현 완료
@@ -735,7 +735,7 @@
 - 상태: 기능 구현·관련 테스트·문서 상태 갱신 완료
 - 시간 근거: 기능 커밋 `b171051`과 전체 `./gradlew test` 성공 시각
 - 스프린트/범위: 스프린트 2 ADR 0005 실행 MIME denylist 기반 업로드 검증
-- 관련 문서·코드: [`0005-limit-upload-to-known-non-executable-types.md`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`파일 업로드 API 명세`](docs/file-upload-api.md), `ExecutableMimeCatalog`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`
+- 관련 문서·코드: `0005-limit-upload-to-known-non-executable-types.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md), `ExecutableMimeCatalog`, `TikaMimeTypeDetector`, `FileUploadServiceImpl`
 - 요청·질문 요약: 확장자와 MIME 불일치를 일괄 차단하지 않고 실행 가능한 MIME만 차단하며, `.txt`·`text/plain`과 미확인 MIME·감지 실패는 허용한다.
 - 배경과 제약: 파일 확장자와 multipart `Content-Type`은 신뢰할 수 없지만 MIME 감지만으로 악성코드나 텍스트 스크립트 의미를 완전히 판정할 수 없다. 기존 확장자 denylist와 서버 생성 파일명 저장은 유지한다.
 - AI 활용 정보:
@@ -773,7 +773,7 @@
 - 상태: 수정 채택
 - 시간 근거: 현재 대화에서 사용자가 requestId 통합 방향과 BE Retry-After 계산 방식을 확정한 시각
 - 스프린트/범위: 스프린트 2 ADR 0006·0013·0014·0015 업로드 신뢰성
-- 관련 문서·코드: [`0013-use-request-id-and-frontend-owned-upload-messages.md`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), [`0015-separate-upload-retry-idempotency-and-state.md`](docs/adr/0015-separate-upload-retry-idempotency-and-state.md), [`0014-persist-upload-state-before-file-and-finalize-atomically.md`](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md), [`파일 업로드 API 명세`](docs/file-upload-api.md)
+- 관련 문서·코드: `0013-use-request-id-and-frontend-owned-upload-messages.md`, `0015-separate-upload-retry-idempotency-and-state.md`, `0014-persist-upload-state-before-file-and-finalize-atomically.md`, [`파일 업로드 API 명세`](docs/file-upload-api.md)
 - 요청·질문 요약: 업로드 멱등키를 별도 식별자로 두지 않고 `Idempotency-Key` UUID v4를 논리적 업로드 `requestId`로 사용하며, 처리 중 재시도 대기값을 백엔드가 계산하도록 작업계획을 확정한다.
 - 배경과 제약: 응답 유실 뒤 중복 파일을 만들지 않아야 하며, 현재 동기 multipart API와 별도 상태 조회 API를 유지한다. SHA-256 지문과 별도 attemptId는 범위에서 제외한다.
 - AI 활용 정보:
@@ -811,7 +811,7 @@
 - 상태: 채택
 - 시간 근거: 현재 대화에서 정책 감사 이력 구현 계획의 세부 선택을 확정한 시각
 - 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
-- 관련 문서·코드: [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `ExtensionPolicyService`, `ExtensionPolicyInitializer`
+- 관련 문서·코드: `0012-preserve-policy-change-history-for-operations.md`, `sprint-2-implementation-checklist.md`, `ExtensionPolicyService`, `ExtensionPolicyInitializer`
 - 요청·질문 요약: 정책 생성·초기화·고정 상태 변경·커스텀 삭제를 동일 트랜잭션의 감사 이력으로 보존하는 구현 계약을 확정한다.
 - 배경과 제약: 커스텀 정책은 물리 삭제되므로 정책 ID와 확장자를 함께 보존해야 한다. 현재 정책 API에는 requestId가 없고 인증도 도입되지 않았다. 감사 조회 API와 관리자 화면은 범위에서 제외한다.
 - AI 활용 정보:
@@ -868,7 +868,7 @@
 - 상태: 검토 중
 - 시간 근거: 다른 에이전트의 정책 감사 이력 리팩터링·문서 병합 완료 후 다음 스프린트 작업으로 착수한 시각
 - 스프린트/범위: 스프린트 2 ADR 0016 정책 집합·allowlist 전환 결정 게이트
-- 관련 문서·코드: [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md), [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md)
+- 관련 문서·코드: `docs/questions/sprint-2-allowlist-transition-options.md`, `0016-migrate-to-allowlist-when-policy-requires.md`, `19-future-policy-model.md`
 - 요청·질문 요약: 다른 에이전트 작업 완료 후 스프린트 2의 다음 실제 작업을 진행한다. 코드 구현에 앞서 ADR 0016의 결정 선택지를 정리한다.
 - 배경과 제약: 현재 구현은 전역 denylist이며 사용자·조직 인증과 policy-set은 범위 밖이다. `proposed` ADR의 결정 게이트가 닫히기 전에는 스키마·API·실제 allowlist 차단을 구현하지 않는다.
 - AI 활용 정보:
@@ -963,7 +963,7 @@
 - 상태: 채택
 - 시간 근거: 사용자 답변으로 확장자 경계 전체 검사와 기존 API 계약 유지가 확정된 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
 - 스프린트/범위: 파일 업로드 denylist의 다중 확장자 우회 방지
-- 관련 문서·코드: [`ADR 0017`](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md), [`ADR 0007`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [`파일 업로드 API`](docs/file-upload-api.md)
+- 관련 문서·코드: `ADR 0017`, `ADR 0007`, [`파일 업로드 API`](docs/file-upload-api.md)
 - 요청·질문 요약: `test.exe.pdf`, `test.jsp.png`처럼 중간 확장자에 차단 확장자가 있는 파일도 차단한다.
 - 배경과 제약: 현재 구현은 최종 확장자만 검사한다. Tika·UUID 파일명·저장 경로 격리는 유지하고 새 오류 코드나 전체 확장자 목록 응답은 추가하지 않는다.
 - AI 활용 정보:
@@ -1001,7 +1001,7 @@
 - 상태: 채택
 - 시간 근거: 사용자가 `application/octet-stream`과 Tika 분석 `IOException`을 구분하고, 감지 실패는 `FILE_TYPE_DETECTION_FAILED`로 거부하자는 구현 방향을 확정한 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
 - 스프린트/범위: MIME 콘텐츠 감지 결과의 unknown·failed 처리와 업로드 보안 게이트
-- 관련 문서·코드: [`ADR 0005`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md), [`파일 업로드 API`](docs/file-upload-api.md)
+- 관련 문서·코드: `ADR 0005`, `ADR 0018`, [`파일 업로드 API`](docs/file-upload-api.md)
 - 요청·질문 요약: 분석 성공 후 형식을 특정하지 못한 `UNKNOWN` MIME은 기존 확장자 정책으로 처리하되, 분석 자체가 `IOException`으로 실패하면 업로드를 중단한다.
 - 배경과 제약: 기존 구현은 `MimeTypeDetectionResult`의 `FAILED`를 `UNKNOWN`과 함께 fallback 처리했다. 실행 MIME denylist, `application/octet-stream` 허용, 서버 생성 파일명, 저장 위치 격리, allowlist·바이러스 검사 범위 제외는 유지한다.
 - AI 활용 정보:
@@ -1020,7 +1020,7 @@
 - 상태: 수정 채택
 - 시간 근거: 사용자가 `MultipartException`의 `exception.getMessage()`를 외부 응답에서 제거하고 내부 로그와 분리하도록 요청한 시각
 - 스프린트/범위: 파일 업로드 API 오류 응답의 내부 정보 비노출
-- 관련 문서·코드: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java), [`ADR 0013`](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md)
+- 관련 문서·코드: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java), `ADR 0013`
 - 요청·질문 요약: multipart 예외 메시지에 Spring/Tomcat 구현 세부사항이나 임시 파일 경로가 포함될 수 있으므로, 외부에는 고정된 `INVALID_FILE` 응답을 반환하고 내부 로그에만 예외와 `requestId`를 남긴다.
 - 배경과 제약: 업로드 오류 응답은 `code`·`requestId`·안전한 `context`를 중심으로 하며, `InvalidFileException`의 기존 메시지 동작과 다른 업로드 오류 계약은 이번 범위에서 변경하지 않는다.
 - AI 활용 정보:
@@ -1039,7 +1039,7 @@
 - 상태: 채택
 - 시간 근거: 기능 커밋 `7c69a29`와 전체 Gradle 테스트가 완료된 시각
 - 스프린트/범위: MIME 콘텐츠 감지 실패를 fail-close로 처리하는 ADR 0018 구현
-- 관련 문서·코드: [`MimeTypeDetectionResult`](src/main/java/com/example/demo/file/service/MimeTypeDetectionResult.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md)
+- 관련 문서·코드: [`MimeTypeDetectionResult`](src/main/java/com/example/demo/file/service/MimeTypeDetectionResult.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), `ADR 0018`
 - 요청·질문 요약: `UNKNOWN` MIME은 기존 확장자 정책으로 fallback하고 Tika `IOException`에 해당하는 `FAILED` MIME은 `FILE_TYPE_DETECTION_FAILED`로 업로드를 거부한다.
 - 배경과 제약: 실행 MIME denylist, `application/octet-stream` 허용, 기존 저장·멱등성·파일명 정책은 유지한다. 기존 multipart 변경은 별도 작업으로 분리했다.
 - AI 활용 정보:
