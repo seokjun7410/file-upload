@@ -208,8 +208,8 @@
 
 ## 13. 스프린트 2 UX·접근성·최종 회귀 검증
 
-- [~] 20자·200개·201번째 등록과 320px 유효 폭을 검증한다. 경계값·목록·가로 overflow·오류 복구는 통과했으나 키보드 전용 완료는 브라우저 자동화 키 이벤트가 진행되지 않아 미확정이다.
-- [~] MIME 거부·413·requestId 오류 안내와 실제 API `409 + Retry-After`를 확인한다. MIME·413·requestId 안전성·409 API 계약은 통과했으나 IAB의 409 화면 주입과 VoiceOver는 대기 중이다.
+- [~] 20자·200개·201번째 등록과 320px 유효 폭을 검증한다. 경계값·목록·가로 overflow·오류 복구는 통과했고 640px 유효 폭도 overflow가 없었으나 키보드 전용 완료는 브라우저 자동화 키 이벤트가 진행되지 않아 미확정이다.
+- [~] MIME 거부·413·requestId 오류 안내와 실제 API `409 + Retry-After`를 확인한다. MIME·413·requestId 안전성·409 API 계약은 통과했으나 IAB의 409 화면 주입과 VoiceOver·실제 200% 확대는 대기 중이다.
 - [x] 전체 테스트와 실제 multipart 업로드 시나리오를 실행한다. `./gradlew test`와 정상 `.txt`, 실행 MIME, 11MiB 파일, 동시 동일 requestId 업로드를 확인했다.
 - [x] ADR 구현 상태 점검, API 계약, 스프린트 문서, 체크리스트, `PROMPT_LOG.md`를 실제 결과로 갱신한다.
 - [x] 브랜치별 직접 커밋 경로·staged 공백·전체 테스트를 감사한 뒤 스프린트 완료 여부를 보고한다. 기능 브랜치 직접 커밋은 코드만 포함했고, 문서는 docs 커밋 `a2f3605`를 merge commit `c6e92d2`로 반영했다. `git diff --check`와 최종 `./gradlew test`가 통과했다.

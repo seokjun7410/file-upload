@@ -1689,3 +1689,22 @@
 - 검증 근거: `git log --first-parent --no-merges main..HEAD --name-only`에서 직접 기능 커밋의 경로가 `src/**`뿐임을 확인했다. `git diff --check`와 최종 `./gradlew test`가 성공했다. 최종 작업 트리는 clean이다.
 - 결과와 연결 문서: 체크리스트와 이 기록을 갱신하고 기능 브랜치에 docs merge를 반영했다.
 - 회고와 후속 조치: 원격 `origin/docs` push는 사용자가 별도로 승인하거나 인증 문제가 해결될 때 수행한다. 스프린트 완료 보고는 VoiceOver·실제 200% zoom·409 화면 분기를 보류한 상태로 기능 구현 완료와 수동 검증 미완료를 구분해 작성한다.
+
+## 2026-08-31T16:54:41+09:00 — 스프린트 2 수동검증 일괄 실행
+
+- 상태: 부분 검증 완료
+- 시간 근거: 격리된 Spring Boot 서버·H2 DB·임시 저장 경로에서 API·정책 화면·반응형·오류 복구 시나리오를 실행한 시각
+- 스프린트/범위: 스프린트 2 최종 수동검증 계획
+- 관련 문서·코드: `src/main/resources/static/js/extension-policy.js`, `src/main/resources/templates/index.html`, `docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`
+- 요청·질문 요약: 기본 업로드, 정책 한도, 멱등성, 반응형, 키보드·스크린리더·확대 검증을 한 세션에 묶어 실행한다.
+- 배경과 제약: 운영 데이터가 아닌 격리 환경을 사용했다. allowlist 구현과 requestId 만료·정리는 범위에 포함하지 않았다. 브라우저 UI에서 테스트 정책을 삭제하는 단계는 로컬 데이터 삭제 확인이 필요해 사용자 확인 전 보류했다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱, Java 21, Spring Boot 3.5.16, H2, Codex In-app Browser, macOS Chrome
+  - skill: `backend-documentation`, `browser:control-in-app-browser`, `computer-use:computer-use`
+  - 도구: `./gradlew bootRun`, `./gradlew test`, curl, Browser Playwright, macOS Computer Use, `apply_patch`
+- AI 제안: 9MiB 정상 범위 fixture와 다중 동시 요청으로 처리 중 멱등성 경쟁을 재현하고, 브라우저 화면은 DOM·상태·포커스·viewport 수치와 접근성 트리로 확인한다.
+- 사람의 판단과 이유: 채택. 확정된 구현의 동작 검증을 우선하고, 실행 파일 fixture는 Tika가 실제 실행 MIME으로 감지하는 MZ 헤더로 교체했다. 외부 Chrome이 사용자 조작으로 전환된 뒤에는 사용자 탭을 덮어쓰지 않고 VoiceOver·실제 200% 확대를 미확정으로 남겼다.
+- 코드·사용자 경험 영향: 기능 코드 변경은 없다. 정상 `.txt` 업로드, MZ 실행 MIME `422 BLOCKED_EXECUTABLE_MIME`, 11MiB `413 FILE_SIZE_EXCEEDED`, 20자·21자, 200개·201번째 `409 CUSTOM_LIMIT_EXCEEDED`, 정책·업로드 오류 후 포커스 복귀를 확인했다.
+- 검증 근거: 동일 UUID v4 requestId 12개 동시 업로드에서 `201`과 `409 IDEMPOTENCY_IN_PROGRESS`·`Retry-After: 2`를 확인했고 최종 저장 파일은 1개였다. 320px와 640px에서 `scrollWidth == clientWidth`였다. IAB의 Tab 키가 실제 포커스를 이동시키지 않았고, Chrome 외부 창은 사용자 조작으로 자동화 대상이 바뀌어 VoiceOver·실제 200% 확대·409 화면 주입은 실행하지 못했다. `./gradlew test`는 성공했다.
+- 결과와 연결 문서: 스프린트 2 UX 검증 문서와 구현 체크리스트에 추가 결과를 기록했다.
+- 회고와 후속 조치: 사용자 확인 후 UI 삭제·빈 상태를 검증한다. 사용자 조작이 없는 실제 Chrome 또는 수동 환경에서 VoiceOver·200% 확대·409 화면 분기를 보완한다.

@@ -65,10 +65,10 @@
 - 20자 입력: `uxabcdefghijklmnopqr` 등록 성공, 조회·삭제 성공. 21자 입력 `uxabcdefghijklmnopqrs`는 `INVALID_EXTENSION`으로 저장되지 않고 입력값을 보존했다.
 - 200개 목록: API로 `ux001`~`ux200`을 생성했다. 응답 크기는 1,873 bytes였고, 200개 항목을 렌더링했으며 기본 폭과 320px 폭 모두 `scrollWidth == clientWidth`였다. 마지막 항목 삭제 후 199개와 빈 상태 전환을 확인했다.
 - 201번째 등록: `409 CUSTOM_LIMIT_EXCEEDED`, 입력값 보존, 200개 목록 유지 및 한국어 한도 안내를 확인했다.
-- 업로드: 정상 `.txt`는 서버 생성 파일명으로 성공했다. 실행 MIME 파일은 `422 BLOCKED_EXECUTABLE_MIME`, 11MiB 파일은 `413 FILE_SIZE_EXCEEDED`로 거부됐고 내부 경로·stack trace는 화면에 노출되지 않았다.
-- 멱등성: 동일 UUID v4 requestId 동시 업로드에서 한 요청은 `201`, 다른 요청은 `409 IDEMPOTENCY_IN_PROGRESS`와 `Retry-After: 2`를 반환했다.
+- 업로드: 정상 `.txt`는 서버 생성 파일명으로 성공했다. MZ 실행 파일 위장 fixture는 `422 BLOCKED_EXECUTABLE_MIME`, 11MiB 파일은 `413 FILE_SIZE_EXCEEDED`로 거부됐고 내부 경로·stack trace는 화면에 노출되지 않았다.
+- 멱등성: 동일 UUID v4 requestId 12개 동시 업로드에서 `201`과 `409 IDEMPOTENCY_IN_PROGRESS`가 관찰됐고, 409 응답은 `Retry-After: 2`를 포함했다. 최종 저장 파일은 1개였으며 나머지는 완료 결과를 재사용했다.
 - UX 수정: 정책 오류 code 기반 한국어 안내와 정책 삭제·업로드 실패 후 입력 컨트롤 포커스 복귀를 구현하고 재검증했다. 관련 코드 커밋은 `a840db2`다.
-- 접근성: DOM의 입력·버튼은 native tab order와 label/aria-label을 갖고, 오류 후 컨트롤은 활성화됐다. IAB 자동화에서 Tab/Enter 키 이벤트가 실제 포커스 이동·제출로 진행되지 않았고 VoiceOver는 실행하지 못했으므로 키보드 전용 완료와 스크린리더 결과는 미확정이다. 실제 브라우저 200% zoom API도 제공되지 않아 `640px` 유효 폭 대체 결과만 기록한다.
+- 접근성: DOM의 입력·버튼은 native tab order와 label/aria-label을 갖고, 정책 오류 후 `custom-extension-input`, 업로드 오류 후 `file-input`으로 포커스와 컨트롤 활성 상태가 복귀했다. IAB 자동화에서 Tab 키가 실제 포커스 이동으로 진행되지 않았고, Chrome 외부 창은 사용자 조작으로 자동화 대상이 바뀌어 VoiceOver와 실제 200% 확대를 실행하지 못했다. `320px`와 `640px` 유효 폭에서는 `scrollWidth == clientWidth`였으며, 실제 키보드 전용·스크린리더·200% 확대 결과는 미확정이다.
 - 후속 결정: 현재 20자·200개 값은 유지한다. 검색·페이징·ADR 추가는 하지 않는다. VoiceOver, 실제 200% 확대, 409 화면 분기는 별도 수동 환경 또는 브라우저 기능 확보 후 보완한다.
 
 ## 결과 기록
