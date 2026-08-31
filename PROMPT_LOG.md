@@ -1651,3 +1651,22 @@
 - 검증 근거: Node 기반 매핑 확인에서 확장자 context·알 수 없는 code fallback·서버 message 무시를 확인했다. 로컬 브라우저에서 정상 `.txt` 업로드 성공, 차단 `env` 오류 문구, 320px 화면의 가로 overflow 부재를 확인했다. 전체 `./gradlew test`는 `BUILD SUCCESSFUL`로 완료했다.
 - 결과와 연결 문서: 기능 커밋 `a89a5ef`; 후속 docs 커밋에서 ADR 구현 상태 점검·스프린트 API·체크리스트를 현재 코드 및 부분 smoke 결과에 맞춰 갱신한다.
 - 회고와 후속 조치: MIME 거부·413 용량 초과·처리 중 409 재시도와 20자·200개·201번째 등록·키보드·스크린리더·200% 확대 검증을 남긴다. requestId 만료 구현은 다음 작업으로 올리지 않는다.
+
+## 2026-08-31T15:48:17+09:00 — 스프린트 2 브라우저 UX 회귀 검증과 오류 복구 보완
+
+- 상태: 수정 채택
+- 시간 근거: 격리된 로컬 서버와 Codex In-app Browser에서 스프린트 2 최종 UX 시나리오를 실행하고, 오류 안내·포커스 결함의 수정과 재검증을 완료한 시각
+- 스프린트/범위: 스프린트 2 최종 브라우저 smoke, 20자·200개·201번째 정책 한도, multipart·MIME·멱등 업로드 오류 안내
+- 관련 문서·코드: `src/main/resources/static/js/extension-policy.js`, `src/main/resources/templates/index.html`, `docs/sprints/sprint-2/sprint-2-extension-limit-ux-validation.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/adr/adr-implementation-status-review-2026-08-30.md`
+- 요청·질문 요약: 격리된 H2 DB·임시 저장 경로에서 계획된 최종 브라우저 UX와 실제 업로드 계약을 검증하고, 실패가 발견되면 최소 범위로 보완한다.
+- 배경과 제약: API 계약·20자·200개 한도·allowlist 보류 정책은 변경하지 않는다. 브라우저 검증은 사용자 파일 대신 고정된 텍스트·MIME 위장·11MiB 테스트 파일을 사용한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱, Java 21, Spring Boot 로컬 서버
+  - skill: `browser:control-in-app-browser`, `diagnose`
+  - plugin/도구: Browser client, `apply_patch`, `curl`, Git, `./gradlew test`
+- AI 제안: 정책 오류도 서버 message를 그대로 표시하지 않고 오류 code를 기준으로 한국어 안내를 조립하며, DOM 재렌더링 뒤에는 컨트롤을 다시 활성화한 다음 입력 포커스를 복귀시킨다. 정적 JS URL에는 버전 query를 붙여 브라우저 캐시로 이전 동작이 남지 않게 한다.
+- 사람의 판단과 이유: 수정 채택. 21자·201번째 등록에서 서버의 영어 내부 메시지가 화면에 노출된 것은 사용자 경험 계약에 맞지 않아 `INVALID_EXTENSION`, `CUSTOM_LIMIT_EXCEEDED` 등 정책 code의 FE 한국어 매핑을 추가했다. 삭제·업로드 실패 뒤 body로 포커스가 사라진 것은 재시도 가능한 화면 조건을 위반하므로 삭제·추가 후 확장자 입력창, 업로드 종료 후 파일 입력창으로 복귀시켰다. API 응답·서버 오류 code는 변경하지 않았다.
+- 코드·사용자 경험 영향: `src/main/resources/static/js/extension-policy.js`에 정책 오류 매핑과 포커스 복귀를 추가하고 `index.html`의 정적 JS에 `v=20260831` query를 추가했다. 사용자는 한도·입력·업로드 실패 사유를 한국어로 확인하고 즉시 재시도할 수 있다.
+- 검증 근거: 정확히 20자 등록 성공, 21자 `INVALID_EXTENSION` 거부·입력 보존, `ux001`~`ux200` 200개 렌더링, 201번째 `409 CUSTOM_LIMIT_EXCEEDED`·입력 보존, 빈 목록 전환을 확인했다. 정상 `.txt` 업로드 성공, 실행 MIME `422 BLOCKED_EXECUTABLE_MIME`, 11MiB `413 FILE_SIZE_EXCEEDED`, 동일 requestId 동시 요청의 `201`·`409 IDEMPOTENCY_IN_PROGRESS`·`Retry-After: 2`를 확인했다. 기본 `1280px`, `320px`, `640px` 유효 폭에서 가로 overflow가 없었다. 오류 화면에는 내부 경로·stack trace가 없었다. 삭제·업로드 실패 후 포커스 복귀 수정과 전체 `./gradlew test`도 성공했다. IAB의 실제 409 화면 주입, OS VoiceOver, 실제 브라우저 200% zoom은 도구 제약으로 미확정이다.
+- 결과와 연결 문서: 기능 커밋 `a840db2`; 스프린트 2 UX 검증 결과·체크리스트·ADR 구현 상태 점검을 현재 결과에 맞춰 갱신했다.
+- 회고와 후속 조치: 브라우저 도구가 정적 리소스 캐시와 포커스 이벤트를 숨길 수 있어 새 탭·버전 query·DOM 상태 확인을 함께 사용했다. 실제 VoiceOver·200% zoom·409 화면 재시도 문구는 수동 환경 또는 결정적 주입 경로 확보 후 보완한다. ADR 0016 allowlist와 requestId 만료·정리는 계속 보류한다.

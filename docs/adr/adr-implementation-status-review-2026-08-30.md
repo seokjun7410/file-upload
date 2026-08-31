@@ -1,7 +1,7 @@
 ---
 status: review
 reviewed_at: 2026-08-31
-implementation_baseline: feat/upload-policy-reliability@a89a5ef
+implementation_baseline: feat/upload-policy-reliability@a840db2
 ---
 
 # ADR 구현 상태 점검과 다음 작업
@@ -41,13 +41,13 @@ ADR의 `accepted` 표기와 구현 완료를 분리한다. 구현 완료는 현�
 
 ## 현재 코드 기준 요약
 
-현재 기준 브랜치에는 스프린트 2의 MIME 검증, multipart 제한, 저장 루트 설정, 원본 파일명 메타데이터, requestId 멱등성·재시도, 업로드 상태 복구, 정책 감사 이력이 포함되어 있다. FE 오류 코드·context 매핑도 구현했다. 브라우저 smoke의 일부 시나리오와 최종 UX 회귀 검증이 남아 있으며, requestId 만료·정리는 현재 범위에서 제외한다.
+현재 기준 브랜치에는 스프린트 2의 MIME 검증, multipart 제한, 저장 루트 설정, 원본 파일명 메타데이터, requestId 멱등성·재시도, 업로드 상태 복구, 정책 감사 이력이 포함되어 있다. FE 오류 code 기반 한국어 매핑과 정책·업로드 실패 후 포커스 복귀도 구현했다. 브라우저 smoke의 MIME·413·정책 한도·반응형 주요 시나리오와 실제 `409 + Retry-After` API는 확인했으며, VoiceOver·실제 200% 확대·409 화면 주입은 대기 중이다. requestId 만료·정리는 현재 범위에서 제외한다.
 
-통합 후 `./gradlew test`는 성공했다. 브라우저에서는 정상 `.txt` 업로드, 차단된 `env` 업로드, 320px 폭의 가로 overflow 부재를 확인했다.
+통합 후 `./gradlew test`는 성공했다. 브라우저에서는 정상 `.txt` 업로드, 차단된 `env` 업로드, MIME·413 오류 안내, 20자·200개·201번째 등록, 320px·640px 유효 폭의 가로 overflow 부재를 확인했다. 동시 동일 requestId API에서는 `201`과 `409 + Retry-After`를 확인했다.
 
 ## 다음 작업과 선결 조건
 
-1. MIME 거부·413 용량 초과·409 처리 중 재시도 화면을 브라우저에서 검증한다.
-2. 20자·200개·201번째 등록과 키보드·스크린리더·200% 확대 UX smoke를 실행한다.
+1. IAB에서 재현이 어려운 `409` 화면 재시도 분기를 별도 수동 또는 결정적 주입 환경에서 확인한다.
+2. VoiceOver와 실제 브라우저 200% 확대 검증을 수행한다.
 3. 브랜치 직접 커밋 경로와 최종 회귀 결과를 감사한다.
 4. ADR 0016은 제품·운영 결정이 끝날 때까지 보류한다.
