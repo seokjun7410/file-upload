@@ -9,6 +9,7 @@ import com.example.demo.file.exception.FileTypeDetectionFailedException;
 import com.example.demo.file.exception.IdempotencyInProgressException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.exception.InvalidRequestIdException;
+import com.example.demo.file.exception.MultipleFilesNotAllowedException;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class FileUploadExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(FileUploadExceptionHandler.class);
+    private static final String INVALID_FILE_MESSAGE = "잘못된 파일 요청입니다.";
 
     /** 누락·빈 파일·확장자가 없는 파일 요청을 400 INVALID_FILE로 변환한다. */
     @ExceptionHandler({
@@ -38,7 +40,32 @@ public class FileUploadExceptionHandler {
             Exception exception,
             HttpServletRequest request
     ) {
-        return response(HttpStatus.BAD_REQUEST, "INVALID_FILE", requestId(request), Map.of(), exception.getMessage());
+        String requestId = requestId(request);
+        if (exception instanceof MultipartException) {
+            log.warn(
+                    "multipart 요청 오류 requestId={} code=INVALID_FILE status=400",
+                    requestId,
+                    exception
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse("INVALID_FILE", requestId, Map.of(), INVALID_FILE_MESSAGE));
+        }
+        return response(HttpStatus.BAD_REQUEST, "INVALID_FILE", requestId, Map.of(), exception.getMessage());
+    }
+
+    /** 여러 파일을 포함한 요청을 400 MULTIPLE_FILES_NOT_ALLOWED로 변환한다. */
+    @ExceptionHandler(MultipleFilesNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleMultipleFilesNotAllowed(
+            MultipleFilesNotAllowedException exception,
+            HttpServletRequest request
+    ) {
+        return response(
+                HttpStatus.BAD_REQUEST,
+                "MULTIPLE_FILES_NOT_ALLOWED",
+                requestId(request),
+                Map.of(),
+                exception.getMessage()
+        );
     }
 
     /** 멱등성 키가 없는 업로드 요청을 400 INVALID_REQUEST_ID로 변환한다. */

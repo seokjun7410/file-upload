@@ -15,6 +15,7 @@ const POLICY_ERROR_MESSAGES = Object.freeze({
 const FILE_UPLOAD_ERROR_MESSAGES = Object.freeze({
     INVALID_FILE: "업로드할 파일을 선택해 주세요.",
     INVALID_REQUEST_ID: "업로드 요청 식별자를 확인하지 못했습니다. 다시 시도해 주세요.",
+    MULTIPLE_FILES_NOT_ALLOWED: "한 번에 파일 1개만 업로드할 수 있습니다.",
     FILE_SIZE_EXCEEDED: "파일 크기가 허용된 제한을 초과했습니다.",
     BLOCKED_EXECUTABLE_MIME: "실행 가능한 파일 형식은 업로드할 수 없습니다.",
     FILE_TYPE_DETECTION_FAILED: "파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.",

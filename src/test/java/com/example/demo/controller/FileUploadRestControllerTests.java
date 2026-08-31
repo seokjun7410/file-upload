@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -108,6 +109,48 @@ class FileUploadRestControllerTests {
         // then
         result.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_FILE"));
+    }
+
+    @Test
+    @DisplayName("파일 part가 두 개면 400 MULTIPLE_FILES_NOT_ALLOWED 오류를 반환하고 업로드하지 않는다")
+    void rejectsMultipleMultipartFiles() throws Exception {
+        // given
+        String requestId = "550e8400-e29b-41d4-a716-446655440012";
+        var firstFile = new MockMultipartFile("file", "first.txt", "text/plain", "first".getBytes());
+        var secondFile = new MockMultipartFile("file", "second.txt", "text/plain", "second".getBytes());
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files")
+                .file(firstFile)
+                .file(secondFile)
+                .header("Idempotency-Key", requestId));
+
+        // then
+        result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("MULTIPLE_FILES_NOT_ALLOWED"))
+                .andExpect(jsonPath("$.requestId").value(requestId));
+        verifyNoInteractions(service);
+    }
+
+    @Test
+    @DisplayName("multipart 내부 예외 메시지는 외부 응답에 노출하지 않는다")
+    void hidesMultipartExceptionMessage() throws Exception {
+        // given
+        String requestId = "550e8400-e29b-41d4-a716-446655440009";
+        var file = new MockMultipartFile("file", "readme.txt", "text/plain", "content".getBytes());
+        String internalMessage = "Failed to parse multipart request; temporary path=/var/tmp/secret.tmp";
+        when(service.upload(eq(requestId), any(MultipartFile.class)))
+                .thenThrow(new MultipartException(internalMessage));
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", requestId));
+
+        // then
+        result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_FILE"))
+                .andExpect(jsonPath("$.message").value("잘못된 파일 요청입니다."));
     }
 
     @Test

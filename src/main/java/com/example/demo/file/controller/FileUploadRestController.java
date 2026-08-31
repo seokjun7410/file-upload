@@ -2,8 +2,10 @@ package com.example.demo.file.controller;
 
 import com.example.demo.file.controller.dto.res.FileUploadResponse;
 import com.example.demo.file.domain.entity.vo.UploadRequestId;
+import com.example.demo.file.exception.MultipleFilesNotAllowedException;
 import com.example.demo.file.service.FileUploadService;
 import com.example.demo.file.service.UploadedFile;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -27,11 +29,20 @@ public class FileUploadRestController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FileUploadResponse> upload(
             @RequestHeader("Idempotency-Key") String requestId,
-            @RequestPart("file") MultipartFile file
+            @RequestPart("file") List<MultipartFile> files
     ) {
         String normalizedRequestId = UploadRequestId.from(requestId).value();
+        MultipartFile file = singleFile(files);
         UploadedFile uploadedFile = service.upload(normalizedRequestId, file);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(FileUploadResponse.from(uploadedFile));
+    }
+
+    /** 업로드 요청이 파일 하나만 포함하도록 검증한다. */
+    private MultipartFile singleFile(List<MultipartFile> files) {
+        if (files.size() > 1) {
+            throw new MultipleFilesNotAllowedException();
+        }
+        return files.getFirst();
     }
 }
