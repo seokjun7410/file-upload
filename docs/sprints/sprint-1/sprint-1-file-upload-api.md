@@ -133,6 +133,8 @@
 
 서버는 원본 파일명을 사용하지 않고 UUID와 정규화된 마지막 확장자로 생성한 이름을 저장한다. 기본 저장 루트는 `./uploads`이며 `file.upload.storage-path` 설정으로 변경할 수 있다. 예를 들어 `archive.TAR.GZ`는 `*.gz` 파일로 저장된다. `.bashrc`, `README`, `file.`처럼 확장자를 추출할 수 없는 파일은 거부한다.
 
+차단 여부는 basename의 첫 번째 점 이후에 있는 모든 확장자 구간을 파일명 순서대로 검사한다. 예를 들어 `test.exe.pdf`는 `exe`가 차단 정책에 등록되어 있으면 `pdf`가 허용 확장자여도 차단한다. `test.exefoo.pdf`처럼 확장자 구간이 정확히 일치하지 않는 경우에는 `exe` 정책으로 차단하지 않는다. 여러 구간이 차단되면 가장 왼쪽의 차단 확장자 하나를 `context.extension`에 반환한다.
+
 업로드 MIME은 multipart 요청의 `Content-Type`이나 원본 파일명이 아니라 파일 콘텐츠에서 감지한다. 실행 가능한 MIME으로 판정되지 않은 파일은 기존 확장자 차단 정책을 통과하면 허용한다. `.txt`·`text/plain`은 허용하고, MIME을 확인할 수 없는 파일은 경고 로그를 남기고 업로드를 계속한다.
 
 ### 차단 Response `422 Unprocessable Entity`
@@ -160,7 +162,7 @@
 - `400 Bad Request`, `INVALID_REQUEST_ID`: `Idempotency-Key`가 없거나 UUID v4 형식이 아님
 - `413 Payload Too Large`, `FILE_SIZE_EXCEEDED`: 파일 10MB 또는 multipart 전체 요청 12MB 초과
 - `409 Conflict`, `IDEMPOTENCY_IN_PROGRESS`: 같은 `requestId`의 업로드가 처리 중이며 `Retry-After` 헤더를 함께 반환
-- `422 Unprocessable Entity`, `BLOCKED_EXTENSION`: 차단 확장자
+- `422 Unprocessable Entity`, `BLOCKED_EXTENSION`: 파일명의 확장자 구간 중 하나 이상이 차단 정책에 포함됨. `context.extension`에는 가장 왼쪽의 차단 확장자 하나를 포함한다.
 - `422 Unprocessable Entity`, `BLOCKED_EXECUTABLE_MIME`: 실행 가능한 MIME으로 감지된 파일
 - `500 Internal Server Error`, `FILE_UPLOAD_FAILED`: 서버 저장 실패
 

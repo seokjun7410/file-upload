@@ -1,6 +1,8 @@
 ---
-status: accepted
+status: superseded
 ---
+
+> 이 결정은 [ADR 0017: 모든 확장자 구간을 검사하는 업로드 차단 정책](0017-scan-all-extension-segments-for-upload-blocking.md)으로 대체되었다.
 
 # 업로드 차단은 파일명의 최종 확장자를 기준으로 한다
 

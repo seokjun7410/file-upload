@@ -1708,3 +1708,22 @@
 - 검증 근거: 동일 UUID v4 requestId 12개 동시 업로드에서 `201`과 `409 IDEMPOTENCY_IN_PROGRESS`·`Retry-After: 2`를 확인했고 최종 저장 파일은 1개였다. 320px와 640px에서 `scrollWidth == clientWidth`였다. IAB의 Tab 키가 실제 포커스를 이동시키지 않았고, Chrome 외부 창은 사용자 조작으로 자동화 대상이 바뀌어 VoiceOver·실제 200% 확대·409 화면 주입은 실행하지 못했다. `./gradlew test`는 성공했다.
 - 결과와 연결 문서: 스프린트 2 UX 검증 문서와 구현 체크리스트에 추가 결과를 기록했다.
 - 회고와 후속 조치: 사용자 확인 후 UI 삭제·빈 상태를 검증한다. 사용자 조작이 없는 실제 Chrome 또는 수동 환경에서 VoiceOver·200% 확대·409 화면 분기를 보완한다.
+
+## 2026-08-31T16:58:02+09:00 — 다중 확장자 차단 정책 채택
+
+- 상태: 채택
+- 시간 근거: 사용자 답변으로 확장자 경계 전체 검사와 기존 API 계약 유지가 확정된 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
+- 스프린트/범위: 파일 업로드 denylist의 다중 확장자 우회 방지
+- 관련 문서·코드: [`ADR 0017`](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md), [`ADR 0007`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md), [`파일 업로드 API`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 요청·질문 요약: `test.exe.pdf`, `test.jsp.png`처럼 중간 확장자에 차단 확장자가 있는 파일도 차단한다.
+- 배경과 제약: 현재 구현은 최종 확장자만 검사한다. Tika·UUID 파일명·저장 경로 격리는 유지하고 새 오류 코드나 전체 확장자 목록 응답은 추가하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `next-work-briefing`, `tdd`, `backend-documentation`
+  - plugin/도구: 저장소 검색, Gradle 테스트, OWASP·CWE 공식 문서 검색
+- AI 제안: basename의 모든 확장자 구간을 왼쪽부터 정확히 비교하고 첫 번째 차단 구간만 기존 `context.extension`에 반환한다.
+- 사람의 판단과 이유: 채택. denylist 정책의 파일명 우회를 줄이면서 정상적인 복합 파일명과 기존 REST 오류 계약을 유지하기로 했다.
+- 코드·사용자 경험 영향: 차단 정책이 중간 확장자에도 적용되고, 사용자에게는 기존과 동일한 `BLOCKED_EXTENSION` 응답이 제공된다.
+- 검증 근거: 구현 전 기준 브랜치에서 `./gradlew test` 성공. 구현 후 다중 구간·대소문자·부분 문자열·파일 미저장 테스트를 추가한다.
+- 결과와 연결 문서: ADR 0017, API 계약, 스프린트 정책·체크리스트를 갱신했다.
+- 회고와 후속 조치: 구현 시 모든 구간의 정확한 경계 비교를 유지하고, allowlist 전환·MIME 불일치 차단은 별도 범위로 둔다.
