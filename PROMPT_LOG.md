@@ -1765,3 +1765,22 @@
 - 검증 근거: 기존 코드에서 `isUnknown()`이 `FAILED`를 포함하고, 서비스가 실패 결과를 경고 후 계속 처리하는 것을 확인했다. OWASP 공식 파일 업로드 문서에서 확장자·콘텐츠 타입·signature·저장 위치 등 다중 방어 계층 권고를 확인했다. 구현 테스트와 전체 `./gradlew test`는 기능 브랜치에서 수행한다.
 - 결과와 연결 문서: ADR 0018을 추가하고 ADR 0005, 스프린트 1 API, 스프린트 2 PRD·체크리스트, `AGENTS.md` 문서 인덱스를 갱신한다.
 - 회고와 후속 조치: 구현 시 `UNKNOWN`과 `FAILED`의 테스트를 분리하고, 새 REST 오류가 기존 `FILE_UPLOAD_FAILED`와 혼동되지 않는지 확인한다. MIME allowlist와 악성코드 검사는 별도 결정으로 유지한다.
+
+## 2026-08-31T17:20:50+09:00 — MIME 감지 fail-close 구현 및 회귀 검증
+
+- 상태: 채택
+- 시간 근거: 기능 커밋 `7c69a29`와 전체 Gradle 테스트가 완료된 시각
+- 스프린트/범위: MIME 콘텐츠 감지 실패를 fail-close로 처리하는 ADR 0018 구현
+- 관련 문서·코드: [`MimeTypeDetectionResult`](src/main/java/com/example/demo/file/service/MimeTypeDetectionResult.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md)
+- 요청·질문 요약: `UNKNOWN` MIME은 기존 확장자 정책으로 fallback하고 Tika `IOException`에 해당하는 `FAILED` MIME은 `FILE_TYPE_DETECTION_FAILED`로 업로드를 거부한다.
+- 배경과 제약: 실행 MIME denylist, `application/octet-stream` 허용, 기존 저장·멱등성·파일명 정책은 유지한다. 기존 multipart 변경은 별도 작업으로 분리했다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`, `next-work-briefing`
+  - plugin/도구: `apply_patch`, Gradle Wrapper, Git, MockMvc, Node syntax check
+- AI 제안: 결과 객체의 `UNKNOWN`·`FAILED` 판정을 분리하고, 실패 시 저장 전용 오류와 REST 계약을 추가한다.
+- 사람의 판단과 이유: 채택. MIME 분석을 수행하지 못한 콘텐츠를 확장자 정책만으로 허용하면 보안 검증 계층이 장애 시 fail-open이 되므로 거부한다. `application/octet-stream`은 분석 성공 후 미확인 결과이므로 기존 사용성을 유지한다.
+- 코드·사용자 경험 영향: 감지 실패는 정책 판정·예약·파일 저장 전에 중단된다. API는 `500 FILE_TYPE_DETECTION_FAILED`와 빈 `context`를 반환하고 FE는 `파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.`를 표시한다.
+- 검증 근거: Red 단계에서 새 예외 클래스 부재로 테스트 컴파일 실패를 확인한 뒤 Green 구현을 적용했다. MIME 서비스·Tika detector·REST 테스트와 전체 `./gradlew test`가 성공했고 `node --check src/main/resources/static/js/extension-policy.js`, `git diff --check`도 통과했다.
+- 결과와 연결 문서: 기능 커밋 `7c69a29`; docs 커밋 `f602502` 및 후속 구현 상태·검증 기록 문서 커밋으로 반영한다.
+- 회고와 후속 조치: Tika IOException의 원인은 내부 로그에만 남기고 외부 응답에는 노출하지 않는다. MIME allowlist·악성코드 검사·Retry-After는 별도 범위로 유지한다.
