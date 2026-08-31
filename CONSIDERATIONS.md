@@ -1,0 +1,458 @@
+# 파일 업로드 확장자 차단 정책 고려사항
+
+이 문서는 과제의 필수 기능을 구현하면서 검토한 보안, 정책·데이터, UX·예외,
+운영 관점의 판단과 근거를 정리한다. 단순히 기능을 많이 추가하는 것보다 실제로
+발생할 수 있는 실패와 우회 사례를 먼저 정의하고, 현재 범위에서 적용할 정책과
+의도적으로 제외할 범위를 구분하는 데 목적이 있다.
+
+문서의 `구현 완료` 표시는 코드·설정·테스트에서 핵심 동작이 확인된 경우에만
+사용한다. ADR이 `accepted`여도 일부 정책이 보류되었다면 그 사실을 별도로
+표시한다. 상세 구현 상태는
+[ADR 구현 상태 점검](docs/adr/adr-implementation-status-review-2026-08-30.md)을
+기준으로 한다.
+
+## 고려사항 요약
+
+| 순위 | 고려사항 | 관련 평가 영역 | 현재 상태 |
+|---:|---|---|---|
+| 1 | 모든 확장자 구간 검사 | 검증·보안, AI 활용 | 구현 완료 |
+| 2 | 파일 바이트 기반 MIME 검증과 감지 실패 경계 | 검증·보안 | 구현 완료 |
+| 3 | 원본 파일명과 물리 저장 경로 분리 | 검증·보안, 운영 | 구현 완료 |
+| 4 | multipart 파싱 경계의 용량 제한 | 검증·보안, 운영 | 구현 완료 |
+| 5 | 서버 검증과 정책 데이터 불변식 | 정책·데이터, 코드 품질 | 부분 구현 포함 |
+| 6 | 서버 저장 상태를 화면의 기준으로 사용 | UX·예외, 정합성 | 구현 완료 |
+| 7 | 사용자 오류 안내와 운영 추적 분리 | UX·예외, 운영 | 구현 완료 |
+| 8 | DB와 파일시스템 사이의 상태 일관성 | 실패 처리, 운영 | 구현 완료 |
+| 9 | 응답 유실과 동시 재시도의 멱등 처리 | 네트워크, 동시성 | 구현 완료 |
+| 10 | allowlist 전환의 의도적 보류 | 향후 확장, 범위 통제 | proposed·미구현 |
+
+## 1. 최종 확장자만 보지 않고 모든 확장자 구간을 검사한다
+
+### 검토한 위험
+
+최종 확장자만 검사하면 `report.exe.pdf`가 `pdf` 파일로 판정되어 `exe` 차단
+정책을 우회할 수 있다. 서버 생성 파일명과 MIME 검증이 추가 방어 계층으로
+존재하더라도, 파일명 구성에 따라 denylist 자체가 우회되는 동작은 정책의 의미와
+맞지 않는다. 반대로 `exe`라는 문자열을 포함하기만 해도 차단하면
+`report.exefoo.pdf` 같은 정상 파일까지 거부할 수 있다.
+
+### 판단과 근거
+
+- 원본 basename의 첫 번째 점 이후 각 구간을 확장자 후보로 추출한다.
+- 각 구간을 trim·소문자화한 뒤 fixed·custom 차단 정책과 정확히 비교한다.
+- 차단 구간이 하나라도 있으면 저장 전에 업로드를 거부한다.
+- 여러 차단 구간이 있으면 파일명에서 왼쪽에 있는 첫 구간만 오류 context에
+  반환해 기존 API 계약을 유지한다.
+- `exefoo`는 `exe`와 일치하지 않으며, 차단 정책과 일치하지 않는 정상 복합
+  파일명은 허용한다.
+
+이 결정은 최종 확장자만 검사하던
+[ADR 0007](docs/adr/0007-use-final-file-extension-for-upload-blocking.md)을
+[ADR 0017](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md)로
+대체한 결과다. 초기 결정을 반례로 재검토하고 API 호환성을 유지하면서 판정
+범위만 확장했다.
+
+### 구현과 검증
+
+- 구현: [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/FileExtensionExtractor.java),
+  [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java)
+- 검증: [`FileExtensionExtractorTests`](src/test/java/com/example/demo/service/impl/FileExtensionExtractorTests.java),
+  [`FileUploadServiceTests`](src/test/java/com/example/demo/service/impl/FileUploadServiceTests.java),
+  [`ExtensionPolicyApiIntegrationTests`](src/test/java/com/example/demo/controller/ExtensionPolicyApiIntegrationTests.java)
+- 확인한 동작: 중간 확장자 차단, 대소문자 정규화, 부분 문자열 비차단,
+  차단 시 물리 파일 미저장
+
+### 남은 한계
+
+확장자 구간 검사는 파일명 기반 정책의 우회를 줄일 뿐 악성코드 검사를 대신하지
+않는다. 다운로드·미리보기 기능이 추가되면 파일 실행 방지와 응답 헤더 정책을
+별도로 결정해야 한다.
+
+## 2. 확장자와 클라이언트 MIME 대신 파일 바이트를 추가로 검사한다
+
+### 검토한 위험
+
+확장자는 사용자가 바꿀 수 있고 multipart `Content-Type`도 클라이언트가 보낸
+값이므로 신뢰할 수 없다. 실행 파일을 `image.jpg`로 바꾸거나
+`Content-Type: image/jpeg`로 전송하면 확장자 검사와 클라이언트 MIME 검사만으로는
+실제 콘텐츠를 판별할 수 없다. 그러나 식별하기 어려운 모든 파일을 차단하면 정상
+텍스트와 신규 형식까지 과도하게 거부할 수 있다.
+
+### 판단과 근거
+
+- Apache Tika가 원본 파일명이나 multipart `Content-Type`을 힌트로 사용하지 않고
+  파일 바이트 스트림만으로 MIME을 감지한다.
+- 애플리케이션이 관리하는 실행 바이너리 MIME 카탈로그와 일치하면
+  `422 BLOCKED_EXECUTABLE_MIME`으로 거부한다.
+- 감지는 완료했지만 형식을 특정하지 못한 `UNKNOWN`은 경고 후 기존 확장자
+  정책을 계속 적용한다.
+- 입력 스트림을 읽지 못해 분석 자체가 실패한 `FAILED`는 MIME 보안 계층이
+  무력화된 상태이므로 저장 전에 `500 FILE_TYPE_DETECTION_FAILED`로 거부한다.
+- 확장자와 MIME이 다르다는 사실만으로는 거부하지 않는다.
+
+핵심은 `UNKNOWN`과 `FAILED`의 구분이다. 전자는 분석 결과가 불명확한 상태이고,
+후자는 검증을 수행하지 못한 상태다. 두 경우를 모두 허용하면 감지 장애 시
+fail-open이 되고, 모두 거부하면 정상 파일의 오탐이 증가한다. 상세 정책은
+[ADR 0005](docs/adr/0005-limit-upload-to-known-non-executable-types.md)와
+[ADR 0018](docs/adr/0018-fail-closed-on-mime-detection-failure.md)에 기록했다.
+
+### 구현과 검증
+
+- 구현: [`TikaMimeTypeDetector`](src/main/java/com/example/demo/file/service/impl/TikaMimeTypeDetector.java),
+  [`MimeTypeDetectionResult`](src/main/java/com/example/demo/file/service/MimeTypeDetectionResult.java)
+- 검증: [`TikaMimeTypeDetectorTests`](src/test/java/com/example/demo/service/impl/TikaMimeTypeDetectorTests.java),
+  [`FileUploadMimePolicyTests`](src/test/java/com/example/demo/service/impl/FileUploadMimePolicyTests.java),
+  [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java)
+- 브라우저·API 확인: 정상 텍스트 허용, MZ 실행 파일 헤더의 422 거부,
+  감지 실패의 500 오류와 내부 정보 비노출
+
+### 남은 한계
+
+Tika MIME 감지는 악성코드 검사나 스크립트 의미 분석이 아니다. 바이러스 검사,
+문서 Parser, 샌드박스 격리와 외부 검사 서비스는 현재 범위에서 제외했다.
+
+## 3. 원본 파일명과 물리 저장 경로의 신뢰 경계를 분리한다
+
+### 검토한 위험
+
+원본 파일명을 그대로 저장 경로에 사용하면 `../` 같은 경로 입력, 운영체제별 경로
+구분자, 동일 파일명 충돌, 제어문자와 매우 긴 파일명 문제가 파일시스템으로
+전파될 수 있다. 원본 파일명이 오류 응답이나 로그에 무제한으로 노출되는 것도
+내부 경로와 사용자 입력을 함께 노출할 위험이 있다.
+
+### 판단과 근거
+
+- 실제 저장 파일명은 서버가 생성한 UUID와 검증된 최종 확장자로 구성한다.
+- 원본 파일명은 basename만 추출해 사용자 표시용 메타데이터로 보존한다.
+- 원본 파일명은 저장 경로, 파일시스템 식별자, 공개 인증 정보로 사용하지 않는다.
+- 빈 이름, NUL과 제어문자를 거부하고 최대 255 Unicode code point로 제한한다.
+- 저장 루트는 HTTP 입력이 아닌 `file.upload.storage-path` 운영 설정으로 주입한다.
+- 내부 저장 경로와 저장 예외 상세는 외부 오류 응답에 포함하지 않는다.
+
+서버 저장명과 원본 표시명을 분리한 결정은
+[ADR 0003](docs/adr/0003-server-generated-file-storage-policy.md), 원본 이름의
+영속 매핑과 길이 정책은
+[ADR 0006](docs/adr/0006-persist-upload-file-name-mapping.md), 환경별 저장 루트는
+[ADR 0011](docs/adr/0011-externalize-upload-storage-path.md)에 기록했다.
+
+### 구현과 검증
+
+- 구현: [`OriginalFilename`](src/main/java/com/example/demo/file/domain/entity/vo/OriginalFilename.java),
+  [`UploadFile`](src/main/java/com/example/demo/file/domain/entity/UploadFile.java),
+  [`LocalFileStorage`](src/main/java/com/example/demo/file/service/impl/LocalFileStorage.java)
+- 검증: [`UploadFileDomainTests`](src/test/java/com/example/demo/domain/UploadFileDomainTests.java),
+  [`FileUploadServiceTests`](src/test/java/com/example/demo/service/impl/FileUploadServiceTests.java),
+  [`LocalFileStorageConfigurationTests`](src/test/java/com/example/demo/service/impl/LocalFileStorageConfigurationTests.java)
+
+### 남은 한계
+
+현재 저장소는 로컬 파일시스템이다. 외부 오브젝트 스토리지, 파일 보존 기간,
+다운로드 권한과 소유권은 포함하지 않았다.
+
+## 4. 파일 크기는 업무 로직보다 앞선 multipart 경계에서 제한한다
+
+### 검토한 위험
+
+서비스에서 `MultipartFile#getSize()`만 검사하면 multipart 파싱과 임시 저장에
+자원이 이미 사용된 뒤일 수 있다. 제한이 없으면 단일 요청이 메모리, 임시 디스크,
+네트워크와 최종 저장 공간을 과도하게 점유할 수 있다. 인프라에서만 제한하면
+로컬·테스트·운영 환경 사이에서 정책이 달라질 수 있다.
+
+### 판단과 근거
+
+- 파일 1개의 사용자-facing 한도는 10MB로 제한한다.
+- multipart 전체 요청은 boundary와 부가 정보를 고려해 12MB로 제한한다.
+- Spring Boot multipart 파싱 단계에서 제한을 적용한다.
+- 초과 요청은 확장자, MIME, 정책 조회, 업로드 예약과 파일 저장을 실행하지 않는다.
+- 외부 계약은 `413 FILE_SIZE_EXCEEDED`로 통일하고 내부 multipart 구현 메시지는
+  노출하지 않는다.
+
+서비스 검증보다 앞에서 자원을 보호하면서도 인프라 설정에만 의존하지 않는
+방식을 선택했다. 상세 근거는
+[ADR 0009](docs/adr/0009-limit-multipart-upload-size.md)에 기록했다.
+
+### 구현과 검증
+
+- 설정: [`application.yml`](src/main/resources/application.yml)
+- 예외 계약: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java)
+- 검증: [`DemoApplicationTests`](src/test/java/com/example/demo/DemoApplicationTests.java),
+  [`MultipartPartLimitIntegrationTests`](src/test/java/com/example/demo/controller/MultipartPartLimitIntegrationTests.java),
+  [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java)
+- 수동 확인: 11MiB 파일의 413 거부와 오류 응답의 내부 경로·stack trace 비노출
+
+### 남은 한계
+
+단일 파일과 단일 요청 크기만 제한한다. 사용자별 일일 quota, 누적 저장 용량,
+보존 기간과 저장 공간 정리는 별도 운영 정책이 필요하다.
+
+## 5. 프런트 검증과 별개로 서버와 DB에서 정책 불변식을 보장한다
+
+### 검토한 위험
+
+HTML `maxlength`나 JavaScript 검증은 요청을 직접 보내면 우회할 수 있다.
+`EXE`, ` exe `, `exe`를 서로 다른 값으로 저장하면 중복 정책이 생기며, fixed와
+custom이 별도 테이블에 있으면 같은 확장자의 중복을 DB 제약 하나로 막기 어렵다.
+또한 200개 등록 제한을 단순 count 조회 후 insert로 구현하면 동시 요청에서
+상한을 초과할 수 있다.
+
+### 판단과 근거
+
+- `ExtensionName` 생성 시 trim·소문자화 후 빈 값, 20자 초과와 점 포함을 검증한다.
+- 엔티티와 서비스는 정규화되지 않은 확장자 문자열을 직접 사용하지 않는다.
+- fixed와 custom을 하나의 `ExtensionPolicy` 테이블과 `policyType`으로 관리한다.
+- 정규화 확장자 unique, 필수값, 정책 유형과 custom 차단 상태의 구조적 무결성은
+  DB 제약으로 방어한다.
+- fixed/custom별 생성·수정·삭제 행위는 도메인과 애플리케이션 계층에서 검증한다.
+- custom 최대 200개는 별도 quota 행을 잠금 대상으로 사용해 동시 등록에서도
+  초과하지 않게 한다.
+
+정규화와 값 객체의 경계는
+[ADR 0004](docs/adr/0004-use-extension-name-value-object.md), 통합 정책 모델은
+[ADR 0001](docs/adr/0001-unify-extension-policies.md)을 따른다.
+
+### 구현과 검증
+
+- 구현: [`ExtensionName`](src/main/java/com/example/demo/file/domain/entity/vo/ExtensionName.java),
+  [`ExtensionPolicy`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicy.java),
+  [`ExtensionPolicyQuota`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicyQuota.java)
+- 검증: [`ExtensionNameTests`](src/test/java/com/example/demo/domain/value/ExtensionNameTests.java),
+  [`ExtensionPolicyRepositoryTests`](src/test/java/com/example/demo/domain/ExtensionPolicyRepositoryTests.java),
+  [`ExtensionPolicyServiceTests`](src/test/java/com/example/demo/service/ExtensionPolicyServiceTests.java)
+- 확인한 경계: 정확히 20자 허용, 21자 거부, 200개 허용, 201번째 거부,
+  동시 등록에서도 최대 개수 유지
+
+### 남은 한계
+
+[ADR 0010](docs/adr/0010-limit-extension-name-characters.md)의 한글·영문·숫자 전용
+허용 문자 강화는 현재 구현에서 보류했다. 따라서 특수문자 전부를 거부한다고
+주장하지 않는다. 확장자 없는 파일과 빈 파일은 업로드 입력 오류로 거부하지만,
+dotfile의 제품 의미를 일반화하는 별도 정책은 두지 않았다.
+
+## 6. 정책 변경 결과가 불확실하면 서버 저장 상태로 화면을 복구한다
+
+### 검토한 위험
+
+정책 PATCH 응답이 유실되면 클라이언트는 서버가 변경을 적용하지 않은 것인지,
+DB 반영 후 응답만 전달되지 않은 것인지 확정할 수 없다. 사용자가 클릭한 checkbox
+상태를 그대로 성공 상태로 유지하면 화면과 실제 업로드 차단 정책이 달라질 수
+있다.
+
+### 판단과 근거
+
+- 고정 확장자의 차단 상태는 서버 DB에 저장된 값을 단일 기준으로 사용한다.
+- 변경 결과를 확정할 수 없으면 전체 정책을 다시 조회해 화면을 복구한다.
+- 재조회도 실패하면 성공이나 실패로 단정하지 않고 상태 미확정으로 안내한다.
+- 재확인이 끝나기 전에는 후속 정책 변경을 제한한다.
+
+낙관적 화면 상태보다 실제 업로드에 적용되는 서버 상태를 우선했다. 추가 네트워크
+요청이 필요하지만, 응답 유실을 잘못된 성공 또는 실패로 표현하지 않는 편이
+정책 관리 화면의 신뢰성에 더 중요하다고 판단했다. 상세 결정은
+[ADR 0002](docs/adr/0002-use-server-policy-state-as-source-of-truth.md)에 기록했다.
+
+### 구현과 검증
+
+- 구현: [`extension-policy.js`](src/main/resources/static/js/extension-policy.js)
+- 검증: [`FileUploadPageControllerTests`](src/test/java/com/example/demo/controller/FileUploadPageControllerTests.java),
+  정책 API 통합 테스트와 브라우저 오류 복구 smoke 검증
+- 확인한 동작: 변경·삭제 실패 후 서버 상태 재조회, 오류 안내와 관련 입력으로
+  포커스 복귀
+
+### 남은 한계
+
+서버 변경과 재조회가 모두 실패한 동안에는 최신 상태를 보장할 수 없다. 현재
+구현은 실시간 협업 편집이나 정책 버전 충돌 UI를 제공하지 않는다.
+
+## 7. 사용자 오류 안내와 운영 추적 정보를 분리한다
+
+### 검토한 위험
+
+서버가 작성한 오류 문장을 FE가 그대로 분기 기준으로 사용하면 문구나 번역 변경이
+API 계약 변경으로 이어진다. 반대로 안전한 오류 코드와 추적 ID가 없으면 사용자가
+차단 사유를 이해하기 어렵고 운영자도 문의를 로그와 연결할 수 없다. 현재 정책
+행만 저장하면 삭제·재등록과 과거 차단 상태도 복원할 수 없다.
+
+### 판단과 근거
+
+- FE가 분기할 안정적인 계약은 오류 `code`와 검증된 최소 `context`다.
+- 사용자 메시지는 FE가 코드와 context를 이용해 조립한다.
+- UUID v4 `Idempotency-Key`를 논리적 업로드 `requestId`로 사용해 응답과 로그를
+  연결한다.
+- 원본 파일명, 내부 경로, stack trace와 내부 예외 메시지는 외부 context에
+  포함하지 않는다.
+- 정책 초기화·생성·상태 변경·삭제는 append-only 감사 이력으로 보존한다.
+- 현재 정책 변경과 이력 저장은 같은 DB 트랜잭션으로 처리한다.
+- 인증 주체가 없는 현재 단계에서는 actor를 `SYSTEM`으로 기록한다.
+
+사용자 안내 계약은
+[ADR 0013](docs/adr/0013-use-request-id-and-frontend-owned-upload-messages.md), 정책 변경
+원인 추적은
+[ADR 0012](docs/adr/0012-preserve-policy-change-history-for-operations.md)를 따른다.
+
+### 구현과 검증
+
+- 구현: [`FileUploadExceptionHandler`](src/main/java/com/example/demo/file/exception/handler/FileUploadExceptionHandler.java),
+  [`ExtensionPolicyAuditHistory`](src/main/java/com/example/demo/file/domain/entity/ExtensionPolicyAuditHistory.java)
+- 검증: [`FileUploadRestControllerTests`](src/test/java/com/example/demo/controller/FileUploadRestControllerTests.java),
+  [`ExtensionPolicyServiceTests`](src/test/java/com/example/demo/service/ExtensionPolicyServiceTests.java),
+  [`ExtensionPolicyAuditHistoryTransactionTests`](src/test/java/com/example/demo/service/ExtensionPolicyAuditHistoryTransactionTests.java)
+- 확인한 동작: 정책 이력 저장 실패 시 현재 정책 변경도 rollback, 삭제 후 같은
+  확장자 재등록의 생애주기 구분, 오류 응답의 내부 경로 비노출
+
+### 남은 한계
+
+인증·인가가 없으므로 개인 단위 actor를 남기지 못한다. 감사 이력 조회 화면,
+보존 기간, 외부 로그 수집과 분산 추적도 현재 범위에 포함하지 않았다.
+
+## 8. DB와 파일시스템을 하나의 ACID 트랜잭션으로 간주하지 않는다
+
+### 검토한 위험
+
+파일을 최종 경로에 직접 쓰다가 프로세스가 종료되면 부분 파일이 완성 파일처럼
+남을 수 있다. 파일을 먼저 저장하고 DB 기록 전에 종료되면 DB로 추적할 수 없는
+고아 파일이 생긴다. 반대로 DB 상태만 먼저 저장하면 파일 저장 중단 후 처리 중
+레코드가 남는다. 로컬 파일시스템 변경과 DB 커밋은 하나의 트랜잭션으로 원자화할
+수 없다.
+
+### 판단과 근거
+
+```text
+입력·정책 검증
+→ UploadFile(RECEIVING) 커밋
+→ 같은 파일시스템의 임시 경로에 파일 저장
+→ atomic move로 최종 파일 확정
+→ UploadFile(COMPLETED) 커밋
+→ 201 Created 응답
+```
+
+- 입력과 정책 검증 실패는 업로드 레코드와 물리 파일을 만들지 않는다.
+- 파일 I/O 동안 DB 트랜잭션을 열어 두지 않는다.
+- 저장 실패 시 임시 파일 삭제를 시도하고 `FAILED` 상태를 기록한다.
+- 일정 시간 이상 남은 `RECEIVING`은 최종·임시 파일 존재 여부를 대조해
+  `COMPLETED` 또는 `FAILED`로 확정한다.
+- 후속 다운로드 기능은 `COMPLETED`만 정상 파일로 취급해야 한다.
+
+이 결정은 exactly-once를 주장하는 것이 아니라, 원자화할 수 없는 두 저장소 사이의
+실패 구간을 상태와 복구 대상으로 드러내는 방식이다. 상세 흐름은
+[ADR 0014](docs/adr/0014-persist-upload-state-before-file-and-finalize-atomically.md)에
+기록했다.
+
+### 구현과 검증
+
+- 구현: [`UploadFileStateService`](src/main/java/com/example/demo/file/service/impl/UploadFileStateService.java),
+  [`LocalFileStorage`](src/main/java/com/example/demo/file/service/impl/LocalFileStorage.java),
+  [`UploadFileRecoveryService`](src/main/java/com/example/demo/file/service/impl/UploadFileRecoveryService.java)
+- 검증: [`UploadFileStateServiceTests`](src/test/java/com/example/demo/service/impl/UploadFileStateServiceTests.java),
+  [`UploadFileRecoveryServiceTests`](src/test/java/com/example/demo/service/impl/UploadFileRecoveryServiceTests.java),
+  파일 저장 서비스 테스트
+
+### 남은 한계
+
+atomic move는 같은 파일시스템 경계를 전제로 한다. 파일 내용의 내구성을 보장하는
+`fsync`, 외부 오브젝트 스토리지와 업로드 결과 조회 API는 포함하지 않았다.
+
+## 9. 응답 유실과 동시 재시도에서도 같은 파일을 중복 저장하지 않는다
+
+### 검토한 위험
+
+서버가 파일 저장을 완료했지만 성공 응답이 유실되면 FE는 결과를 알 수 없다.
+새 요청으로 단순 재시도하면 UUID 저장 파일명이 다시 생성되어 같은 논리적 파일이
+중복 저장될 수 있다. 처리 중인 첫 요청과 재시도가 동시에 실행되는 경우에도
+중복 저장 경쟁이 생긴다. FE가 재시도를 포기했다는 사실은 서버의 실제 저장
+성공·실패와도 같지 않다.
+
+### 판단과 근거
+
+- FE는 논리적 업로드 시작 시 UUID v4 requestId를 한 번 생성해
+  `Idempotency-Key`로 전송한다.
+- 네트워크 오류와 타임아웃의 재시도에서는 같은 requestId를 유지한다.
+- 서버는 requestId와 업로드 상태·결과를 영속화한다.
+- 동일 requestId가 `COMPLETED`면 새 파일을 저장하지 않고 기존 결과를 반환한다.
+- 동일 requestId가 `RECEIVING`이면 저장을 다시 시작하지 않고
+  `409 IDEMPOTENCY_IN_PROGRESS`와 `Retry-After`를 반환한다.
+- 서버의 업로드 상태와 FE 자동 재시도 횟수·전체 대기 시간을 분리한다.
+- FE가 재시도 한도를 초과했다는 이유만으로 서버 파일을 삭제하거나 상태를
+  `FAILED`로 바꾸지 않는다.
+
+이 정책은 응답 유실 뒤 결과 복구와 동시 요청의 중복 저장을 방지하기 위한 것이다.
+상태 저장과 파일 확정은 8번의 DB·파일시스템 일관성 정책을 전제로 한다. 상세
+책임 분리는
+[ADR 0015](docs/adr/0015-separate-upload-retry-idempotency-and-state.md)에 기록했다.
+
+### 구현과 검증
+
+- 구현: [`UploadFileRepository`](src/main/java/com/example/demo/file/repository/UploadFileRepository.java),
+  [`UploadFileStateService`](src/main/java/com/example/demo/file/service/impl/UploadFileStateService.java),
+  [`RetryAfterCalculator`](src/main/java/com/example/demo/file/service/impl/RetryAfterCalculator.java)
+- 검증: [`UploadFileStateServiceTests`](src/test/java/com/example/demo/service/impl/UploadFileStateServiceTests.java),
+  [`RetryAfterCalculatorTests`](src/test/java/com/example/demo/service/impl/RetryAfterCalculatorTests.java),
+  [`ExtensionPolicyApiIntegrationTests`](src/test/java/com/example/demo/controller/ExtensionPolicyApiIntegrationTests.java)
+- 수동 확인: 동일 requestId 동시 요청에서 `201`과 `409 + Retry-After`가 발생하고
+  최종 저장 파일이 한 개만 생성됨
+
+### 남은 한계
+
+requestId 보존·만료·정리 기간, 같은 키에 다른 파일이 전달됐을 때의 파일 지문
+비교, 비동기 결과 조회 API는 포함하지 않았다.
+
+## 10. allowlist는 운영 조건이 준비될 때까지 전환하지 않는다
+
+### 검토한 위험
+
+allowlist는 미등록 형식을 기본 차단하므로 보안 경계가 좁아질 수 있지만, 현재
+denylist의 `blocked=false`는 “이 확장자만 허용한다”는 뜻이 아니다. 이를 그대로
+허용목록으로 이전하면 정책 의미가 바뀐다. 허용 형식 소유자, 승인 절차, 조직과
+사용자 정책의 우선순위, 오탐 관측과 복귀 수단 없이 즉시 전환하면 정상 업무
+파일이 예고 없이 차단될 수 있다.
+
+### 판단과 근거
+
+- 현재 전역 denylist를 유지한다.
+- 허용 파일 형식과 소유자·승인 절차가 확정되기 전에는 allowlist를 구현하지 않는다.
+- 기존 `blocked=false` 정책 행을 allowlist 항목으로 재해석하지 않는다.
+- 향후 정책 집합은 `DENYLIST` 또는 `ALLOWLIST` mode를 명시하고 적용 대상 관계와
+  분리한다.
+- 실제 차단 전 shadow 평가로 기존 정책과 새 정책의 판정 차이와 정상 거부율을
+  관찰해야 한다.
+- 전체 사용자에게 즉시 적용하지 않고 일부 범위부터 단계적으로 적용하며,
+  denylist 복귀 수단을 준비한다.
+- 기존 완료 파일에는 새 정책을 소급 적용하지 않는다.
+
+이 항목은 구현 완료 사례가 아니라 제품·운영 결정 없이 스키마와 API를 먼저
+확정하지 않은 범위 통제 사례다. [ADR 0016](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md)은
+`proposed` 상태로 유지한다.
+
+### 구현과 검증
+
+- 현재 policy-set, scope assignment, allowlist 판정과 shadow 평가는 구현하지 않았다.
+- 현재 코드와 테스트는 전역 denylist의 동작만 보장한다.
+- 구현 시작 전 전역 강제 차단 override 여부, 정책이 없는 대상의 기본 mode,
+  허용목록 승인자, shadow 기간과 허용 거부율을 먼저 결정해야 한다.
+
+### 남은 한계
+
+denylist는 알려진 위험을 등록해야만 차단할 수 있으므로 미등록 위험 형식을 기본
+허용한다. 현재는 확장자 구간 검사, 실행 MIME 차단, 서버 생성 파일명과 저장 위치
+격리 등 방어 계층으로 위험을 줄이지만 allowlist와 동일한 보안 의미를 제공하지
+않는다.
+
+## 구현과 문서의 경계
+
+- 구현 완료 주장은 현재 기능 브랜치의 코드·설정·테스트에서 확인된 동작만
+  대상으로 한다.
+- ADR은 장기간 유지할 정책과 경계를 설명하며, ADR의 `accepted`만으로 구현
+  완료를 의미하지 않는다.
+- 브라우저 smoke에서는 정상 업로드, 확장자·MIME·용량 오류, 20자·200개 경계,
+  반응형 주요 폭과 일부 포커스 복구를 확인했다.
+- 실제 VoiceOver, 브라우저 실제 200% 확대, 결정적 `409` 화면 주입은 미확정으로
+  남아 있다.
+- 악성코드 검사, 다운로드·미리보기 보안, 사용자 인증·권한, 보존 기간과 외부
+  오브젝트 스토리지는 현재 과제 범위에 포함하지 않았다.
+
+## 관련 문서
+
+- [스프린트 1 요구사항과 구현 범위](docs/sprints/sprint-1/sprint-1-file-upload-extension-policy.md)
+- [파일 업로드 API 계약](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- [스프린트 2 PRD](docs/sprints/sprint-2/sprint-2-prd.md)
+- [스프린트 2 구현 체크리스트](docs/sprints/sprint-2/sprint-2-implementation-checklist.md)
+- [ADR 구현 상태 점검](docs/adr/adr-implementation-status-review-2026-08-30.md)
+- [AI 활용 기록](PROMPT_LOG.md)
