@@ -6,6 +6,13 @@ const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 �
 const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
 const DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE = "커스텀 확장자를 삭제하지 못했습니다.";
 const DEFAULT_FILE_UPLOAD_ERROR_MESSAGE = "파일을 업로드하지 못했습니다.";
+const FILE_UPLOAD_ERROR_MESSAGES = Object.freeze({
+    INVALID_FILE: "업로드할 파일을 선택해 주세요.",
+    INVALID_REQUEST_ID: "업로드 요청 식별자를 확인하지 못했습니다. 다시 시도해 주세요.",
+    FILE_SIZE_EXCEEDED: "파일 크기가 허용된 제한을 초과했습니다.",
+    BLOCKED_EXECUTABLE_MIME: "실행 가능한 파일 형식은 업로드할 수 없습니다.",
+    FILE_UPLOAD_FAILED: DEFAULT_FILE_UPLOAD_ERROR_MESSAGE
+});
 const UPLOAD_MAX_RETRIES = 3;
 const UPLOAD_MAX_DURATION_MS = 30 * 1000;
 const UPLOAD_RESULT_CONFIRMATION_MESSAGE =
@@ -307,7 +314,7 @@ async function uploadFile() {
                         showFileUploadStatus(UPLOAD_RESULT_CONFIRMATION_MESSAGE);
                     } else {
                         showFileUploadStatus(
-                            resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+                            resolveFileUploadErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
                         );
                     }
                     break;
@@ -322,7 +329,7 @@ async function uploadFile() {
         }
     } catch (error) {
         showFileUploadStatus(
-            resolvePolicyErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
+            resolveFileUploadErrorMessage(error, DEFAULT_FILE_UPLOAD_ERROR_MESSAGE)
         );
     } finally {
         setFileUploadControlsDisabled(false);
@@ -488,4 +495,26 @@ function resolvePolicyErrorMessage(error, fallbackMessage) {
         return responseMessage;
     }
     return fallbackMessage;
+}
+
+/**
+ * 파일 업로드 오류 코드를 사용자 안내 문장으로 변환한다.
+ * 서버 message는 호환 응답일 수 있으므로 업로드 오류 분기에는 사용하지 않는다.
+ *
+ * @param {unknown} error Axios가 반환한 파일 업로드 오류
+ * @param {string} fallbackMessage 오류 코드가 없을 때 사용할 기본 안내 문구
+ * @returns {string} 사용자에게 표시할 업로드 오류 메시지
+ */
+function resolveFileUploadErrorMessage(error, fallbackMessage) {
+    const data = error?.response?.data;
+    const code = typeof data?.code === "string" ? data.code : "";
+
+    if (code === "BLOCKED_EXTENSION") {
+        const extension = data?.context?.extension;
+        if (typeof extension === "string" && extension.trim() !== "") {
+            return `차단된 확장자(${extension})는 업로드할 수 없습니다.`;
+        }
+    }
+
+    return FILE_UPLOAD_ERROR_MESSAGES[code] ?? fallbackMessage;
 }
