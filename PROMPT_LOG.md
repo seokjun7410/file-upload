@@ -1670,3 +1670,22 @@
 - 검증 근거: 정확히 20자 등록 성공, 21자 `INVALID_EXTENSION` 거부·입력 보존, `ux001`~`ux200` 200개 렌더링, 201번째 `409 CUSTOM_LIMIT_EXCEEDED`·입력 보존, 빈 목록 전환을 확인했다. 정상 `.txt` 업로드 성공, 실행 MIME `422 BLOCKED_EXECUTABLE_MIME`, 11MiB `413 FILE_SIZE_EXCEEDED`, 동일 requestId 동시 요청의 `201`·`409 IDEMPOTENCY_IN_PROGRESS`·`Retry-After: 2`를 확인했다. 기본 `1280px`, `320px`, `640px` 유효 폭에서 가로 overflow가 없었다. 오류 화면에는 내부 경로·stack trace가 없었다. 삭제·업로드 실패 후 포커스 복귀 수정과 전체 `./gradlew test`도 성공했다. IAB의 실제 409 화면 주입, OS VoiceOver, 실제 브라우저 200% zoom은 도구 제약으로 미확정이다.
 - 결과와 연결 문서: 기능 커밋 `a840db2`; 스프린트 2 UX 검증 결과·체크리스트·ADR 구현 상태 점검을 현재 결과에 맞춰 갱신했다.
 - 회고와 후속 조치: 브라우저 도구가 정적 리소스 캐시와 포커스 이벤트를 숨길 수 있어 새 탭·버전 query·DOM 상태 확인을 함께 사용했다. 실제 VoiceOver·200% zoom·409 화면 재시도 문구는 수동 환경 또는 결정적 주입 경로 확보 후 보완한다. ADR 0016 allowlist와 requestId 만료·정리는 계속 보류한다.
+
+## 2026-08-31T15:51:11+09:00 — 스프린트 2 최종 브랜치·회귀 감사
+
+- 상태: 채택
+- 시간 근거: 기능·문서 커밋을 분리하고 기능 브랜치에 문서 merge를 반영한 뒤 최종 공백·경로·전체 테스트 감사를 완료한 시각
+- 스프린트/범위: 스프린트 2 최종 검증 완료 조건과 브랜치 커밋 경로 감사
+- 관련 문서·코드: `feat/upload-policy-reliability@c6e92d2`, `docs@a2f3605`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`
+- 요청·질문 요약: 기능 변경과 문서 변경이 저장소 브랜치 규칙에 맞는지 확인하고 최종 회귀 테스트를 실행한다.
+- 배경과 제약: 기능 브랜치의 직접 커밋은 코드만, 문서 변경은 docs 브랜치 커밋 후 merge commit으로 반영해야 한다. allowlist와 실제 200%·VoiceOver·409 화면 검증은 완료로 주장하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱
+  - skill: `next-work-briefing`, `browser:control-in-app-browser`, `diagnose`
+  - plugin/도구: Git, `./gradlew test`, `git diff --check`
+- AI 제안: 기능 커밋과 문서 커밋을 분리하고, 최종 보고 전에 `main..브랜치` 직접 커밋 경로·staged 공백·전체 테스트를 확인한다.
+- 사람의 판단과 이유: 채택. 기능 커밋 `a840db2`에는 FE 코드·템플릿만 두고, 검증 결과는 docs 커밋 `a2f3605`에서 관리한 뒤 기능 브랜치에 `c6e92d2`로 병합했다. 이는 기능 브랜치의 문서 직접 커밋을 방지하면서 기능 기준에서 결과 문서를 함께 확인하게 한다.
+- 코드·사용자 경험 영향: 추가 코드 변경은 없다. 스프린트 체크리스트의 최종 감사 항목을 완료로 표시하고, 미확정 브라우저 환경은 후속 항목으로 유지한다.
+- 검증 근거: `git log --first-parent --no-merges main..HEAD --name-only`에서 직접 기능 커밋의 경로가 `src/**`뿐임을 확인했다. `git diff --check`와 최종 `./gradlew test`가 성공했다. 최종 작업 트리는 clean이다.
+- 결과와 연결 문서: 체크리스트와 이 기록을 갱신하고 기능 브랜치에 docs merge를 반영했다.
+- 회고와 후속 조치: 원격 `origin/docs` push는 사용자가 별도로 승인하거나 인증 문제가 해결될 때 수행한다. 스프린트 완료 보고는 VoiceOver·실제 200% zoom·409 화면 분기를 보류한 상태로 기능 구현 완료와 수동 검증 미완료를 구분해 작성한다.

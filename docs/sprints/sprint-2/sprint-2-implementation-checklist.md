@@ -212,7 +212,7 @@
 - [~] MIME 거부·413·requestId 오류 안내와 실제 API `409 + Retry-After`를 확인한다. MIME·413·requestId 안전성·409 API 계약은 통과했으나 IAB의 409 화면 주입과 VoiceOver는 대기 중이다.
 - [x] 전체 테스트와 실제 multipart 업로드 시나리오를 실행한다. `./gradlew test`와 정상 `.txt`, 실행 MIME, 11MiB 파일, 동시 동일 requestId 업로드를 확인했다.
 - [x] ADR 구현 상태 점검, API 계약, 스프린트 문서, 체크리스트, `PROMPT_LOG.md`를 실제 결과로 갱신한다.
-- [ ] 브랜치별 직접 커밋 경로·staged 공백·전체 테스트를 감사한 뒤 스프린트 완료 여부를 보고한다.
+- [x] 브랜치별 직접 커밋 경로·staged 공백·전체 테스트를 감사한 뒤 스프린트 완료 여부를 보고한다. 기능 브랜치 직접 커밋은 코드만 포함했고, 문서는 docs 커밋 `a2f3605`를 merge commit `c6e92d2`로 반영했다. `git diff --check`와 최종 `./gradlew test`가 통과했다.
 
 시작 전 질문: 없음. 다만 작업 4, 8, 10, 11의 게이트가 미결이면 해당 기능의 완료를 주장하지 않고 결과를 `보류`로 보고한다.
 
