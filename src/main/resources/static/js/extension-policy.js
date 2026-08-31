@@ -6,6 +6,12 @@ const DEFAULT_CHANGE_ERROR_MESSAGE = "고정 확장자 정책을 변경하지 �
 const DEFAULT_CUSTOM_ADD_ERROR_MESSAGE = "커스텀 확장자를 추가하지 못했습니다.";
 const DEFAULT_CUSTOM_DELETE_ERROR_MESSAGE = "커스텀 확장자를 삭제하지 못했습니다.";
 const DEFAULT_FILE_UPLOAD_ERROR_MESSAGE = "파일을 업로드하지 못했습니다.";
+const POLICY_ERROR_MESSAGES = Object.freeze({
+    INVALID_EXTENSION: "확장자는 비어 있지 않고 20자 이내이며 점을 포함할 수 없습니다.",
+    DUPLICATE_EXTENSION: "이미 등록된 확장자입니다.",
+    CUSTOM_LIMIT_EXCEEDED: "커스텀 확장자는 최대 200개까지 등록할 수 있습니다.",
+    ENTITY_NOT_FOUND: "요청한 확장자 정책을 찾을 수 없습니다."
+});
 const FILE_UPLOAD_ERROR_MESSAGES = Object.freeze({
     INVALID_FILE: "업로드할 파일을 선택해 주세요.",
     INVALID_REQUEST_ID: "업로드 요청 식별자를 확인하지 못했습니다. 다시 시도해 주세요.",
@@ -228,6 +234,7 @@ async function registerCustomPolicy() {
         await resynchronizeAfterCustomPolicyFailure(changeErrorMessage);
     } finally {
         setCustomPolicyControlsDisabled(false);
+        document.getElementById("custom-extension-input").focus();
     }
 }
 
@@ -263,6 +270,7 @@ async function deleteCustomPolicy(extension) {
         await resynchronizeAfterCustomPolicyFailure(policyErrorMessage);
     } finally {
         setCustomPolicyControlsDisabled(false);
+        document.getElementById("custom-extension-input").focus();
     }
 }
 
@@ -333,6 +341,7 @@ async function uploadFile() {
         );
     } finally {
         setFileUploadControlsDisabled(false);
+        document.getElementById("file-input").focus();
     }
 }
 
@@ -483,13 +492,18 @@ function clearPolicyLists() {
 }
 
 /**
- * 공통 오류 응답의 메시지를 반환하고, 메시지가 없으면 작업별 기본 안내 문구를 반환한다.
+ * 정책 오류 코드를 사용자 안내 문구로 우선 변환하고, 알 수 없는 오류만 서버 메시지를 사용한다.
  *
  * @param {unknown} error Axios가 반환한 정책 요청 오류
  * @param {string} fallbackMessage 공통 오류 메시지가 없을 때 사용할 안내 문구
  * @returns {string} 사용자에게 표시할 오류 메시지
  */
 function resolvePolicyErrorMessage(error, fallbackMessage) {
+    const responseCode = error?.response?.data?.code;
+    if (typeof responseCode === "string" && POLICY_ERROR_MESSAGES[responseCode]) {
+        return POLICY_ERROR_MESSAGES[responseCode];
+    }
+
     const responseMessage = error?.response?.data?.message;
     if (typeof responseMessage === "string" && responseMessage.trim() !== "") {
         return responseMessage;
