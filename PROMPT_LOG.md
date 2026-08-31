@@ -1727,3 +1727,22 @@
 - 검증 근거: 구현 전 기준 브랜치에서 `./gradlew test` 성공. 구현 후 다중 구간·대소문자·부분 문자열·파일 미저장 테스트를 추가한다.
 - 결과와 연결 문서: ADR 0017, API 계약, 스프린트 정책·체크리스트를 갱신했다.
 - 회고와 후속 조치: 구현 시 모든 구간의 정확한 경계 비교를 유지하고, allowlist 전환·MIME 불일치 차단은 별도 범위로 둔다.
+
+## 2026-08-31T17:02:55+09:00 — 다중 확장자 차단 구현 및 회귀 검증
+
+- 상태: 채택
+- 시간 근거: 기능 구현 커밋과 `./gradlew test` 완료 시각
+- 스프린트/범위: 파일 업로드 denylist의 다중 확장자 구간 검사
+- 관련 문서·코드: [`FileExtensionExtractor`](src/main/java/com/example/demo/file/service/FileExtensionExtractor.java), [`FileUploadServiceImpl`](src/main/java/com/example/demo/file/service/impl/FileUploadServiceImpl.java), [`다중 확장자 테스트`](src/test/java/com/example/demo/service/impl/FileUploadServiceTests.java)
+- 요청·질문 요약: 중간 확장자까지 차단하고 기존 `BLOCKED_EXTENSION` API 계약을 유지한다.
+- 배경과 제약: 저장 파일명·Tika MIME 검사·저장 위치 격리·멱등성은 변경하지 않는다. 부분 문자열은 차단하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `tdd`, `next-work-briefing`, `backend-documentation`
+  - plugin/도구: `apply_patch`, Gradle Wrapper, Git
+- AI 제안: 기존 최종 확장자 추출을 호환 유지하고 전체 구간을 별도로 반환해 서비스에서 왼쪽부터 정책을 판정한다.
+- 사람의 판단과 이유: 채택. 여러 차단 구간이 있을 때 첫 번째 구간만 오류 context에 노출하고, REST 응답 구조는 확장하지 않았다.
+- 코드·사용자 경험 영향: `test.exe.pdf`, `test.jsp.png`가 저장 전에 차단되고 `test.exefoo.pdf`는 허용된다.
+- 검증 근거: Red 단계에서 `extractAll` 미구현 컴파일 실패를 확인한 뒤 Green 구현을 적용했다. 관련 단위·서비스·HTTP 통합 테스트와 전체 `./gradlew test`가 성공했고 `git diff --check`도 통과했다.
+- 결과와 연결 문서: 기능 커밋 `c94f50a`, ADR 0017, API 계약, 스프린트 체크리스트에 반영했다.
+- 회고와 후속 조치: 빈 중간 구간은 기존 파일명 호환성을 위해 정책 토큰에서 제외했다. allowlist 전환과 MIME 일반 불일치 차단은 별도 결정으로 유지한다.
