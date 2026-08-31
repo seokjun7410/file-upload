@@ -5,6 +5,8 @@ import com.example.demo.file.service.MimeTypeDetector;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.tika.Tika;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class TikaMimeTypeDetector implements MimeTypeDetector {
 
     private static final String UNKNOWN_MIME_TYPE = "application/octet-stream";
+    private static final Logger log = LoggerFactory.getLogger(TikaMimeTypeDetector.class);
 
     private final Tika tika;
 
@@ -35,6 +38,7 @@ public class TikaMimeTypeDetector implements MimeTypeDetector {
             }
             return MimeTypeDetectionResult.detected(mimeType);
         } catch (IOException exception) {
+            log.warn("Tika MIME 감지에 실패했습니다.", exception);
             return MimeTypeDetectionResult.failed();
         }
     }

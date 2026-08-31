@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import com.example.demo.file.domain.entity.UploadFile;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.exception.ExecutableMimeTypeException;
+import com.example.demo.file.exception.FileTypeDetectionFailedException;
 import com.example.demo.file.service.ExtensionPolicyService;
 import com.example.demo.file.service.FileExtensionExtractor;
 import com.example.demo.file.service.FileStorage;
@@ -104,8 +105,8 @@ class FileUploadMimePolicyTests {
     }
 
     @Test
-    @DisplayName("MIME 감지 실패 파일은 경고 후 기존 확장자 정책에 따라 저장한다")
-    void storesFileWhenMimeDetectionFails() {
+    @DisplayName("MIME 감지 실패 파일은 저장 전에 업로드를 거부한다")
+    void rejectsFileWhenMimeDetectionFails() {
         // given
         var file = new MockMultipartFile(
                 "file",
@@ -118,9 +119,6 @@ class FileUploadMimePolicyTests {
         var mimeTypeDetector = mock(MimeTypeDetector.class);
         var stateService = mock(UploadFileStateService.class);
         when(mimeTypeDetector.detect(file)).thenReturn(MimeTypeDetectionResult.failed());
-        when(fileStorage.generateFilename(ExtensionName.from("txt"))).thenReturn("generated.txt");
-        when(stateService.reserve(anyString(), any(), anyString()))
-                .thenReturn(new UploadReservation(mock(UploadFile.class), true));
         var service = new FileUploadServiceImpl(
                 extensionPolicyService,
                 fileStorage,
@@ -131,11 +129,15 @@ class FileUploadMimePolicyTests {
         );
 
         // when
-        var uploadedFile = service.upload(file);
+        assertThatThrownBy(() -> service.upload(file))
+                .isInstanceOf(FileTypeDetectionFailedException.class)
+                .hasMessage("파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.");
 
         // then
-        assertThat(uploadedFile.filename()).isEqualTo("generated.txt");
-        verify(fileStorage).storeTemporary(file, "generated.txt");
+        verify(extensionPolicyService, never()).isBlocked(ExtensionName.from("txt"));
+        verify(fileStorage, never()).generateFilename(ExtensionName.from("txt"));
+        verify(fileStorage, never()).storeTemporary(any(), anyString());
+        verify(stateService, never()).reserve(anyString(), any(), anyString());
     }
 
     @Test

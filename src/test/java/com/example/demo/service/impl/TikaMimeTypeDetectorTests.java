@@ -68,7 +68,8 @@ class TikaMimeTypeDetectorTests {
 
         // then
         assertThat(result.status()).isEqualTo(MimeTypeDetectionResult.Status.FAILED);
-        assertThat(result.isUnknown()).isTrue();
+        assertThat(result.isUnknown()).isFalse();
+        assertThat(result.isFailed()).isTrue();
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.example.demo.file.controller.FileUploadRestController;
 import com.example.demo.file.exception.BlockedExtensionException;
 import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
+import com.example.demo.file.exception.FileTypeDetectionFailedException;
 import com.example.demo.file.exception.IdempotencyInProgressException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.exception.InvalidRequestIdException;
@@ -110,6 +111,21 @@ public class FileUploadExceptionHandler {
         return response(
                 HttpStatus.UNPROCESSABLE_ENTITY,
                 "BLOCKED_EXECUTABLE_MIME",
+                requestId(request),
+                Map.of(),
+                exception.getMessage()
+        );
+    }
+
+    /** MIME 콘텐츠 감지 실패를 500 FILE_TYPE_DETECTION_FAILED로 변환한다. */
+    @ExceptionHandler(FileTypeDetectionFailedException.class)
+    public ResponseEntity<ErrorResponse> handleFileTypeDetectionFailed(
+            FileTypeDetectionFailedException exception,
+            HttpServletRequest request
+    ) {
+        return response(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                "FILE_TYPE_DETECTION_FAILED",
                 requestId(request),
                 Map.of(),
                 exception.getMessage()

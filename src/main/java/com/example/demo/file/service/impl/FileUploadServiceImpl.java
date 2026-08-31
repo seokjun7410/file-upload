@@ -7,6 +7,7 @@ import com.example.demo.file.domain.UploadStatus;
 import com.example.demo.file.exception.BlockedExtensionException;
 import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
+import com.example.demo.file.exception.FileTypeDetectionFailedException;
 import com.example.demo.file.exception.IdempotencyInProgressException;
 import com.example.demo.file.service.ExtensionPolicyService;
 import com.example.demo.file.service.FileExtensionExtractor;
@@ -112,6 +113,9 @@ public class FileUploadServiceImpl implements FileUploadService {
 
     private void enforceExecutableMimePolicy(MultipartFile file, ExtensionName extension) {
         var mimeDetection = mimeTypeDetector.detect(file);
+        if (mimeDetection.isFailed()) {
+            throw new FileTypeDetectionFailedException();
+        }
         if (mimeDetection.isDetected()
                 && ExecutableMimeCatalog.isBlocked(mimeDetection.mimeType())) {
             throw new ExecutableMimeTypeException();

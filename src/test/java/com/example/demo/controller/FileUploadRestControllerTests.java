@@ -15,6 +15,7 @@ import com.example.demo.file.exception.BlockedExtensionException;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.exception.ExecutableMimeTypeException;
 import com.example.demo.file.exception.FileUploadFailedException;
+import com.example.demo.file.exception.FileTypeDetectionFailedException;
 import com.example.demo.file.exception.InvalidFileException;
 import com.example.demo.file.exception.IdempotencyInProgressException;
 import com.example.demo.file.exception.handler.FileUploadExceptionHandler;
@@ -167,6 +168,29 @@ class FileUploadRestControllerTests {
         result.andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.code").value("BLOCKED_EXECUTABLE_MIME"))
                 .andExpect(jsonPath("$.message").value("실행 가능한 파일 형식은 업로드할 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("MIME 감지 실패는 500과 FILE_TYPE_DETECTION_FAILED 오류를 반환한다")
+    void mapsFileTypeDetectionFailure() throws Exception {
+        // given
+        String requestId = "550e8400-e29b-41d4-a716-446655440010";
+        var file = new MockMultipartFile("file", "readme.txt", "text/plain", "content".getBytes());
+        when(service.upload(eq(requestId), any(MultipartFile.class)))
+                .thenThrow(new FileTypeDetectionFailedException());
+
+        // when
+        var result = mockMvc.perform(multipart("/api/v1/files")
+                .file(file)
+                .header("Idempotency-Key", requestId));
+
+        // then
+        result.andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.code").value("FILE_TYPE_DETECTION_FAILED"))
+                .andExpect(jsonPath("$.requestId").value(requestId))
+                .andExpect(jsonPath("$.context").isMap())
+                .andExpect(jsonPath("$.context.*").doesNotExist())
+                .andExpect(jsonPath("$.message").value("파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요."));
     }
 
     @Test

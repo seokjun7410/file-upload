@@ -32,6 +32,11 @@ public record MimeTypeDetectionResult(String mimeType, Status status) {
 
     /** MIME을 알 수 없어 후속 정책에 위임해야 하는 결과인지 확인한다. */
     public boolean isUnknown() {
-        return status != Status.DETECTED;
+        return status == Status.UNKNOWN;
+    }
+
+    /** 파일 콘텐츠 MIME 감지 자체가 실패했는지 확인한다. */
+    public boolean isFailed() {
+        return status == Status.FAILED;
     }
 }
