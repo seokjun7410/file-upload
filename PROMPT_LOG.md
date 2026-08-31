@@ -1613,3 +1613,22 @@
 - 검증 근거: 현재 기준 브랜치에서 `./gradlew test` 성공. `UploadFile`, `UploadRequestId`, `UploadFileRecoveryService`, Tika 감지기, `file.upload.storage-path` 설정이 현재 기준 브랜치에 없음을 확인했다. `git diff --check`도 통과했다.
 - 결과와 연결 문서: ADR 구현 상태 점검, 스프린트 2 체크리스트, 스프린트 1 API 계약, 스프린트 2 PRD, `AGENTS.md`를 현재 코드 기준으로 갱신했다.
 - 회고와 후속 조치: 문서 브랜치와 기능 브랜치의 병합 상태를 구현 완료 판단 전에 확인한다. `PROMPT_LOG.md` 기존 기록의 일부 시각 순서 위반은 이번 변경 범위에서 재작성하지 않고 별도 정리 대상으로 남긴다.
+
+## 2026-08-31T14:55:10+09:00 — 업로드 신뢰성 기능과 정책 감사 이력의 단일 작업 브랜치 통합
+
+- 상태: 채택
+- 시간 근거: 사용자가 `feat/upload-policy-reliability`에서만 작업하고 관련 작업을 모두 해당 브랜치에 모으기로 확정한 시각
+- 스프린트/범위: 스프린트 2 업로드 신뢰성·MIME·multipart 용량·저장 루트·정책 감사 이력과 연계 문서
+- 관련 문서·코드: `feat/upload-policy-reliability@f7468c3`, `feat/upload-request-id-idempotency@d23103d`, `feat/extension-policy-audit-history@001980a`, ADR 구현 상태 점검, 스프린트 1 API 계약, 스프린트 2 구현 체크리스트
+- 요청·질문 요약: 분리되어 있던 업로드 신뢰성 구현과 정책 감사 이력 구현을 `feat/upload-policy-reliability`에 통합하고, 이후 작업 기준과 문서를 하나로 맞춘다.
+- 배경과 제약: ADR의 결정 상태와 실제 구현 상태가 서로 다른 브랜치에 나뉘어 있으면 완료 표기가 코드와 어긋날 수 있다. 기능 브랜치에는 코드만 직접 커밋하고 문서 변경은 `docs` 브랜치에서 커밋한 뒤 기능 브랜치에 병합한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `diagnose`, `backend-documentation`
+  - plugin/도구: `apply_patch`, Git, `rg`, `./gradlew test`
+- AI 제안: requestId·MIME·용량·저장 루트·업로드 상태와 정책 감사 이력을 하나의 기능 브랜치 기준으로 통합하고, 코드·설정·테스트에 근거해 구현 상태 문서를 다시 정렬한다.
+- 사람의 판단과 이유: 채택. 이후 구현·검증·문서 갱신은 `feat/upload-policy-reliability`에서만 진행해 작업 기준을 단일화한다. ADR 0016 allowlist 전환과 ADR 0015 키 보존 기간은 결정 전까지 구현하지 않는다.
+- 코드·사용자 경험 영향: 정책 API의 requestId 계약은 추가하지 않고, 파일 업로드 API의 UUID v4 `Idempotency-Key`·requestId·오류 context 계약은 유지한다. MIME 실행 파일 차단, 10MB/12MB 용량 제한, 업로드 상태 복구, 정책 감사 이력이 같은 기준 브랜치에서 함께 동작한다.
+- 검증 근거: 통합 기준 브랜치에서 `./gradlew test`가 `BUILD SUCCESSFUL`로 완료되었다. 기준 커밋에 Tika MIME 감지, multipart 설정, `file.upload.storage-path`, `UploadFile` 상태 전이·복구, 정책 감사 이력 코드와 테스트가 존재함을 확인했다.
+- 결과와 연결 문서: `docs` 브랜치에서 구현 상태 점검·스프린트 1 API 계약·스프린트 2 체크리스트를 `f7468c3` 기준으로 갱신한 뒤 `feat/upload-policy-reliability`에 문서 병합한다.
+- 회고와 후속 조치: 다음 작업은 키 보존 기간과 만료·고아 파일 정리 상호작용 테스트 결정, 브라우저 smoke 검증이다. 기존 `PROMPT_LOG.md`의 과거 시각 순서 위반은 이번 통합 범위에서 재작성하지 않는다.
