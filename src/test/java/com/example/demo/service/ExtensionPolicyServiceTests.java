@@ -4,12 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.example.demo.file.domain.PolicyType;
+import com.example.demo.file.domain.ExtensionPolicyAuditAction;
+import com.example.demo.file.domain.ExtensionPolicyAuditState;
 import com.example.demo.file.domain.entity.ExtensionPolicyQuota;
 import com.example.demo.file.domain.entity.vo.ExtensionName;
 import com.example.demo.file.repository.ExtensionPolicyQuotaRepository;
 import com.example.demo.file.repository.ExtensionPolicyRepository;
+import com.example.demo.file.repository.ExtensionPolicyAuditHistoryRepository;
 import com.example.demo.common.EntityNotFoundException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -38,6 +42,115 @@ class ExtensionPolicyServiceTests {
 
     @Autowired
     private ExtensionPolicyQuotaRepository quotaRepository;
+
+    @Autowired
+    private ExtensionPolicyAuditHistoryRepository auditHistoryRepository;
+
+    @Test
+    @DisplayName("커스텀 확장자를 등록하면 생성 감사 이력을 남긴다")
+    void recordsCreatedAuditHistoryWhenRegisteringCustomExtension() {
+        // given
+        ExtensionName extension = ExtensionName.from("sh");
+
+        // when
+        var policy = service.registerCustom(extension);
+
+        // then
+        assertThat(auditHistoryRepository.findAll())
+                .filteredOn(history -> history.getExtension().equals(extension))
+                .singleElement()
+                .satisfies(history -> {
+                    assertThat(history.getPolicyId()).isEqualTo(policy.getId());
+                    assertThat(history.getAction()).isEqualTo(ExtensionPolicyAuditAction.CREATED);
+                    assertThat(history.getState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
+                    assertThat(history.getActor()).isEqualTo("SYSTEM");
+                });
+    }
+
+    @Test
+    @DisplayName("고정 확장자의 차단 상태를 변경하면 변경 전후 감사 이력을 남긴다")
+    void recordsBlockedChangedAuditHistoryWhenChangingFixedPolicy() {
+        // given
+        ExtensionName extension = ExtensionName.from("exe");
+
+        // when
+        service.changeFixedBlocked(extension, true);
+
+        // then
+        assertThat(auditHistoryRepository.findAll())
+                .filteredOn(history -> history.getExtension().equals(extension))
+                .filteredOn(history -> history.getAction() == ExtensionPolicyAuditAction.BLOCKED_CHANGED)
+                .singleElement()
+                .satisfies(history -> {
+                    assertThat(history.getState()).isEqualTo(ExtensionPolicyAuditState.BLOCKED);
+                    assertThat(history.getActor()).isEqualTo("SYSTEM");
+                });
+    }
+
+    @Test
+    @DisplayName("고정 확장자의 차단 상태가 같으면 감사 이력을 추가하지 않는다")
+    void doesNotRecordAuditHistoryWhenFixedPolicyStateDoesNotChange() {
+        // given
+        ExtensionName extension = ExtensionName.from("exe");
+
+        // when
+        service.changeFixedBlocked(extension, false);
+
+        // then
+        assertThat(auditHistoryRepository.findAll())
+                .filteredOn(history -> history.getExtension().equals(extension))
+                .filteredOn(history -> history.getAction() == ExtensionPolicyAuditAction.BLOCKED_CHANGED)
+                .isEmpty();
+    }
+
+    @Test
+    @DisplayName("커스텀 확장자를 삭제하면 삭제 감사 이력과 정책 식별자를 보존한다")
+    void preservesDeletedAuditHistoryAndPolicyIdentityWhenDeletingCustomExtension() {
+        // given
+        ExtensionName extension = ExtensionName.from("sh");
+        var policy = service.registerCustom(extension);
+        Long policyId = policy.getId();
+
+        // when
+        service.deleteCustom(extension);
+
+        // then
+        assertThat(repository.findByExtension(extension)).isEmpty();
+        assertThat(auditHistoryRepository.findAll())
+                .filteredOn(history -> history.getExtension().equals(extension))
+                .filteredOn(history -> history.getAction() == ExtensionPolicyAuditAction.DELETED)
+                .singleElement()
+                .satisfies(history -> {
+                    assertThat(history.getPolicyId()).isEqualTo(policyId);
+                    assertThat(history.getState()).isNull();
+                    assertThat(history.getActor()).isEqualTo("SYSTEM");
+                });
+    }
+
+    @Test
+    @DisplayName("삭제 후 같은 커스텀 확장자를 재등록하면 정책 생애주기를 구분한다")
+    void distinguishesPolicyLifecycleWhenReRegisteringDeletedCustomExtension() {
+        // given
+        ExtensionName extension = ExtensionName.from("sh");
+        var firstPolicy = service.registerCustom(extension);
+        service.deleteCustom(extension);
+
+        // when
+        var secondPolicy = service.registerCustom(extension);
+
+        // then
+        assertThat(secondPolicy.getId()).isNotEqualTo(firstPolicy.getId());
+        assertThat(auditHistoryRepository.findAll().stream()
+                .filter(history -> history.getExtension().equals(extension))
+                .sorted(Comparator.comparing(history -> history.getCreatedAt()))
+                .map(history -> history.getAction())
+                .toList())
+                .containsExactly(
+                        ExtensionPolicyAuditAction.CREATED,
+                        ExtensionPolicyAuditAction.DELETED,
+                        ExtensionPolicyAuditAction.CREATED
+                );
+    }
 
     @Test
     @DisplayName("커스텀 확장자를 정규화해 등록한다")
@@ -116,12 +229,14 @@ class ExtensionPolicyServiceTests {
     @DisplayName("고정 확장자를 커스텀 정책처럼 삭제할 수 없다")
     void rejectsDeletingFixedPolicyAsCustom() {
         // given
+        int historyCountBefore = auditHistoryRepository.findAll().size();
 
         // when
 
         // then
         assertThatThrownBy(() -> service.deleteCustom(ExtensionName.from("exe")))
                 .isInstanceOf(EntityNotFoundException.class);
+        assertThat(auditHistoryRepository.findAll()).hasSize(historyCountBefore);
     }
 
     @Test

@@ -1499,3 +1499,117 @@
 - 검증 근거: 전체 `./gradlew test` 99개 성공, `node --check src/main/resources/static/js/extension-policy.js` 성공, controller·integration·domain·recovery 테스트 추가. 브라우저 smoke는 아직 실행하지 않았다.
 - 결과와 연결 문서: `docs` 브랜치에서 체크리스트·ADR 구현 상태·PRD·API 계약·PROMPT_LOG를 갱신한다. `origin/docs` push는 GitHub HTTP 403으로 미완료다.
 - 회고와 후속 조치: 키 보존 기간과 브라우저 접근성·반응형 smoke는 별도 운영·UX 검증으로 남긴다. 기존 미추적 `uploads/` 파일은 보존했다.
+
+## 2026-08-31T00:44:25+09:00 — 정책 감사 이력 구현 계약 확정
+
+- 상태: 채택
+- 시간 근거: 현재 대화에서 정책 감사 이력 구현 계획의 세부 선택을 확정한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: [`0012-preserve-policy-change-history-for-operations.md`](docs/adr/0012-preserve-policy-change-history-for-operations.md), [`sprint-2-implementation-checklist.md`](docs/sprints/sprint-2/sprint-2-implementation-checklist.md), `ExtensionPolicyService`, `ExtensionPolicyInitializer`
+- 요청·질문 요약: 정책 생성·초기화·고정 상태 변경·커스텀 삭제를 동일 트랜잭션의 감사 이력으로 보존하는 구현 계약을 확정한다.
+- 배경과 제약: 커스텀 정책은 물리 삭제되므로 정책 ID와 확장자를 함께 보존해야 한다. 현재 정책 API에는 requestId가 없고 인증도 도입되지 않았다. 감사 조회 API와 관리자 화면은 범위에서 제외한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`, `tdd`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: action을 `INITIALIZED`, `CREATED`, `BLOCKED_CHANGED`, `DELETED`로 고정하고, actor는 `SYSTEM`, 정책 requestId는 nullable로 기록하며, 동일 blocked 상태 PATCH는 이력을 남기지 않는다.
+- 사람의 판단과 이유: 채택. 도메인 사건을 운영자가 구분할 수 있고, 현재 인증·요청 추적 계약을 무리하게 확장하지 않으면서 삭제 후 재등록을 정책 ID로 구분할 수 있다.
+- 코드·사용자 경험 영향: 기존 정책 REST API 응답은 변경하지 않는다. 이후 정책 변경마다 현재 상태와 감사 이력이 함께 커밋되며, 동일 상태 PATCH는 감사 기록을 추가하지 않는다.
+- 검증 근거: 현재 정책 서비스·초기화 트랜잭션과 관련 테스트를 확인했고, 기존 `./gradlew test`가 성공했다. 감사 이력 코드는 아직 구현 전이다.
+- 결과와 연결 문서: ADR 0012, 스프린트 2 구현 체크리스트, ADR 구현 상태 점검 문서에 확정된 계약을 반영했다.
+- 회고와 후속 조치: 문서 커밋 후 기능 브랜치에서 Red 테스트를 시작한다. 구현 완료 후 실제 테스트 결과와 패키지 인덱스를 별도 문서 커밋으로 갱신한다.
+
+## 2026-08-31T00:52:56+09:00 — 정책 변경 감사 이력 구현 완료
+
+- 상태: 채택
+- 시간 근거: 기능 커밋 `38e1277`과 전체 회귀 테스트 통과 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: `ExtensionPolicyAuditAction`, `ExtensionPolicyAuditHistory`, `ExtensionPolicyAuditHistoryRepository`, `ExtensionPolicyServiceImpl`, `ExtensionPolicyInitializer`
+- 요청·질문 요약: 확정된 감사 이력 계약을 실제 정책 생성·초기화·변경·삭제 흐름에 연결하고 원자성을 검증한다.
+- 배경과 제약: 기존 정책 API 응답은 유지하고, actor는 `SYSTEM`, 정책 requestId는 nullable, 동일 상태 PATCH는 무기록, 삭제 후 재등록은 정책 ID로 구분한다. 감사 조회 API와 관리자 화면은 도입하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`, `tdd`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: 정책 저장 직후 감사 이력을 같은 `@Transactional` 경계에 저장하고, 상태 변경 전 값을 캡처해 `BLOCKED_CHANGED`를 기록한다. 물리 삭제 전 정책 ID를 이력에 복사한다.
+- 사람의 판단과 이유: 채택. 현재 서비스·초기화 트랜잭션을 유지하면서 별도 이력 테이블을 추가하는 최소 변경이며, 삭제 후 재등록과 실제 상태 변경을 운영적으로 구분할 수 있다.
+- 코드·사용자 경험 영향: 정책 REST 응답과 업로드 사용자 경험은 변하지 않는다. 정책 변경 사건은 DB에 영속화되고, 감사 저장 실패 시 정책 변경도 롤백된다.
+- 검증 근거: Red에서 누락 타입·이력 미기록·삭제 이력 누락을 확인한 뒤 수직 슬라이스별 Green으로 전환했다. 초기화·생성·상태 변경·동일 상태 무변경·삭제·재등록·감사 저장 실패 롤백 테스트와 전체 `./gradlew test`가 통과했다.
+- 결과와 연결 문서: 기능 커밋 `38e1277`; docs 후속 커밋에서 ADR 0012 구현 상태, 스프린트 체크리스트, 패키지 인덱스를 갱신한다.
+- 회고와 후속 조치: 정책 API requestId와 감사 조회 기능은 별도 결정 없이는 추가하지 않는다. 기존 미추적 `uploads/` 디렉터리는 커밋하지 않고 보존했다.
+
+## 2026-08-31T01:15:16+09:00 — ADR 0016 allowlist 전환 결정 전 검토 원문 작성
+
+- 상태: 검토 중
+- 시간 근거: 다른 에이전트의 정책 감사 이력 리팩터링·문서 병합 완료 후 다음 스프린트 작업으로 착수한 시각
+- 스프린트/범위: 스프린트 2 ADR 0016 정책 집합·allowlist 전환 결정 게이트
+- 관련 문서·코드: [`docs/questions/sprint-2-allowlist-transition-options.md`](docs/questions/sprint-2-allowlist-transition-options.md), [`0016-migrate-to-allowlist-when-policy-requires.md`](docs/adr/0016-migrate-to-allowlist-when-policy-requires.md), [`19-future-policy-model.md`](.internal-docs/file-upload-risk-analysis/19-future-policy-model.md)
+- 요청·질문 요약: 다른 에이전트 작업 완료 후 스프린트 2의 다음 실제 작업을 진행한다. 코드 구현에 앞서 ADR 0016의 결정 선택지를 정리한다.
+- 배경과 제약: 현재 구현은 전역 denylist이며 사용자·조직 인증과 policy-set은 범위 밖이다. `proposed` ADR의 결정 게이트가 닫히기 전에는 스키마·API·실제 allowlist 차단을 구현하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `adr-predecision-review`
+  - plugin/도구: `apply_patch`, Git, 로컬 문서·코드 검색
+- AI 제안: 전역 denylist 유지, scope별 정책 집합의 구체 범위 우선, 전역 강제 차단 guardrail을 포함한 정책 집합의 세 가지 선택지를 비교하고, 실제 allowlist 요구와 보안 불변식에 따라 조건부 추천을 제공한다.
+- 사람의 판단과 이유: 검토 중. 최종 선택은 미등록 확장자의 기본 의미, GLOBAL 강제 차단의 override 가능 여부, 기본 mode, 소유자·승인자, shadow 기간·거부율, 복귀 기준에 대한 사용자 결정 후 확정한다.
+- 코드·사용자 경험 영향: 현재 코드와 API는 변경하지 않는다. 결정 전까지 기존 denylist 동작과 신규 업로드 경계를 유지한다.
+- 검증 근거: ADR 0016, 미래 정책 모델 문서, 현재 ExtensionPolicy·정책 판정 코드와 테스트 구조를 대조했다. Markdown 링크와 `git diff --check`는 문서 커밋 전에 확인한다.
+- 결과와 연결 문서: 결정 전 검토 원문을 추가하고 문서 인덱스와 스프린트 체크리스트의 질문 문서 작성 항목을 갱신한다.
+- 회고와 후속 조치: 사용자의 답변을 받은 뒤 ADR 0016과 API·데이터 모델 방향을 별도 문서 커밋으로 확정한다. 답변 전에는 policy-set 구현을 시작하지 않는다.
+
+## 2026-08-31T01:11:47+09:00 — 정책 감사 이력 requestId 제거와 상태 enum 전환
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 diff comment로 현재 정책 감사 이력에는 requestId가 불필요하고 상태를 `BLOCKED`·`UNBLOCKED`로 표현할 수 있다고 판단한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: `ExtensionPolicyAuditHistory`, `ExtensionPolicyAuditState`, `ExtensionPolicyServiceImpl`, ADR 0012
+- 요청·질문 요약: 현재 사용되지 않는 정책 감사 requestId를 제거하고 Boolean 전후 값을 명시적인 상태 enum으로 단순화한다.
+- 배경과 제약: requestId는 업로드 API의 논리적 식별자이며 정책 API에는 현재 requestId 계약이 없다. 감사 이력은 생성·변경·삭제의 상태 차이를 설명해야 하므로 `BLOCKED`·`UNBLOCKED`와 정책 부재를 나타내는 nullable 전후 상태를 사용한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: requestId를 nullable로 유지하거나 제거하는 선택지와 Boolean 전후 값 유지 또는 상태 enum 전환의 trade-off를 설명했다.
+- 사람의 판단과 이유: 수정 채택. 현재 정책 API에서 생성되지 않는 requestId 컬럼은 제거하고, 상태 의미가 코드·DB에서 직접 드러나도록 `ExtensionPolicyAuditState`를 사용한다. 생성·삭제 이벤트의 정책 부재는 기존 action과 nullable 전후 상태로 구분한다.
+- 코드·사용자 경험 영향: 정책 REST 응답과 업로드 requestId 계약은 변경하지 않는다. 감사 이력 DB 컬럼은 `before_state`·`after_state`로 표현되며 정책 감사 행에는 requestId가 저장되지 않는다.
+- 검증 근거: Boolean getter 기반 테스트를 enum 상태 검증으로 먼저 전환해 Red를 확인했고, enum 매핑·서비스 변환 구현 후 관련 테스트와 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: 기능 커밋 후속 refactor `145a830`; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태·패키지 인덱스를 동기화한다.
+- 회고와 후속 조치: 기존 requestId 관련 기록은 당시 업로드·정책 계약 결정의 역사로 보존한다. 정책 감사 요청 추적이 필요해지면 별도 운영 결정으로 다룬다.
+
+## 2026-08-31T01:18:30+09:00 — 정책 감사 이력 상태를 단일 값으로 단순화
+
+- 상태: 수정 채택
+- 시간 근거: 사용자가 감사 이력의 변경 전 상태는 직전 이벤트를 쿼리로 조회할 수 있으므로 단일 상태로 단순화하기로 확정한 시각
+- 스프린트/범위: 스프린트 2 ADR 0012 정책 변경 append-only 감사 이력
+- 관련 문서·코드: `ExtensionPolicyAuditHistory`, `ExtensionPolicyAuditState`, `ExtensionPolicyServiceImpl`, ADR 0012
+- 요청·질문 요약: `beforeState`·`afterState`를 제거하고 이벤트 후 상태인 `state` 하나만 저장한다.
+- 배경과 제약: 동일 정책 ID의 이력은 생성 시각과 이력 ID 순으로 정렬할 수 있고, `BLOCKED_CHANGED`의 이전 상태는 직전 이벤트의 state에서 재구성할 수 있다. 삭제 이벤트는 state를 `null`로 둔다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `create-jpa-domain`, `korean-domain-test-policy`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`
+- AI 제안: before/after를 유지하면 단건 조회는 쉽지만 중복 저장이 발생한다. 현재 감사 조회 API가 없고 쿼리 재구성이 허용되므로 이벤트 후 상태 하나를 사용하는 방향을 제시했다.
+- 사람의 판단과 이유: 채택. `BLOCKED`·`UNBLOCKED`라는 도메인 상태를 직접 저장하고, 정책 부재는 action과 nullable state로 표현해 감사 이력 구조를 단순화한다.
+- 코드·사용자 경험 영향: 감사 이력 컬럼이 `state` 하나로 줄어든다. 정책 API와 업로드 requestId 동작은 변경하지 않는다.
+- 검증 근거: 테스트를 `getState()` 계약으로 먼저 전환해 Red를 확인한 뒤 엔티티·factory·서비스를 수정했고, 관련 테스트와 전체 `./gradlew test`가 성공했다.
+- 결과와 연결 문서: refactor 커밋 `526d355` 이후 상태 단순화 변경; docs 후속 커밋에서 ADR 0012·체크리스트·구현 상태를 동기화한다.
+- 회고와 후속 조치: 향후 감사 조회 기능을 추가할 때 동일 정책 ID의 직전 이력 조회 정렬 기준을 `createdAt`, 동률 시 `id`로 고정한다.
+
+## 2026-08-31T01:37:30+09:00 — 현재 코드 기준으로 문서 구현 상태 정정
+
+- 상태: 수정 채택
+- 시간 근거: 현재 기준 브랜치 `feat/extension-policy-audit-history@ddb5698`의 코드·설정·테스트와 기존 문서 대조를 완료한 시각
+- 스프린트/범위: 스프린트 2 구현 상태 문서·스프린트 1 API 계약·ADR 0012 연계 문서
+- 관련 문서·코드: `docs/adr/adr-implementation-status-review-2026-08-30.md`, `docs/sprints/sprint-2/sprint-2-implementation-checklist.md`, `docs/sprints/sprint-1/sprint-1-file-upload-api.md`, `docs/sprints/sprint-2/sprint-2-prd.md`, `AGENTS.md`, `ExtensionPolicyAuditHistory`
+- 요청·질문 요약: ADR과 체크리스트의 구현 완료 표시가 실제 현재 코드와 일치하는지 판단하고 문서를 코드 기준으로 갱신한다.
+- 배경과 제약: 업로드 신뢰성 구현 커밋 `164a8e0`과 MIME·용량·저장 루트 구현 커밋은 별도 기능 브랜치에만 있으며 현재 기준 브랜치에 병합되지 않았다. ADR의 정책 결정과 구현 완료 상태를 혼동하지 않는다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `diagnose`, `backend-documentation`
+  - plugin/도구: `apply_patch`, Git, `./gradlew test`, `rg`
+- AI 제안: 현재 브랜치에 없는 구현을 완료로 표시한 상태 점검·체크리스트·API 문서를 실제 코드 기준으로 낮추고, ADR 자체의 정책 결정은 유지한다.
+- 사람의 판단과 이유: 채택. 구현 여부의 진실 원천은 현재 기준 브랜치의 코드이며, 다른 기능 브랜치의 커밋은 병합 전까지 현재 구현으로 주장하지 않는다. 정책 감사 이력의 `state` 단순화는 현재 코드와 문서가 일치하므로 유지한다.
+- 코드·사용자 경험 영향: 코드 변경은 없다. 현재 API는 파일 파트 기반 기본 업로드와 `code`·`message` 오류 응답만 제공하며, requestId·MIME 차단·용량 제한·업로드 상태 영속화는 구현 대기로 문서화한다.
+- 검증 근거: 현재 기준 브랜치에서 `./gradlew test` 성공. `UploadFile`, `UploadRequestId`, `UploadFileRecoveryService`, Tika 감지기, `file.upload.storage-path` 설정이 현재 기준 브랜치에 없음을 확인했다. `git diff --check`도 통과했다.
+- 결과와 연결 문서: ADR 구현 상태 점검, 스프린트 2 체크리스트, 스프린트 1 API 계약, 스프린트 2 PRD, `AGENTS.md`를 현재 코드 기준으로 갱신했다.
+- 회고와 후속 조치: 문서 브랜치와 기능 브랜치의 병합 상태를 구현 완료 판단 전에 확인한다. `PROMPT_LOG.md` 기존 기록의 일부 시각 순서 위반은 이번 변경 범위에서 재작성하지 않고 별도 정리 대상으로 남긴다.
