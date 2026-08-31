@@ -1746,3 +1746,22 @@
 - 검증 근거: Red 단계에서 `extractAll` 미구현 컴파일 실패를 확인한 뒤 Green 구현을 적용했다. 관련 단위·서비스·HTTP 통합 테스트와 전체 `./gradlew test`가 성공했고 `git diff --check`도 통과했다.
 - 결과와 연결 문서: 기능 커밋 `c94f50a`, ADR 0017, API 계약, 스프린트 체크리스트에 반영했다.
 - 회고와 후속 조치: 빈 중간 구간은 기존 파일명 호환성을 위해 정책 토큰에서 제외했다. allowlist 전환과 MIME 일반 불일치 차단은 별도 결정으로 유지한다.
+
+## 2026-08-31T17:07:24+09:00 — MIME 감지 IOException fail-close 정책 채택
+
+- 상태: 채택
+- 시간 근거: 사용자가 `application/octet-stream`과 Tika 분석 `IOException`을 구분하고, 감지 실패는 `FILE_TYPE_DETECTION_FAILED`로 거부하자는 구현 방향을 확정한 대화 시각. 실제 사용자 메시지 메타데이터는 확인할 수 없어 작업 시각을 기록한다.
+- 스프린트/범위: MIME 콘텐츠 감지 결과의 unknown·failed 처리와 업로드 보안 게이트
+- 관련 문서·코드: [`ADR 0005`](docs/adr/0005-limit-upload-to-known-non-executable-types.md), [`ADR 0018`](docs/adr/0018-fail-closed-on-mime-detection-failure.md), [`파일 업로드 API`](docs/sprints/sprint-1/sprint-1-file-upload-api.md)
+- 요청·질문 요약: 분석 성공 후 형식을 특정하지 못한 `UNKNOWN` MIME은 기존 확장자 정책으로 처리하되, 분석 자체가 `IOException`으로 실패하면 업로드를 중단한다.
+- 배경과 제약: 기존 구현은 `MimeTypeDetectionResult`의 `FAILED`를 `UNKNOWN`과 함께 fallback 처리했다. 실행 MIME denylist, `application/octet-stream` 허용, 서버 생성 파일명, 저장 위치 격리, allowlist·바이러스 검사 범위 제외는 유지한다.
+- AI 활용 정보:
+  - 모델/실행 환경: Codex 데스크톱 작업 환경
+  - skill: `next-work-briefing`, `tdd`
+  - plugin/도구: 저장소 검색, Git, OWASP File Upload Cheat Sheet 확인
+- AI 제안: `FAILED`를 독립 상태로 처리하고 `500 FILE_TYPE_DETECTION_FAILED`를 반환하며, 감지 실패는 업로드 예약 전에 거부한다.
+- 사람의 판단과 이유: 채택. 콘텐츠 기반 보안 검증을 수행하지 못한 경우 기존 확장자 정책으로 허용하면 MIME 보안 계층이 장애 상황에서 fail-open이 되므로 fail-close가 더 적합하다고 판단했다. `application/octet-stream`까지 차단하면 정상 파일 사용성이 저하될 수 있어 `UNKNOWN` fallback은 유지한다.
+- 코드·사용자 경험 영향: 감지 실패 파일은 정책 조회·예약·물리 저장 전에 거부되고, FE는 오류 코드 기반으로 `파일 형식을 확인하지 못했습니다. 잠시 후 다시 시도해 주세요.`를 표시한다. 감지 실패는 예약 전 발생하므로 같은 `requestId` 재요청은 다시 감지를 시도한다.
+- 검증 근거: 기존 코드에서 `isUnknown()`이 `FAILED`를 포함하고, 서비스가 실패 결과를 경고 후 계속 처리하는 것을 확인했다. OWASP 공식 파일 업로드 문서에서 확장자·콘텐츠 타입·signature·저장 위치 등 다중 방어 계층 권고를 확인했다. 구현 테스트와 전체 `./gradlew test`는 기능 브랜치에서 수행한다.
+- 결과와 연결 문서: ADR 0018을 추가하고 ADR 0005, 스프린트 1 API, 스프린트 2 PRD·체크리스트, `AGENTS.md` 문서 인덱스를 갱신한다.
+- 회고와 후속 조치: 구현 시 `UNKNOWN`과 `FAILED`의 테스트를 분리하고, 새 REST 오류가 기존 `FILE_UPLOAD_FAILED`와 혼동되지 않는지 확인한다. MIME allowlist와 악성코드 검사는 별도 결정으로 유지한다.

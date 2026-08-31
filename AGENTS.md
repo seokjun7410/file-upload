@@ -115,6 +115,7 @@
 | [`docs/adr/0006-persist-upload-file-name-mapping.md`](docs/adr/0006-persist-upload-file-name-mapping.md) | 원본 파일명·서버 저장 파일명 매핑을 `UploadFile` 메타데이터로 영속화하고 원본 파일명 길이를 제한하는 정책 | accepted |
 | [`docs/adr/0007-use-final-file-extension-for-upload-blocking.md`](docs/adr/0007-use-final-file-extension-for-upload-blocking.md) | 이전 최종 확장자 기준 정책과 대체 ADR 연결 | superseded |
 | [`docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md`](docs/adr/0017-scan-all-extension-segments-for-upload-blocking.md) | 파일명의 모든 확장자 구간을 fixed·custom denylist로 검사하는 정책 | accepted |
+| [`docs/adr/0018-fail-closed-on-mime-detection-failure.md`](docs/adr/0018-fail-closed-on-mime-detection-failure.md) | MIME 분석 성공의 unknown 결과와 분석 실패의 fail-close 처리 경계를 정의하는 정책 | accepted |
 | [`docs/adr/0010-limit-extension-name-characters.md`](docs/adr/0010-limit-extension-name-characters.md) | 커스텀 확장자 이름을 한글·영문·숫자로 제한하는 입력 정책 | accepted |
 | [`docs/adr/0009-limit-multipart-upload-size.md`](docs/adr/0009-limit-multipart-upload-size.md) | multipart 업로드 파일 1개를 10MB, 전체 요청을 12MB로 제한하는 정책 | accepted |
 | [`docs/adr/0011-externalize-upload-storage-path.md`](docs/adr/0011-externalize-upload-storage-path.md) | 업로드 물리 저장 루트를 `file.upload.storage-path` 설정으로 외부화하는 운영 경계 | accepted |
